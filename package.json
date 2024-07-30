@@ -1,0 +1,28 @@
+{
+  "name": "get-all-program",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zetta-randi-wicaksono/get-all-program.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zetta-randi-wicaksono/get-all-program/issues"
+  },
+  "homepage": "https://github.com/zetta-randi-wicaksono/get-all-program#readme",
+  "dependencies": {
+    "apollo-server-express": "^2.8.1",
+    "body-parser": "^1.20.2",
+    "express": "^4.16.0",
+    "graphql": "^14.4.2",
+    "graphql-middleware": "^4.0.0",
+    "graphql-tools": "^4.0.5",
+    "mongoose": "^5.6.9"
+  }
+}
