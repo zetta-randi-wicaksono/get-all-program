@@ -62,12 +62,9 @@ const resolvers = {
     },
 
     UpdateSpeciality: async (parent, args) => {
-      const { _id, ...updateData } = args;
-      console.log(_id);
-      console.log(updateData);
       const speciality = await Speciality.findByIdAndUpdate(
-        _id,
-        { ...updateData, updated_at: new Date() },
+        args._id,
+        { ...args.speciality_input, updated_at: new Date() },
         { new: true, useFindAndModify: false }
       );
       if (!speciality) {

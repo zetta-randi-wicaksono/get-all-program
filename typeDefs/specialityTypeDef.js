@@ -36,7 +36,7 @@ module.exports = gql`
 
   type Mutation {
     CreateSpeciality(speciality_input: SpecialityInput): Speciality
-    UpdateSpeciality(_id: ID!, name: String): Speciality
+    UpdateSpeciality(_id: ID!, speciality_input: SpecialityInput): Speciality
     DeleteSpeciality(_id: ID!): Speciality
   }
 `;
