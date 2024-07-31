@@ -21,8 +21,13 @@ module.exports = gql`
     name: String
   }
 
+  input SpecialitySortingInput {
+    name: Int
+    created_at: Int
+  }
+
   type Query {
-    GetAllSpecializations(filter: SpecialityFilterInput): [Speciality]
+    GetAllSpecializations(filter: SpecialityFilterInput, sort: SpecialitySortingInput): [Speciality]
     GetOneSpeciality(_id: ID!): Speciality
   }
 

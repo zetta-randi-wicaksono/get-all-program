@@ -4,12 +4,16 @@ const date = new Date();
 const resolvers = {
   Query: {
     GetAllSpecializations: async (parent, args) => {
-      const { filter } = args;
+      const { filter, sort } = args;
       const aggregateQuery = [];
 
       if (filter) {
         aggregateQuery.push({
           $match: filter,
+        });
+      } else if (sort) {
+        aggregateQuery.push({
+          $sort: sort,
         });
       }
 
