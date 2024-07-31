@@ -48,7 +48,7 @@ const resolvers = {
     GetOneSpeciality: async (parent, args) => {
       const speciality = await Speciality.findById(args._id);
       if (!speciality) {
-        throw new Error('Speciality Not Found');
+        throw new Error('Speciality Data Not Found');
       }
       return speciality;
     },
