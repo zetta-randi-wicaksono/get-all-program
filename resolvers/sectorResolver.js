@@ -14,7 +14,7 @@ const resolvers = {
     GetOneSector: async (parent, args) => {
       const sector = await Sector.findById(args._id);
       if (!sector) {
-        throw new Error('Sector Not Found');
+        throw new Error('Sector Data Not Found');
       }
       return sector;
     },
