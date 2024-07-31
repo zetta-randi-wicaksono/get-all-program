@@ -68,7 +68,7 @@ const resolvers = {
         { new: true, useFindAndModify: false }
       );
       if (!speciality) {
-        throw new Error('Speciality Not Found');
+        throw new Error('Speciality Data Not Found');
       }
       return speciality;
     },
@@ -76,7 +76,7 @@ const resolvers = {
     DeleteSpeciality: async (parent, args) => {
       const speciality = await Speciality.findByIdAndDelete(args._id);
       if (!speciality) {
-        throw new Error('Speciality Not Found');
+        throw new Error('Speciality Data Not Found');
       }
       return speciality;
     },
