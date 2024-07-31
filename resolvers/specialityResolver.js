@@ -5,9 +5,28 @@ const resolvers = {
   Query: {
     GetAllSpecializations: async (parent, args) => {
       const { filter } = args;
-      const speciality = await Speciality.find(filter);
-      if (!speciality) {
-        throw new Error('Speciality Data is Empty');
+      const aggregateQuery = [];
+
+      if (filter) {
+        aggregateQuery.push({
+          $match: filter,
+        });
+      }
+
+      if (!aggregateQuery[0]) {
+        const speciality = await Speciality.find({});
+
+        if (!speciality[0]) {
+          throw new Error('Speciality Data is Empty');
+        }
+
+        return speciality;
+      }
+
+      const speciality = await Speciality.aggregate(aggregateQuery);
+
+      if (!speciality[0]) {
+        throw new Error('Speciality Data Not Found');
       }
       return speciality;
     },
