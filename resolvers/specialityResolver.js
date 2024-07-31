@@ -4,17 +4,26 @@ const date = new Date();
 const resolvers = {
   Query: {
     GetAllSpecializations: async (parent, args) => {
-      const { filter, sort } = args;
+      const { filter, sort, pagination } = args;
       const aggregateQuery = [];
 
       if (filter) {
-        aggregateQuery.push({
-          $match: filter,
-        });
-      } else if (sort) {
-        aggregateQuery.push({
-          $sort: sort,
-        });
+        aggregateQuery.push({ $match: filter });
+      }
+
+      if (sort) {
+        aggregateQuery.push({ $sort: sort });
+      }
+
+      if (pagination) {
+        const page = pagination.page;
+        const limit = pagination.limit;
+        aggregateQuery.push(
+          { $skip: (page - 1) * limit },
+          { $limit: limit },
+          { $lookup: { from: 'specialities', pipeline: [{ $count: 'value' }], as: 'total_document' } },
+          { $addFields: { count_document: { $arrayElemAt: ['$total_document.value', 0] } } }
+        );
       }
 
       if (!aggregateQuery[0]) {
@@ -32,6 +41,7 @@ const resolvers = {
       if (!speciality[0]) {
         throw new Error('Speciality Data Not Found');
       }
+
       return speciality;
     },
 
