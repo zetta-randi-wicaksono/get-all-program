@@ -6,8 +6,8 @@ const { makeExecutableSchema } = require('graphql-tools');
 const { applyMiddleware } = require('graphql-middleware');
 
 const conn = require('./models/connection');
-const typeDefs = require('./graphql/typeDefs');
-const resolvers = require('./graphql/resolvers');
+const typeDefs = require('./typeDefs');
+const resolvers = require('./resolvers');
 
 const app = express();
 const port = 3000;
