@@ -56,7 +56,7 @@ const resolvers = {
 
   Mutation: {
     CreateSpeciality: async (parent, args) => {
-      const speciality = new Speciality({ ...args, created_at: new Date() });
+      const speciality = new Speciality({ ...args.speciality_input, created_at: new Date() });
       await speciality.save();
       return speciality;
     },

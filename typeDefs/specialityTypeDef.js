@@ -11,10 +11,8 @@ module.exports = gql`
     count_document: Int
   }
 
-  type SpecialityInput {
+  input SpecialityInput {
     name: String
-    created_at: Date
-    updated_at: Date
   }
 
   input SpecialityFilterInput {
@@ -37,7 +35,7 @@ module.exports = gql`
   }
 
   type Mutation {
-    CreateSpeciality(name: String!): Speciality
+    CreateSpeciality(speciality_input: SpecialityInput): Speciality
     UpdateSpeciality(_id: ID!, name: String): Speciality
     DeleteSpeciality(_id: ID!): Speciality
   }
