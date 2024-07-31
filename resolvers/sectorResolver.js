@@ -22,7 +22,7 @@ const resolvers = {
 
   Mutation: {
     CreateSector: async (parent, args) => {
-      const sector = new Sector({ ...args, created_at: new Date() });
+      const sector = new Sector({ ...args.sector_input, created_at: new Date() });
       await sector.save();
       return sector;
     },

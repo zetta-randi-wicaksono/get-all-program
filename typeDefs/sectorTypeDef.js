@@ -12,13 +12,18 @@ module.exports = gql`
     count_document: Int
   }
 
+  input SectorInput {
+    name: String
+    speciality_id: [ID]
+  }
+
   type Query {
     GetAllSectors: [Sector]
     GetOneSector(_id: ID!): Sector
   }
 
   type Mutation {
-    CreateSector(name: String!): Sector
+    CreateSector(sector_input: SectorInput): Sector
     UpdateSector(_id: ID!, name: String): Sector
     DeleteSector(_id: ID!): Sector
     CreateSpecialityInSector(_id: ID!, speciality_ids: ID!): Sector
