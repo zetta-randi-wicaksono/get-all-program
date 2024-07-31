@@ -3,8 +3,7 @@ const date = new Date();
 
 const resolvers = {
   Query: {
-    getSpeciality: async (parent, args) => {
-      const { page, limit } = args;
+    GetAllSpecializations: async (parent, args) => {
       const speciality = await Speciality.find({});
       if (!speciality) {
         throw new Error('Speciality Data is Empty');
@@ -12,17 +11,9 @@ const resolvers = {
       return speciality;
     },
 
-    getSpecialityById: async (parent, args) => {
-      const speciality = await Speciality.findById(args.id);
+    GetOneSpeciality: async (parent, args) => {
+      const speciality = await Speciality.findById(args._id);
       if (!speciality) {
-        throw new Error('Speciality Not Found');
-      }
-      return speciality;
-    },
-
-    findSpeciality: async (parent, args) => {
-      const speciality = await Speciality.find(args);
-      if (!speciality[0]) {
         throw new Error('Speciality Not Found');
       }
       return speciality;
@@ -30,16 +21,16 @@ const resolvers = {
   },
 
   Mutation: {
-    createSpeciality: async (parent, args) => {
+    CreateSpeciality: async (parent, args) => {
       const speciality = new Speciality({ ...args, created_at: new Date() });
       await speciality.save();
       return speciality;
     },
 
-    updateSpeciality: async (parent, args) => {
-      const { id, ...updateData } = args;
+    UpdateSpeciality: async (parent, args) => {
+      const { _id, ...updateData } = args;
       const speciality = await Speciality.findByIdAndUpdate(
-        id,
+        _id,
         { ...updateData, updated_at: new Date() },
         { new: true, useFindAndModify: false }
       );
@@ -49,8 +40,8 @@ const resolvers = {
       return speciality;
     },
 
-    deleteSpeciality: async (parent, args) => {
-      const speciality = await Speciality.findByIdAndDelete(args.id);
+    DeleteSpeciality: async (parent, args) => {
+      const speciality = await Speciality.findByIdAndDelete(args._id);
       if (!speciality) {
         throw new Error('Speciality Not Found');
       }

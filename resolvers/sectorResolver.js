@@ -3,7 +3,7 @@ const date = new Date();
 
 const resolvers = {
   Query: {
-    getSector: async () => {
+    GetAllSectors: async () => {
       const sector = await Sector.find({});
       if (!sector[0]) {
         throw new Error('Sector Data is Empty');
@@ -11,17 +11,9 @@ const resolvers = {
       return sector;
     },
 
-    getSectorById: async (parent, args) => {
-      const sector = await Sector.findById(args.id);
+    GetOneSector: async (parent, args) => {
+      const sector = await Sector.findById(args._id);
       if (!sector) {
-        throw new Error('Sector Not Found');
-      }
-      return sector;
-    },
-
-    findSector: async (parent, args) => {
-      const sector = await Sector.find(args);
-      if (!sector[0]) {
         throw new Error('Sector Not Found');
       }
       return sector;
@@ -29,32 +21,32 @@ const resolvers = {
   },
 
   Mutation: {
-    createSector: async (parent, args) => {
+    CreateSector: async (parent, args) => {
       const sector = new Sector({ ...args, created_at: new Date() });
       await sector.save();
       return sector;
     },
 
-    updateSector: async (parent, args) => {
-      const { id, ...updateData } = args;
-      const sector = await Sector.findByIdAndUpdate(id, { ...updateData, updated_at: new Date() }, { new: true, useFindAndModify: false });
+    UpdateSector: async (parent, args) => {
+      const { _id, ...updateData } = args;
+      const sector = await Sector.findByIdAndUpdate(_id, { ...updateData, updated_at: new Date() }, { new: true, useFindAndModify: false });
       if (!sector) {
         throw new Error('Sector Not Found');
       }
       return sector;
     },
 
-    deleteSector: async (parent, args) => {
-      const sector = await Sector.findByIdAndDelete(args.id);
+    DeleteSector: async (parent, args) => {
+      const sector = await Sector.findByIdAndDelete(args._id);
       if (!sector) {
         throw new Error('Sector Not Found');
       }
       return sector;
     },
 
-    addSpecialityInSector: async (parent, args) => {
-      const { id, speciality_ids } = args;
-      const sectorDataCheck = await Sector.findById(id);
+    CreateSpecialityInSector: async (parent, args) => {
+      const { _id, speciality_ids } = args;
+      const sectorDataCheck = await Sector.findById(_id);
       const specialityDataCheck = await Speciality.findById(speciality_ids);
 
       if (!sectorDataCheck) {
@@ -66,16 +58,16 @@ const resolvers = {
       }
 
       const sector = await Sector.findByIdAndUpdate(
-        id,
+        _id,
         { $push: { speciality_ids: speciality_ids }, $set: { updated_at: new Date() } },
         { new: true, useFindAndModify: false }
       );
       return sector;
     },
 
-    deleteSpecialityInSector: async (parent, args) => {
-      const { id, speciality_ids } = args;
-      const sectorDataCheck = await Sector.findById(id);
+    DeleteSpecialityInSector: async (parent, args) => {
+      const { _id, speciality_ids } = args;
+      const sectorDataCheck = await Sector.findById(_id);
 
       if (!sectorDataCheck) {
         throw new Error('Sector Not Found');
@@ -84,7 +76,7 @@ const resolvers = {
       }
 
       const sector = await Sector.findByIdAndUpdate(
-        id,
+        _id,
         { $pull: { speciality_ids: speciality_ids }, $set: { updated_at: new Date() } },
         { new: true, useFindAndModify: false }
       );

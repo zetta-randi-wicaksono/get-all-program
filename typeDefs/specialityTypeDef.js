@@ -11,14 +11,13 @@ module.exports = gql`
   }
 
   type Query {
-    getSpeciality: [Speciality]
-    getSpecialityById(id: ID!): Speciality
-    findSpeciality(name: String!): [Speciality]
+    GetAllSpecializations: [Speciality]
+    GetOneSpeciality(_id: ID!): Speciality
   }
 
   type Mutation {
-    createSpeciality(name: String!): Speciality
-    updateSpeciality(id: ID!, name: String): Speciality
-    deleteSpeciality(id: ID!): Speciality
+    CreateSpeciality(name: String!): Speciality
+    UpdateSpeciality(_id: ID!, name: String): Speciality
+    DeleteSpeciality(_id: ID!): Speciality
   }
 `;

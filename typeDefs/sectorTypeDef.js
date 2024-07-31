@@ -4,7 +4,7 @@ module.exports = gql`
   scalar Date
 
   type Sector {
-    id: ID!
+    _id: ID!
     name: String!
     speciality_ids: [ID]
     created_at: Date
@@ -12,16 +12,15 @@ module.exports = gql`
   }
 
   type Query {
-    getSector: [Sector]
-    getSectorById(id: ID!): Sector
-    findSector(name: String!): [Sector]
+    GetAllSectors: [Sector]
+    GetOneSector(_id: ID!): Sector
   }
 
   type Mutation {
-    createSector(name: String!): Sector
-    updateSector(id: ID!, name: String): Sector
-    deleteSector(id: ID!): Sector
-    addSpecialityInSector(id: ID!, speciality_ids: ID!): Sector
-    deleteSpecialityInSector(id: ID!, speciality_ids: ID!): Sector
+    CreateSector(name: String!): Sector
+    UpdateSector(_id: ID!, name: String): Sector
+    DeleteSector(_id: ID!): Sector
+    CreateSpecialityInSector(_id: ID!, speciality_ids: ID!): Sector
+    DeleteSpecialityInSector(_id: ID!, speciality_ids: ID!): Sector
   }
 `;
