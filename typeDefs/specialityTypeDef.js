@@ -4,14 +4,30 @@ module.exports = gql`
   scalar Date
 
   type Speciality {
-    id: ID!
-    name: String!
+    id: ID
+    name: String
+    created_at: Date
+    updated_at: Date
+    count_document: Int
+  }
+
+  type SpecialityInput {
+    name: String
     created_at: Date
     updated_at: Date
   }
 
+  input SpecialityFilterInput {
+    name: String
+  }
+
+  input SpecialitySortingInput {
+    name: String
+    created_at: Date
+  }
+
   type Query {
-    GetAllSpecializations: [Speciality]
+    GetAllSpecializations(filter: SpecialityFilterInput, sorting: SpecialitySortingInput): [Speciality]
     GetOneSpeciality(_id: ID!): Speciality
   }
 

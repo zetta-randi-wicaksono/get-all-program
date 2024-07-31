@@ -4,7 +4,8 @@ const date = new Date();
 const resolvers = {
   Query: {
     GetAllSpecializations: async (parent, args) => {
-      const speciality = await Speciality.find({});
+      const { filter } = args;
+      const speciality = await Speciality.find(filter);
       if (!speciality) {
         throw new Error('Speciality Data is Empty');
       }
@@ -29,6 +30,8 @@ const resolvers = {
 
     UpdateSpeciality: async (parent, args) => {
       const { _id, ...updateData } = args;
+      console.log(_id);
+      console.log(updateData);
       const speciality = await Speciality.findByIdAndUpdate(
         _id,
         { ...updateData, updated_at: new Date() },
