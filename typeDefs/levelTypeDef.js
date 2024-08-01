@@ -15,8 +15,13 @@ module.exports = gql`
     sector_id: [ID]
   }
 
+  input LevelFilterInput {
+    name: String
+    sector_id: [ID]
+  }
+
   type Query {
-    GetAllLevels: [Level]
+    GetAllLevels(filter: LevelFilterInput): [Level]
     GetOneLevel(_id: ID!): Level
   }
 

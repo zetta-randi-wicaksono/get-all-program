@@ -4,11 +4,34 @@ const mongoose = require('mongoose');
 
 const resolvers = {
   Query: {
-    GetAllLevels: async () => {
-      const level = await Level.find({});
-      if (!level[0]) {
-        throw new Error('Level Data is Empty');
+    GetAllLevels: async (parent, args) => {
+      const { filter } = args;
+      const aggregateQuery = [];
+
+      if (filter) {
+        if (filter.sector_id) {
+          const sector_id = filter.sector_id.map(mongoose.Types.ObjectId);
+          filter.sector_id = { $in: sector_id };
+        }
+        aggregateQuery.push({ $match: filter });
       }
+
+      if (!aggregateQuery[0]) {
+        const level = await Level.find({});
+
+        if (!level[0]) {
+          throw new Error('Level Data is Empty');
+        }
+
+        return level;
+      }
+
+      const level = await Level.aggregate(aggregateQuery);
+
+      if (!level[0]) {
+        throw new Error('Level Data Not Found');
+      }
+
       return level;
     },
 
