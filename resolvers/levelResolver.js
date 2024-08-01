@@ -11,6 +11,14 @@ const resolvers = {
       }
       return level;
     },
+
+    GetOneLevel: async (parent, args) => {
+      const level = await Level.findById(args._id);
+      if (!level) {
+        throw new Error('Level Data Not Found');
+      }
+      return level;
+    },
   },
 
   Mutation: {

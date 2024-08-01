@@ -17,6 +17,7 @@ module.exports = gql`
 
   type Query {
     GetAllLevels: [Level]
+    GetOneLevel(_id: ID!): Level
   }
 
   type Mutation {
