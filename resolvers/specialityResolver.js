@@ -1,5 +1,4 @@
 const Speciality = require('../models/speciality');
-const date = new Date();
 
 const resolvers = {
   Query: {

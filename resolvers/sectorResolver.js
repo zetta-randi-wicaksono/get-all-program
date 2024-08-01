@@ -1,7 +1,6 @@
 const Sector = require('../models/sector');
 const Speciality = require('../models/speciality');
 const mongoose = require('mongoose');
-const date = new Date();
 
 const resolvers = {
   Query: {
@@ -84,7 +83,7 @@ const resolvers = {
 
     UpdateSector: async (parent, args) => {
       const errors = [];
-      const updateData = { ...args.sector_input, created_at: new Date() };
+      const updateData = { ...args.sector_input, updated_at: new Date() };
       const specialityDataCheck = await Speciality.distinct('_id');
       const stringSpecialityDataCheck = specialityDataCheck.map(String);
 

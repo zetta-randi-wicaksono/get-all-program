@@ -1,8 +1,9 @@
 const { mergeTypeDefs } = require('@graphql-tools/merge');
+const globalTypeDef = require('./globalTypeDef');
 const specialityTypeDef = require('./specialityTypeDef');
-const sectorTypeDefs = require('./sectorTypeDef');
-const globalTypeDefs = require('./globalTypeDef');
+const sectorTypeDef = require('./sectorTypeDef');
+const levelTypeDef = require('./levelTypeDef');
 
-const typeDefs = mergeTypeDefs([globalTypeDefs, specialityTypeDef, sectorTypeDefs]);
+const typeDefs = mergeTypeDefs([globalTypeDef, specialityTypeDef, sectorTypeDef, levelTypeDef]);
 
 module.exports = typeDefs;

@@ -1,6 +1,7 @@
 const specialityResolver = require('./specialityResolver');
-const sectorResolvers = require('./sectorResolver');
+const sectorResolver = require('./sectorResolver');
+const levelResolver = require('./levelResolver');
 
-const resolvers = [specialityResolver, sectorResolvers];
+const resolvers = [specialityResolver, sectorResolver, levelResolver];
 
 module.exports = resolvers;
