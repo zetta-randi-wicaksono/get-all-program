@@ -22,8 +22,13 @@ module.exports = gql`
     speciality_id: [ID]
   }
 
+  input SectorSortingInput {
+    name: Int
+    created_at: Int
+  }
+
   type Query {
-    GetAllSectors(filter: SectorFilterInput): [Sector]
+    GetAllSectors(filter: SectorFilterInput, sort: SectorSortingInput): [Sector]
     GetOneSector(_id: ID!): Sector
   }
 

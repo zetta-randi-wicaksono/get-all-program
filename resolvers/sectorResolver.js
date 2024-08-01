@@ -7,7 +7,7 @@ const date = new Date();
 const resolvers = {
   Query: {
     GetAllSectors: async (parent, args) => {
-      const { filter } = args;
+      const { filter, sort } = args;
       const aggregateQuery = [];
 
       if (filter) {
@@ -16,6 +16,10 @@ const resolvers = {
           filter.speciality_id = { $in: speciality_id };
         }
         aggregateQuery.push({ $match: filter });
+      }
+
+      if (sort) {
+        aggregateQuery.push({ $sort: sort });
       }
 
       if (!aggregateQuery[0]) {
@@ -31,7 +35,7 @@ const resolvers = {
       const sector = await Sector.aggregate(aggregateQuery);
 
       if (!sector[0]) {
-        throw new Error('Speciality Data Not Found');
+        throw new Error('Sector Data Not Found');
       }
 
       return sector;
