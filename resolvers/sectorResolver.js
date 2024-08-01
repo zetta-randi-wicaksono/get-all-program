@@ -87,11 +87,13 @@ const resolvers = {
       const specialityDataCheck = await Speciality.distinct('_id');
       const stringSpecialityDataCheck = specialityDataCheck.map(String);
 
-      updateData.speciality_id.forEach(async (speciality_id) => {
-        if (!stringSpecialityDataCheck.includes(speciality_id)) {
-          errors.push(`ID ${speciality_id} Not Found in Speciality Data`);
-        }
-      });
+      if (updateData.sector_id) {
+        updateData.speciality_id.forEach(async (speciality_id) => {
+          if (!stringSpecialityDataCheck.includes(speciality_id)) {
+            errors.push(`ID ${speciality_id} Not Found in Speciality Data`);
+          }
+        });
+      }
 
       if (errors.length > 0) {
         throw new Error(errors.join());

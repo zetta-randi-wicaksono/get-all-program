@@ -22,5 +22,6 @@ module.exports = gql`
 
   type Mutation {
     CreateLevel(level_input: LevelInput): Level
+    UpdateLevel(_id: ID!, level_input: LevelInput): Level
   }
 `;
