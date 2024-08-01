@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const sectorSchema = new mongoose.Schema({
   name: { type: String, required: true, unique: true },
-  speciality_ids: [{ type: mongoose.Types.ObjectId, ref: 'speciality' }],
+  speciality_id: [{ type: mongoose.Types.ObjectId, ref: 'speciality' }],
   created_at: { type: Date },
   updated_at: { type: Date, default: null },
 });

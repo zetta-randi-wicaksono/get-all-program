@@ -24,9 +24,7 @@ module.exports = gql`
 
   type Mutation {
     CreateSector(sector_input: SectorInput): Sector
-    UpdateSector(_id: ID!, name: String): Sector
+    UpdateSector(_id: ID!, sector_input: SectorInput): Sector
     DeleteSector(_id: ID!): Sector
-    CreateSpecialityInSector(_id: ID!, speciality_ids: ID!): Sector
-    DeleteSpecialityInSector(_id: ID!, speciality_ids: ID!): Sector
   }
 `;
