@@ -68,6 +68,14 @@ const resolvers = {
       }
       return level;
     },
+
+    DeleteLevel: async (parent, args) => {
+      const level = await Level.findByIdAndDelete(args._id);
+      if (!level) {
+        throw new Error('Level Data Not Found');
+      }
+      return level;
+    },
   },
 };
 
