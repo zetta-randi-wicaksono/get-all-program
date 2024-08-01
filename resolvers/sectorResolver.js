@@ -25,11 +25,12 @@ const resolvers = {
   Mutation: {
     CreateSector: async (parent, args) => {
       const errors = [];
-      const updateData = { ...args.sector_input, created_at: new Date() };
-      const specialityDataCheck = await Speciality.distinct('_id').map(String);
+      const createData = { ...args.sector_input, created_at: new Date() };
+      const specialityDataCheck = await Speciality.distinct('_id');
+      const stringSpecialityDataCheck = specialityDataCheck.map(String);
 
-      updateData.speciality_id.forEach(async (speciality_id) => {
-        if (!specialityDataCheck.includes(speciality_id)) {
+      createData.speciality_id.forEach(async (speciality_id) => {
+        if (!stringSpecialityDataCheck.includes(speciality_id)) {
           errors.push(`ID ${speciality_id} Not Found in Speciality Data`);
         }
       });
@@ -38,19 +39,31 @@ const resolvers = {
         throw new Error(errors.join());
       }
 
-      const sector = new Sector(updateData);
+      const sector = new Sector(createData);
       await sector.save();
       return sector;
     },
 
     UpdateSector: async (parent, args) => {
-      const sector = await Sector.findByIdAndUpdate(
-        args._id,
-        { ...args.sector_input, updated_at: new Date() },
-        { new: true, useFindAndModify: false }
-      );
+      const errors = [];
+      const updateData = { ...args.sector_input, created_at: new Date() };
+      const specialityDataCheck = await Speciality.distinct('_id');
+      const stringSpecialityDataCheck = specialityDataCheck.map(String);
+
+      updateData.speciality_id.forEach(async (speciality_id) => {
+        if (!stringSpecialityDataCheck.includes(speciality_id)) {
+          errors.push(`ID ${speciality_id} Not Found in Speciality Data`);
+        }
+      });
+
+      if (errors.length > 0) {
+        throw new Error(errors.join());
+      }
+
+      const sector = await Sector.findByIdAndUpdate(args._id, updateData, { new: true, useFindAndModify: false });
+
       if (!sector) {
-        throw new Error('Sector Not Found');
+        throw new Error('Sector Data Not Found');
       }
       return sector;
     },
