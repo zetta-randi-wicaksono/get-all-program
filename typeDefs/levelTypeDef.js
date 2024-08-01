@@ -20,8 +20,13 @@ module.exports = gql`
     sector_id: [ID]
   }
 
+  input LevelSortingInput {
+    name: Int
+    created_at: Int
+  }
+
   type Query {
-    GetAllLevels(filter: LevelFilterInput): [Level]
+    GetAllLevels(filter: LevelFilterInput, sort: LevelSortingInput): [Level]
     GetOneLevel(_id: ID!): Level
   }
 

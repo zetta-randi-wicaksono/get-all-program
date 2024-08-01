@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const resolvers = {
   Query: {
     GetAllLevels: async (parent, args) => {
-      const { filter } = args;
+      const { filter, sort } = args;
       const aggregateQuery = [];
 
       if (filter) {
@@ -14,6 +14,10 @@ const resolvers = {
           filter.sector_id = { $in: sector_id };
         }
         aggregateQuery.push({ $match: filter });
+      }
+
+      if (sort) {
+        aggregateQuery.push({ $sort: sort });
       }
 
       if (!aggregateQuery[0]) {
