@@ -3,7 +3,7 @@ const date = new Date();
 
 const resolvers = {
   Query: {
-    GetAllSpecializations: async (parent, args) => {
+    GetAllSpecialities: async (parent, args) => {
       const { filter, sort, pagination } = args;
       const aggregateQuery = [];
 

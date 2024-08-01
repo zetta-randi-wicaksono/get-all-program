@@ -30,7 +30,7 @@ module.exports = gql`
   }
 
   type Query {
-    GetAllSpecializations(filter: SpecialityFilterInput, sort: SpecialitySortingInput, pagination: PaginationInput): [Speciality]
+    GetAllSpecialities(filter: SpecialityFilterInput, sort: SpecialitySortingInput, pagination: PaginationInput): [Speciality]
     GetOneSpeciality(_id: ID!): Speciality
   }
 
