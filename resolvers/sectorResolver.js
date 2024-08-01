@@ -26,11 +26,10 @@ const resolvers = {
     CreateSector: async (parent, args) => {
       const errors = [];
       const updateData = { ...args.sector_input, created_at: new Date() };
-      const specialityDataCheck = await Speciality.distinct('_id');
-      const arrSpecialityDataCheck = specialityDataCheck.map(String);
+      const specialityDataCheck = await Speciality.distinct('_id').map(String);
 
       updateData.speciality_id.forEach(async (speciality_id) => {
-        if (!arrSpecialityDataCheck.includes(speciality_id)) {
+        if (!specialityDataCheck.includes(speciality_id)) {
           errors.push(`ID ${speciality_id} Not Found in Speciality Data`);
         }
       });
