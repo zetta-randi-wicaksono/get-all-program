@@ -71,49 +71,10 @@ const resolvers = {
     DeleteSector: async (parent, args) => {
       const sector = await Sector.findByIdAndDelete(args._id);
       if (!sector) {
-        throw new Error('Sector Not Found');
+        throw new Error('Sector Data Not Found');
       }
       return sector;
     },
-
-    // CreateSpecialityInSector: async (parent, args) => {
-    //   const { _id, speciality_ids } = args;
-    //   const sectorDataCheck = await Sector.findById(_id);
-    //   const specialityDataCheck = await Speciality.findById(speciality_ids);
-
-    //   if (!sectorDataCheck) {
-    //     throw new Error('Sector Not Found');
-    //   } else if (sectorDataCheck.speciality_ids.includes(speciality_ids)) {
-    //     throw new Error('Speciality Already Exist');
-    //   } else if (!specialityDataCheck) {
-    //     throw new Error('Speciality Not Found');
-    //   }
-
-    //   const sector = await Sector.findByIdAndUpdate(
-    //     _id,
-    //     { $push: { speciality_ids: speciality_ids }, $set: { updated_at: new Date() } },
-    //     { new: true, useFindAndModify: false }
-    //   );
-    //   return sector;
-    // },
-
-    // DeleteSpecialityInSector: async (parent, args) => {
-    //   const { _id, speciality_ids } = args;
-    //   const sectorDataCheck = await Sector.findById(_id);
-
-    //   if (!sectorDataCheck) {
-    //     throw new Error('Sector Not Found');
-    //   } else if (!sectorDataCheck.speciality_ids.includes(speciality_ids)) {
-    //     throw new Error('Speciality Not Found');
-    //   }
-
-    //   const sector = await Sector.findByIdAndUpdate(
-    //     _id,
-    //     { $pull: { speciality_ids: speciality_ids }, $set: { updated_at: new Date() } },
-    //     { new: true, useFindAndModify: false }
-    //   );
-    //   return sector;
-    // },
   },
 };
 
