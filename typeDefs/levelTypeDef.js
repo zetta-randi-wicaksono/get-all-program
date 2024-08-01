@@ -26,7 +26,7 @@ module.exports = gql`
   }
 
   type Query {
-    GetAllLevels(filter: LevelFilterInput, sort: LevelSortingInput): [Level]
+    GetAllLevels(filter: LevelFilterInput, sort: LevelSortingInput, pagination: PaginationInput): [Level]
     GetOneLevel(_id: ID!): Level
   }
 
