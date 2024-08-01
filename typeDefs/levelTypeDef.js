@@ -15,6 +15,10 @@ module.exports = gql`
     sector_id: [ID]
   }
 
+  type Query {
+    GetAllLevels: [Level]
+  }
+
   type Mutation {
     CreateLevel(level_input: LevelInput): Level
   }

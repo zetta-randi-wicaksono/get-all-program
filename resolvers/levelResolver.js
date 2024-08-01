@@ -3,6 +3,16 @@ const Sector = require('../models/sector');
 const mongoose = require('mongoose');
 
 const resolvers = {
+  Query: {
+    GetAllLevels: async () => {
+      const level = await Level.find({});
+      if (!level[0]) {
+        throw new Error('Level Data is Empty');
+      }
+      return level;
+    },
+  },
+
   Mutation: {
     CreateLevel: async (parent, args) => {
       const errors = [];
