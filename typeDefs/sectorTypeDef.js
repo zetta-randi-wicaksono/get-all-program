@@ -17,8 +17,13 @@ module.exports = gql`
     speciality_id: [ID]
   }
 
+  input SectorFilterInput {
+    name: String
+    speciality_id: [ID]
+  }
+
   type Query {
-    GetAllSectors: [Sector]
+    GetAllSectors(filter: SectorFilterInput): [Sector]
     GetOneSector(_id: ID!): Sector
   }
 

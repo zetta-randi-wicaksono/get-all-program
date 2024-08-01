@@ -1,15 +1,39 @@
 const Sector = require('../models/sector');
+const speciality = require('../models/speciality');
 const Speciality = require('../models/speciality');
 const mongoose = require('mongoose');
 const date = new Date();
 
 const resolvers = {
   Query: {
-    GetAllSectors: async () => {
-      const sector = await Sector.find({});
-      if (!sector[0]) {
-        throw new Error('Sector Data is Empty');
+    GetAllSectors: async (parent, args) => {
+      const { filter } = args;
+      const aggregateQuery = [];
+
+      if (filter) {
+        if (filter.speciality_id) {
+          const speciality_id = filter.speciality_id.map(mongoose.Types.ObjectId);
+          filter.speciality_id = { $in: speciality_id };
+        }
+        aggregateQuery.push({ $match: filter });
       }
+
+      if (!aggregateQuery[0]) {
+        const sector = await Sector.find({});
+
+        if (!sector[0]) {
+          throw new Error('Sector Data is Empty');
+        }
+
+        return sector;
+      }
+
+      const sector = await Sector.aggregate(aggregateQuery);
+
+      if (!sector[0]) {
+        throw new Error('Speciality Data Not Found');
+      }
+
       return sector;
     },
 
