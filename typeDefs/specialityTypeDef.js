@@ -1,8 +1,6 @@
 const { gql } = require('apollo-server-express');
 
 module.exports = gql`
-  scalar Date
-
   type Speciality {
     _id: ID
     name: String
@@ -22,11 +20,6 @@ module.exports = gql`
   input SpecialitySortingInput {
     name: Int
     created_at: Int
-  }
-
-  input PaginationInput {
-    page: Int
-    limit: Int
   }
 
   type Query {

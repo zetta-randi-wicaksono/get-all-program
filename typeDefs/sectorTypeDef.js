@@ -1,8 +1,6 @@
 const { gql } = require('apollo-server-express');
 
 module.exports = gql`
-  scalar Date
-
   type Sector {
     _id: ID!
     name: String!
@@ -28,7 +26,7 @@ module.exports = gql`
   }
 
   type Query {
-    GetAllSectors(filter: SectorFilterInput, sort: SectorSortingInput): [Sector]
+    GetAllSectors(filter: SectorFilterInput, sort: SectorSortingInput, pagination: PaginationInput): [Sector]
     GetOneSector(_id: ID!): Sector
   }
 
