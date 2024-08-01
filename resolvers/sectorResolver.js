@@ -114,6 +114,14 @@ const resolvers = {
       return sector;
     },
   },
+
+  Sector: {
+    speciality_id: async (sector, args, context) => {
+      const { specialityLoader } = context.loaders;
+      const specialities = await specialityLoader.loadMany(sector.speciality_id);
+      return specialities;
+    },
+  },
 };
 
 module.exports = resolvers;

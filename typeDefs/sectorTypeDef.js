@@ -4,7 +4,7 @@ module.exports = gql`
   type Sector {
     _id: ID!
     name: String!
-    speciality_id: [ID]
+    speciality_id: [Speciality]
     created_at: Date
     updated_at: Date
     count_document: Int
