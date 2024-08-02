@@ -9,9 +9,18 @@ async function GetAllCampuses(parent, args) {
   return campus;
 }
 
+async function GetOneCampus(parent, args) {
+  const campus = await Campus.findById(args._id);
+  if (!campus) {
+    throw new Error('Campus Data Not Found');
+  }
+  return campus;
+}
+
 const resolvers = {
   Query: {
     GetAllCampuses,
+    GetOneCampus,
   },
 };
 

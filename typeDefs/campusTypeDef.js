@@ -12,5 +12,6 @@ module.exports = gql`
 
   type Query {
     GetAllCampuses: [Campus]
+    GetOneCampus(_id: ID!): Campus
   }
 `;
