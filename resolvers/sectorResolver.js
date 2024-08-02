@@ -60,15 +60,12 @@ async function GetOneSector(parent, args) {
 async function CreateSector(parent, args) {
   const errors = [];
   const createData = { ...args.sector_input, created_at: new Date() };
-  const specialityDataCheck = await Speciality.distinct('_id');
-  const stringSpecialityDataCheck = specialityDataCheck.map(String);
 
-  if (createData.speciality_id) {
-    createData.speciality_id.forEach(async (speciality_id) => {
-      if (!stringSpecialityDataCheck.includes(speciality_id)) {
-        errors.push(`ID ${speciality_id} Not Found in Speciality Data`);
-      }
-    });
+  for (specialityId of createData.speciality_id) {
+    const specialityDataCheck = await Speciality.findById(specialityId);
+    if (!specialityDataCheck) {
+      errors.push(`ID ${specialityId} Not Found in Speciality Data`);
+    }
   }
 
   if (errors.length > 0) {
@@ -83,15 +80,12 @@ async function CreateSector(parent, args) {
 async function UpdateSector(parent, args) {
   const errors = [];
   const updateData = { ...args.sector_input, updated_at: new Date() };
-  const specialityDataCheck = await Speciality.distinct('_id');
-  const stringSpecialityDataCheck = specialityDataCheck.map(String);
 
-  if (updateData.sector_id) {
-    updateData.speciality_id.forEach(async (speciality_id) => {
-      if (!stringSpecialityDataCheck.includes(speciality_id)) {
-        errors.push(`ID ${speciality_id} Not Found in Speciality Data`);
-      }
-    });
+  for (specialityId of updateData.speciality_id) {
+    const specialityDataCheck = await Speciality.findById(specialityId);
+    if (!specialityDataCheck) {
+      errors.push(`ID ${specialityId} Not Found in Speciality Data`);
+    }
   }
 
   if (errors.length > 0) {
