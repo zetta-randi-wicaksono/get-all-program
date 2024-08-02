@@ -109,6 +109,12 @@ async function DeleteCampus(parent, args) {
   return campus;
 }
 
+async function level_id(campus, args, context) {
+  const { levelLoader } = context.loaders;
+  const levels = await levelLoader.loadMany(campus.level_id);
+  return levels;
+}
+
 const resolvers = {
   Query: {
     GetAllCampuses,
@@ -119,6 +125,10 @@ const resolvers = {
     CreateCampus,
     UpdateCampus,
     DeleteCampus,
+  },
+
+  Campus: {
+    level_id,
   },
 };
 

@@ -4,7 +4,7 @@ module.exports = gql`
   type Campus {
     _id: ID
     name: String!
-    level_id: [ID]
+    level_id: [Level]
     createdAt: Date
     updatedAt: Date
     count_document: Int

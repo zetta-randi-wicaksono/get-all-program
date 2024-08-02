@@ -10,6 +10,7 @@ const typeDefs = require('./typeDefs');
 const resolvers = require('./resolvers');
 const specialityLoader = require('./data_loader/specialityLoader');
 const sectorLoader = require('./data_loader/sectorLoader');
+const levelLoader = require('./data_loader/levelLoader');
 
 const app = express();
 const port = 3000;
@@ -24,7 +25,7 @@ const server = new ApolloServer({
   schema: protectedSchema,
   context: ({ req }) => ({
     req,
-    loaders: { specialityLoader, sectorLoader },
+    loaders: { specialityLoader, sectorLoader, levelLoader },
   }),
 });
 
