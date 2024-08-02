@@ -40,6 +40,31 @@ async function CreateCampus(parent, args) {
   return campus;
 }
 
+async function UpdateCampus(parent, args) {
+  const errors = [];
+  const updateData = { ...args.campus_input };
+
+  if (updateData.level_id) {
+    for (levelId of updateData.level_id) {
+      const levelDataCheck = await Level.findById(levelId);
+      if (!levelDataCheck) {
+        errors.push(`ID ${levelId} Not Found in Level Data`);
+      }
+    }
+  }
+
+  if (errors.length > 0) {
+    throw new Error(errors.join());
+  }
+
+  const campus = await Campus.findByIdAndUpdate(args._id, updateData, { new: true, useFindAndModify: false });
+
+  if (!campus) {
+    throw new Error('Campus Data Not Found');
+  }
+  return campus;
+}
+
 const resolvers = {
   Query: {
     GetAllCampuses,
@@ -48,6 +73,7 @@ const resolvers = {
 
   Mutation: {
     CreateCampus,
+    UpdateCampus,
   },
 };
 

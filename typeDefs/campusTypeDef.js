@@ -22,5 +22,6 @@ module.exports = gql`
 
   type Mutation {
     CreateCampus(campus_input: CampusInput): Campus
+    UpdateCampus(_id: ID!, campus_input: CampusInput): Campus
   }
 `;
