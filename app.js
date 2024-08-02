@@ -9,6 +9,7 @@ const conn = require('./models/connection');
 const typeDefs = require('./typeDefs');
 const resolvers = require('./resolvers');
 const specialityLoader = require('./data_loader/specialityLoader');
+const sectorLoader = require('./data_loader/sectorLoader');
 
 const app = express();
 const port = 3000;
@@ -23,7 +24,7 @@ const server = new ApolloServer({
   schema: protectedSchema,
   context: ({ req }) => ({
     req,
-    loaders: { specialityLoader },
+    loaders: { specialityLoader, sectorLoader },
   }),
 });
 

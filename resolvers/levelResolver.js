@@ -115,6 +115,14 @@ const resolvers = {
       return level;
     },
   },
+
+  Level: {
+    sector_id: async (level, args, context) => {
+      const { sectorLoader } = context.loaders;
+      const sectors = await sectorLoader.loadMany(level.sector_id);
+      return sectors;
+    },
+  },
 };
 
 module.exports = resolvers;
