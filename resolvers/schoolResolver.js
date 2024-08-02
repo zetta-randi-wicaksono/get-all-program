@@ -10,9 +10,18 @@ async function GetAllSchools(parent, args) {
   return school;
 }
 
+async function GetOneSchool(parent, args) {
+  const school = await School.findById(args._id);
+  if (!school) {
+    throw new Error('School Data Not Found');
+  }
+  return school;
+}
+
 const resolvers = {
   Query: {
     GetAllSchools,
+    GetOneSchool,
   },
 };
 

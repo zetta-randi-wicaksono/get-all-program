@@ -12,5 +12,6 @@ module.exports = gql`
 
   type Query {
     GetAllSchools: [School]
+    GetOneSchool(_id: ID!): School
   }
 `;
