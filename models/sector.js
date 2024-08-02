@@ -1,10 +1,13 @@
 const mongoose = require('mongoose');
 
-const sectorSchema = new mongoose.Schema({
-  name: { type: String, required: true, unique: true },
-  speciality_id: [{ type: mongoose.Types.ObjectId, ref: 'speciality' }],
-  created_at: { type: Date },
-  updated_at: { type: Date, default: null },
-});
+const sectorSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true, unique: true },
+    speciality_id: [{ type: mongoose.Types.ObjectId, ref: 'speciality' }],
+  },
+  {
+    timestamps: true,
+  }
+);
 
 module.exports = new mongoose.model('Sector', sectorSchema);

@@ -5,8 +5,8 @@ module.exports = gql`
     _id: ID!
     name: String!
     speciality_id: [Speciality]
-    created_at: Date
-    updated_at: Date
+    createdAt: Date
+    updatedAt: Date
     count_document: Int
   }
 
@@ -22,7 +22,7 @@ module.exports = gql`
 
   input SectorSortingInput {
     name: Int
-    created_at: Int
+    createdAt: Int
   }
 
   type Query {
