@@ -4,7 +4,8 @@ const specialityTypeDef = require('./specialityTypeDef');
 const sectorTypeDef = require('./sectorTypeDef');
 const levelTypeDef = require('./levelTypeDef');
 const campusTypeDef = require('./campusTypeDef');
+const schoolTypeDef = require('./schoolTypeDef');
 
-const typeDefs = mergeTypeDefs([globalTypeDef, specialityTypeDef, sectorTypeDef, levelTypeDef, campusTypeDef]);
+const typeDefs = mergeTypeDefs([globalTypeDef, specialityTypeDef, sectorTypeDef, levelTypeDef, campusTypeDef, schoolTypeDef]);
 
 module.exports = typeDefs;
