@@ -3,7 +3,7 @@ const Campus = require('../models/campus');
 const mongoose = require('mongoose');
 
 async function GetAllSchools(parent, args) {
-  const school = await School.find({});
+  const school = await School.find({}).sort({ createdAt: -1 });
   if (!school[0]) {
     throw new Error('School Data is Empty');
   }

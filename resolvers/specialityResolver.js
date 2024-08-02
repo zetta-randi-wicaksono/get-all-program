@@ -12,6 +12,8 @@ async function GetAllSpecialities(parent, args) {
 
   if (sort) {
     aggregateQuery.push({ $sort: sort });
+  } else {
+    aggregateQuery.push({ $sort: { createdAt: -1 } });
   }
 
   if (pagination) {
@@ -26,7 +28,7 @@ async function GetAllSpecialities(parent, args) {
   }
 
   if (!aggregateQuery[0]) {
-    const speciality = await Speciality.find({});
+    const speciality = await Speciality.find({}).sort({ createdAt: -1 });
 
     if (!speciality[0]) {
       throw new Error('Speciality Data is Empty');
@@ -53,17 +55,13 @@ async function GetOneSpeciality(parent, args) {
 }
 
 async function CreateSpeciality(parent, args) {
-  const speciality = new Speciality({ ...args.speciality_input, created_at: new Date() });
+  const speciality = new Speciality({ ...args.speciality_input });
   await speciality.save();
   return speciality;
 }
 
 async function UpdateSpeciality(parent, args) {
-  const speciality = await Speciality.findByIdAndUpdate(
-    args._id,
-    { ...args.speciality_input, updated_at: new Date() },
-    { new: true, useFindAndModify: false }
-  );
+  const speciality = await Speciality.findByIdAndUpdate(args._id, { ...args.speciality_input }, { new: true, useFindAndModify: false });
   if (!speciality) {
     throw new Error('Speciality Data Not Found');
   }

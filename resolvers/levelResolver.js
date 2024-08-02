@@ -17,6 +17,8 @@ async function GetAllLevels(parent, args) {
 
   if (sort) {
     aggregateQuery.push({ $sort: sort });
+  } else {
+    aggregateQuery.push({ $sort: { createdAt: -1 } });
   }
 
   if (pagination) {
@@ -31,7 +33,7 @@ async function GetAllLevels(parent, args) {
   }
 
   if (!aggregateQuery[0]) {
-    const level = await Level.find({});
+    const level = await Level.find({}).sort({ createdAt: -1 });
 
     if (!level[0]) {
       throw new Error('Level Data is Empty');
@@ -59,7 +61,7 @@ async function GetOneLevel(parent, args) {
 
 async function CreateLevel(parent, args) {
   const errors = [];
-  const createData = { ...args.level_input, created_at: new Date() };
+  const createData = { ...args.level_input };
 
   if (createData.sector_id) {
     for (sectorId of createData.sector_id) {
@@ -81,7 +83,7 @@ async function CreateLevel(parent, args) {
 
 async function UpdateLevel(parent, args) {
   const errors = [];
-  const updateData = { ...args.level_input, updated_at: new Date() };
+  const updateData = { ...args.level_input };
 
   if (updateData.sector_id) {
     for (sectorId of updateData.sector_id) {

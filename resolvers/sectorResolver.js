@@ -17,6 +17,8 @@ async function GetAllSectors(parent, args) {
 
   if (sort) {
     aggregateQuery.push({ $sort: sort });
+  } else {
+    aggregateQuery.push({ $sort: { createdAt: -1 } });
   }
 
   if (pagination) {
@@ -31,7 +33,7 @@ async function GetAllSectors(parent, args) {
   }
 
   if (!aggregateQuery[0]) {
-    const sector = await Sector.find({});
+    const sector = await Sector.find({}).sort({ createdAt: -1 });
 
     if (!sector[0]) {
       throw new Error('Sector Data is Empty');
@@ -59,7 +61,7 @@ async function GetOneSector(parent, args) {
 
 async function CreateSector(parent, args) {
   const errors = [];
-  const createData = { ...args.sector_input, created_at: new Date() };
+  const createData = { ...args.sector_input };
 
   if (createData.speciality_id) {
     for (specialityId of createData.speciality_id) {
@@ -81,7 +83,7 @@ async function CreateSector(parent, args) {
 
 async function UpdateSector(parent, args) {
   const errors = [];
-  const updateData = { ...args.sector_input, updated_at: new Date() };
+  const updateData = { ...args.sector_input };
 
   if (updateData.speciality_id) {
     for (specialityId of updateData.speciality_id) {

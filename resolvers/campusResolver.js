@@ -16,6 +16,8 @@ async function GetAllCampuses(parent, args) {
 
   if (sort) {
     aggregateQuery.push({ $sort: sort });
+  } else {
+    aggregateQuery.push({ $sort: { createdAt: -1 } });
   }
 
   if (pagination) {
@@ -30,7 +32,7 @@ async function GetAllCampuses(parent, args) {
   }
 
   if (!aggregateQuery[0]) {
-    const campus = await Campus.find({});
+    const campus = await Campus.find({}).sort({ createdAt: -1 });
     if (!campus[0]) {
       throw new Error('Campus Data is Empty');
     }
