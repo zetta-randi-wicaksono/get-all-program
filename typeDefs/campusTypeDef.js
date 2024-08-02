@@ -20,8 +20,13 @@ module.exports = gql`
     level_id: [ID]
   }
 
+  input CampusSortingInput {
+    name: Int
+    createdAt: Int
+  }
+
   type Query {
-    GetAllCampuses(filter: CampusFilterInput): [Campus]
+    GetAllCampuses(filter: CampusFilterInput, sort: CampusSortingInput): [Campus]
     GetOneCampus(_id: ID!): Campus
   }
 

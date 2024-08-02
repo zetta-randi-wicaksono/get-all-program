@@ -3,7 +3,7 @@ const Level = require('../models/level');
 const mongoose = require('mongoose');
 
 async function GetAllCampuses(parent, args) {
-  const { filter } = args;
+  const { filter, sort } = args;
   const aggregateQuery = [];
 
   if (filter) {
@@ -12,6 +12,10 @@ async function GetAllCampuses(parent, args) {
       filter.level_id = { $in: level_id };
     }
     aggregateQuery.push({ $match: filter });
+  }
+
+  if (sort) {
+    aggregateQuery.push({ $sort: sort });
   }
 
   if (!aggregateQuery[0]) {
