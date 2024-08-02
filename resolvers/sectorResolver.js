@@ -1,5 +1,6 @@
 const Sector = require('../models/sector');
 const Speciality = require('../models/speciality');
+const Level = require('../models/level');
 const mongoose = require('mongoose');
 
 const resolvers = {
@@ -66,11 +67,13 @@ const resolvers = {
       const specialityDataCheck = await Speciality.distinct('_id');
       const stringSpecialityDataCheck = specialityDataCheck.map(String);
 
-      createData.speciality_id.forEach(async (speciality_id) => {
-        if (!stringSpecialityDataCheck.includes(speciality_id)) {
-          errors.push(`ID ${speciality_id} Not Found in Speciality Data`);
-        }
-      });
+      if (createData.speciality_id) {
+        createData.speciality_id.forEach(async (speciality_id) => {
+          if (!stringSpecialityDataCheck.includes(speciality_id)) {
+            errors.push(`ID ${speciality_id} Not Found in Speciality Data`);
+          }
+        });
+      }
 
       if (errors.length > 0) {
         throw new Error(errors.join());
@@ -108,11 +111,19 @@ const resolvers = {
     },
 
     DeleteSector: async (parent, args) => {
-      const sector = await Sector.findByIdAndDelete(args._id);
-      if (!sector) {
+      const sectorDataCheck = await Sector.findById({ _id: args._id });
+
+      if (sectorDataCheck) {
+        const levelDataCheck = await Level.find({ sector_id: mongoose.Types.ObjectId(args._id) });
+        if (!levelDataCheck[0]) {
+          const sector = await Sector.findByIdAndDelete(args._id);
+          return sector;
+        } else {
+          throw new Error('Sector Id is Still Used in The Level');
+        }
+      } else {
         throw new Error('Sector Data Not Found');
       }
-      return sector;
     },
   },
 
