@@ -59,15 +59,12 @@ async function GetOneLevel(parent, args) {
 async function CreateLevel(parent, args) {
   const errors = [];
   const createData = { ...args.level_input, created_at: new Date() };
-  const sectorDataCheck = await Sector.distinct('_id');
-  const stringSectorDataCheck = sectorDataCheck.map(String);
 
-  if (createData.sector_id) {
-    createData.sector_id.forEach(async (sector_id) => {
-      if (!stringSectorDataCheck.includes(sector_id)) {
-        errors.push(`ID ${sector_id} Not Found in Sector Data`);
-      }
-    });
+  for (sectorId of createData.sector_id) {
+    const sectorDataCheck = await Sector.findById(sectorId);
+    if (!sectorDataCheck) {
+      errors.push(`ID ${sectorId} Not Found in Sector Data`);
+    }
   }
 
   if (errors.length > 0) {
@@ -82,15 +79,12 @@ async function CreateLevel(parent, args) {
 async function UpdateLevel(parent, args) {
   const errors = [];
   const updateData = { ...args.level_input, updated_at: new Date() };
-  const sectorDataCheck = await Sector.distinct('_id');
-  const stringSectorDataCheck = sectorDataCheck.map(String);
 
-  if (updateData.sector_id) {
-    updateData.sector_id.forEach(async (sector_id) => {
-      if (!stringSectorDataCheck.includes(sector_id)) {
-        errors.push(`ID ${sector_id} Not Found in Sector Data`);
-      }
-    });
+  for (sectorId of updateData.sector_id) {
+    const sectorDataCheck = await Sector.findById(sectorId);
+    if (!sectorDataCheck) {
+      errors.push(`ID ${sectorId} Not Found in Sector Data`);
+    }
   }
 
   if (errors.length > 0) {
