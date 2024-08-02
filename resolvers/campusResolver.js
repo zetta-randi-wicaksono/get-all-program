@@ -3,10 +3,31 @@ const Level = require('../models/level');
 const mongoose = require('mongoose');
 
 async function GetAllCampuses(parent, args) {
-  const campus = await Campus.find({});
-  if (!campus[0]) {
-    throw new Error('Campus Data is Empty');
+  const { filter } = args;
+  const aggregateQuery = [];
+
+  if (filter) {
+    if (filter.level_id) {
+      const level_id = filter.level_id.map(mongoose.Types.ObjectId);
+      filter.level_id = { $in: level_id };
+    }
+    aggregateQuery.push({ $match: filter });
   }
+
+  if (!aggregateQuery[0]) {
+    const campus = await Campus.find({});
+    if (!campus[0]) {
+      throw new Error('Campus Data is Empty');
+    }
+    return campus;
+  }
+
+  const campus = await Campus.aggregate(aggregateQuery);
+
+  if (!campus[0]) {
+    throw new Error('Campus Data Not Found');
+  }
+
   return campus;
 }
 

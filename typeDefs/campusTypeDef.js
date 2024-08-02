@@ -15,8 +15,13 @@ module.exports = gql`
     level_id: [ID]
   }
 
+  input CampusFilterInput {
+    name: String
+    level_id: [ID]
+  }
+
   type Query {
-    GetAllCampuses: [Campus]
+    GetAllCampuses(filter: CampusFilterInput): [Campus]
     GetOneCampus(_id: ID!): Campus
   }
 
