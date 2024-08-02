@@ -1,4 +1,6 @@
 const Speciality = require('../models/speciality');
+const Sector = require('../models/sector');
+const mongoose = require('mongoose');
 
 const resolvers = {
   Query: {
@@ -73,11 +75,19 @@ const resolvers = {
     },
 
     DeleteSpeciality: async (parent, args) => {
-      const speciality = await Speciality.findByIdAndDelete(args._id);
-      if (!speciality) {
+      const specialityDataCheck = await Speciality.findById({ _id: args._id });
+
+      if (specialityDataCheck) {
+        const sectorDataCheck = await Sector.find({ speciality_id: mongoose.Types.ObjectId(args._id) });
+        if (!sectorDataCheck[0]) {
+          const speciality = await Speciality.findByIdAndDelete(args._id);
+          return speciality;
+        } else {
+          throw new Error('Speciality Id is Still Used in The Sector');
+        }
+      } else {
         throw new Error('Speciality Data Not Found');
       }
-      return speciality;
     },
   },
 };
