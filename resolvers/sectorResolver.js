@@ -23,7 +23,7 @@ async function GetAllSectors(parent, args) {
     const page = pagination.page;
     const limit = pagination.limit;
     aggregateQuery.push(
-      { $skip: (page - 1) * limit },
+      { $skip: page * limit },
       { $limit: limit },
       { $lookup: { from: 'sectors', pipeline: [{ $count: 'value' }], as: 'total_document' } },
       { $addFields: { count_document: { $arrayElemAt: ['$total_document.value', 0] } } }
