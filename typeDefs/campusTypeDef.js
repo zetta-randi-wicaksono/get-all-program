@@ -10,8 +10,17 @@ module.exports = gql`
     count_document: Int
   }
 
+  input CampusInput {
+    name: String
+    level_id: [ID]
+  }
+
   type Query {
     GetAllCampuses: [Campus]
     GetOneCampus(_id: ID!): Campus
+  }
+
+  type Mutation {
+    CreateCampus(campus_input: CampusInput): Campus
   }
 `;

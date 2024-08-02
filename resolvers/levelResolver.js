@@ -60,10 +60,12 @@ async function CreateLevel(parent, args) {
   const errors = [];
   const createData = { ...args.level_input, created_at: new Date() };
 
-  for (sectorId of createData.sector_id) {
-    const sectorDataCheck = await Sector.findById(sectorId);
-    if (!sectorDataCheck) {
-      errors.push(`ID ${sectorId} Not Found in Sector Data`);
+  if (createData.sector_id) {
+    for (sectorId of createData.sector_id) {
+      const sectorDataCheck = await Sector.findById(sectorId);
+      if (!sectorDataCheck) {
+        errors.push(`ID ${sectorId} Not Found in Sector Data`);
+      }
     }
   }
 
@@ -80,10 +82,12 @@ async function UpdateLevel(parent, args) {
   const errors = [];
   const updateData = { ...args.level_input, updated_at: new Date() };
 
-  for (sectorId of updateData.sector_id) {
-    const sectorDataCheck = await Sector.findById(sectorId);
-    if (!sectorDataCheck) {
-      errors.push(`ID ${sectorId} Not Found in Sector Data`);
+  if (updateData.sector_id) {
+    for (sectorId of updateData.sector_id) {
+      const sectorDataCheck = await Sector.findById(sectorId);
+      if (!sectorDataCheck) {
+        errors.push(`ID ${sectorId} Not Found in Sector Data`);
+      }
     }
   }
 

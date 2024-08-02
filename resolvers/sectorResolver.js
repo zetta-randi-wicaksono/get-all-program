@@ -61,10 +61,12 @@ async function CreateSector(parent, args) {
   const errors = [];
   const createData = { ...args.sector_input, created_at: new Date() };
 
-  for (specialityId of createData.speciality_id) {
-    const specialityDataCheck = await Speciality.findById(specialityId);
-    if (!specialityDataCheck) {
-      errors.push(`ID ${specialityId} Not Found in Speciality Data`);
+  if (createData.speciality_id) {
+    for (specialityId of createData.speciality_id) {
+      const specialityDataCheck = await Speciality.findById(specialityId);
+      if (!specialityDataCheck) {
+        errors.push(`ID ${specialityId} Not Found in Speciality Data`);
+      }
     }
   }
 
@@ -81,10 +83,12 @@ async function UpdateSector(parent, args) {
   const errors = [];
   const updateData = { ...args.sector_input, updated_at: new Date() };
 
-  for (specialityId of updateData.speciality_id) {
-    const specialityDataCheck = await Speciality.findById(specialityId);
-    if (!specialityDataCheck) {
-      errors.push(`ID ${specialityId} Not Found in Speciality Data`);
+  if (updateData.speciality_id) {
+    for (specialityId of updateData.speciality_id) {
+      const specialityDataCheck = await Speciality.findById(specialityId);
+      if (!specialityDataCheck) {
+        errors.push(`ID ${specialityId} Not Found in Speciality Data`);
+      }
     }
   }
 
