@@ -26,7 +26,7 @@ module.exports = gql`
   }
 
   type Query {
-    GetAllCampuses(filter: CampusFilterInput, sort: CampusSortingInput): [Campus]
+    GetAllCampuses(filter: CampusFilterInput, sort: CampusSortingInput, pagination: PaginationInput): [Campus]
     GetOneCampus(_id: ID!): Campus
   }
 
