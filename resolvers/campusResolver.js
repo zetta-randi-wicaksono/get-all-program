@@ -65,6 +65,14 @@ async function UpdateCampus(parent, args) {
   return campus;
 }
 
+async function DeleteCampus(parent, args) {
+  const campus = await Campus.findByIdAndDelete(args._id);
+  if (!campus) {
+    throw new Error('Campus Data Not Found');
+  }
+  return campus;
+}
+
 const resolvers = {
   Query: {
     GetAllCampuses,
@@ -74,6 +82,7 @@ const resolvers = {
   Mutation: {
     CreateCampus,
     UpdateCampus,
+    DeleteCampus,
   },
 };
 

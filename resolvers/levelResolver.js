@@ -1,5 +1,6 @@
 const Level = require('../models/level');
 const Sector = require('../models/sector');
+const Campus = require('../models/campus');
 const mongoose = require('mongoose');
 
 async function GetAllLevels(parent, args) {
@@ -104,11 +105,18 @@ async function UpdateLevel(parent, args) {
 }
 
 async function DeleteLevel(parent, args) {
-  const level = await Level.findByIdAndDelete(args._id);
-  if (!level) {
+  const levelDataCheck = await Level.findById({ _id: args._id });
+  if (levelDataCheck) {
+    const campusDataCheck = await Campus.find({ level_id: mongoose.Types.ObjectId(args._id) });
+    if (!campusDataCheck[0]) {
+      const level = await Level.findByIdAndDelete(args._id);
+      return level;
+    } else {
+      throw new Error('Level Id is Still Used in The Campus');
+    }
+  } else {
     throw new Error('Level Data Not Found');
   }
-  return level;
 }
 
 async function sector_id(level, args, context) {
