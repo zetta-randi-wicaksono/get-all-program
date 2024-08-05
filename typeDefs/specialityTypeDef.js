@@ -4,6 +4,7 @@ module.exports = gql`
   type Speciality {
     _id: ID
     name: String
+    status: EnumStatus
     createdAt: Date
     updatedAt: Date
     count_document: Int

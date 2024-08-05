@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 
 async function GetAllLevels(parent, args) {
   const { filter, sort, pagination } = args;
-  const aggregateQuery = [];
+  const aggregateQuery = [{ $match: { status: 'active' } }];
 
   if (filter) {
     if (filter.sector_id) {
@@ -27,19 +27,9 @@ async function GetAllLevels(parent, args) {
     aggregateQuery.push(
       { $skip: page * limit },
       { $limit: limit },
-      { $lookup: { from: 'levels', pipeline: [{ $count: 'value' }], as: 'total_document' } },
+      { $lookup: { from: 'levels', pipeline: [{ $match: { status: 'active' } }, { $count: 'value' }], as: 'total_document' } },
       { $addFields: { count_document: { $arrayElemAt: ['$total_document.value', 0] } } }
     );
-  }
-
-  if (!aggregateQuery[0]) {
-    const level = await Level.find({}).sort({ createdAt: -1 });
-
-    if (!level[0]) {
-      throw new Error('Level Data is Empty');
-    }
-
-    return level;
   }
 
   const level = await Level.aggregate(aggregateQuery);
@@ -53,7 +43,7 @@ async function GetAllLevels(parent, args) {
 
 async function GetOneLevel(parent, args) {
   const level = await Level.findById(args._id);
-  if (!level) {
+  if (!level || level.status === 'deleted') {
     throw new Error('Level Data Not Found');
   }
   return level;
@@ -85,6 +75,11 @@ async function UpdateLevel(parent, args) {
   const errors = [];
   const updateData = { ...args.level_input };
 
+  const checkLevelData = await Level.findById(args._id);
+  if (!checkLevelData || checkLevelData.status === 'deleted') {
+    throw new Error('Level Data Not Found');
+  }
+
   if (updateData.sector_id) {
     for (sectorId of updateData.sector_id) {
       const sectorDataCheck = await Sector.findById(sectorId);
@@ -99,19 +94,15 @@ async function UpdateLevel(parent, args) {
   }
 
   const level = await Level.findByIdAndUpdate(args._id, updateData, { new: true, useFindAndModify: false });
-
-  if (!level) {
-    throw new Error('Level Data Not Found');
-  }
   return level;
 }
 
 async function DeleteLevel(parent, args) {
   const levelDataCheck = await Level.findById({ _id: args._id });
-  if (levelDataCheck) {
+  if (levelDataCheck && levelDataCheck.status === 'active') {
     const campusDataCheck = await Campus.find({ level_id: mongoose.Types.ObjectId(args._id) });
     if (!campusDataCheck[0]) {
-      const level = await Level.findByIdAndDelete(args._id);
+      const level = await Level.findByIdAndUpdate(args._id, { status: 'deleted' }, { new: true, useFindAndModify: false });
       return level;
     } else {
       throw new Error('Level Id is Still Used in The Campus');

@@ -5,6 +5,7 @@ module.exports = gql`
     _id: ID
     name: String!
     sector_id: [Sector]
+    status: EnumStatus
     createdAt: Date
     updatedAt: Date
     count_document: Int

@@ -7,4 +7,9 @@ module.exports = gql`
     page: Int
     limit: Int
   }
+
+  enum EnumStatus {
+    active
+    deleted
+  }
 `;

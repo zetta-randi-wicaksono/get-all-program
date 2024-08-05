@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 
 async function GetAllSectors(parent, args) {
   const { filter, sort, pagination } = args;
-  const aggregateQuery = [];
+  const aggregateQuery = [{ $match: { status: 'active' } }];
 
   if (filter) {
     if (filter.speciality_id) {
@@ -27,19 +27,9 @@ async function GetAllSectors(parent, args) {
     aggregateQuery.push(
       { $skip: page * limit },
       { $limit: limit },
-      { $lookup: { from: 'sectors', pipeline: [{ $count: 'value' }], as: 'total_document' } },
+      { $lookup: { from: 'sectors', pipeline: [{ $match: { status: 'active' } }, { $count: 'value' }], as: 'total_document' } },
       { $addFields: { count_document: { $arrayElemAt: ['$total_document.value', 0] } } }
     );
-  }
-
-  if (!aggregateQuery[0]) {
-    const sector = await Sector.find({}).sort({ createdAt: -1 });
-
-    if (!sector[0]) {
-      throw new Error('Sector Data is Empty');
-    }
-
-    return sector;
   }
 
   const sector = await Sector.aggregate(aggregateQuery);
@@ -53,7 +43,7 @@ async function GetAllSectors(parent, args) {
 
 async function GetOneSector(parent, args) {
   const sector = await Sector.findById(args._id);
-  if (!sector) {
+  if (!sector || sector.status === 'deleted') {
     throw new Error('Sector Data Not Found');
   }
   return sector;
@@ -85,6 +75,11 @@ async function UpdateSector(parent, args) {
   const errors = [];
   const updateData = { ...args.sector_input };
 
+  const checkSectorData = await Sector.findById(args._id);
+  if (!checkSectorData || checkSectorData.status === 'deleted') {
+    throw new Error('Sector Data Not Found');
+  }
+
   if (updateData.speciality_id) {
     for (specialityId of updateData.speciality_id) {
       const specialityDataCheck = await Speciality.findById(specialityId);
@@ -99,19 +94,15 @@ async function UpdateSector(parent, args) {
   }
 
   const sector = await Sector.findByIdAndUpdate(args._id, updateData, { new: true, useFindAndModify: false });
-
-  if (!sector) {
-    throw new Error('Sector Data Not Found');
-  }
   return sector;
 }
 
 async function DeleteSector(parent, args) {
   const sectorDataCheck = await Sector.findById({ _id: args._id });
-  if (sectorDataCheck) {
+  if (sectorDataCheck && sectorDataCheck.status === 'active') {
     const levelDataCheck = await Level.find({ sector_id: mongoose.Types.ObjectId(args._id) });
     if (!levelDataCheck[0]) {
-      const sector = await Sector.findByIdAndDelete(args._id);
+      const sector = await Sector.findByIdAndUpdate(args._id, { status: 'deleted' }, { new: true, useFindAndModify: false });
       return sector;
     } else {
       throw new Error('Sector Id is Still Used in The Level');

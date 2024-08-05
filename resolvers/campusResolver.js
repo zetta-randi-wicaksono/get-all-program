@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 
 async function GetAllCampuses(parent, args) {
   const { filter, sort, pagination } = args;
-  const aggregateQuery = [];
+  const aggregateQuery = [{ $match: { status: 'active' } }];
 
   if (filter) {
     if (filter.level_id) {
@@ -26,17 +26,9 @@ async function GetAllCampuses(parent, args) {
     aggregateQuery.push(
       { $skip: page * limit },
       { $limit: limit },
-      { $lookup: { from: 'campus', pipeline: [{ $count: 'value' }], as: 'total_document' } },
+      { $lookup: { from: 'campus', pipeline: [{ $match: { status: 'active' } }, { $count: 'value' }], as: 'total_document' } },
       { $addFields: { count_document: { $arrayElemAt: ['$total_document.value', 0] } } }
     );
-  }
-
-  if (!aggregateQuery[0]) {
-    const campus = await Campus.find({}).sort({ createdAt: -1 });
-    if (!campus[0]) {
-      throw new Error('Campus Data is Empty');
-    }
-    return campus;
   }
 
   const campus = await Campus.aggregate(aggregateQuery);
@@ -50,7 +42,7 @@ async function GetAllCampuses(parent, args) {
 
 async function GetOneCampus(parent, args) {
   const campus = await Campus.findById(args._id);
-  if (!campus) {
+  if (!campus || campus.status === 'deleted') {
     throw new Error('Campus Data Not Found');
   }
   return campus;
@@ -82,6 +74,11 @@ async function UpdateCampus(parent, args) {
   const errors = [];
   const updateData = { ...args.campus_input };
 
+  const checkCampusData = await Campus.findById(args._id);
+  if (!checkCampusData || checkCampusData.status === 'deleted') {
+    throw new Error('Campus Data Not Found');
+  }
+
   if (updateData.level_id) {
     for (levelId of updateData.level_id) {
       const levelDataCheck = await Level.findById(levelId);
@@ -96,18 +93,15 @@ async function UpdateCampus(parent, args) {
   }
 
   const campus = await Campus.findByIdAndUpdate(args._id, updateData, { new: true, useFindAndModify: false });
-
-  if (!campus) {
-    throw new Error('Campus Data Not Found');
-  }
   return campus;
 }
 
 async function DeleteCampus(parent, args) {
-  const campus = await Campus.findByIdAndDelete(args._id);
-  if (!campus) {
+  const checkCampusData = await Campus.findById(args._id);
+  if (!checkCampusData || checkCampusData.status === 'deleted') {
     throw new Error('Campus Data Not Found');
   }
+  const campus = await Campus.findByIdAndUpdate(args._id, { status: 'deleted' }, { new: true, useFindAndModify: false });
   return campus;
 }
 

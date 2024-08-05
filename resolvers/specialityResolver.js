@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 
 async function GetAllSpecialities(parent, args) {
   const { filter, sort, pagination } = args;
-  const aggregateQuery = [];
+  const aggregateQuery = [{ $match: { status: 'active' } }];
 
   if (filter) {
     aggregateQuery.push({ $match: filter });
@@ -22,19 +22,9 @@ async function GetAllSpecialities(parent, args) {
     aggregateQuery.push(
       { $skip: page * limit },
       { $limit: limit },
-      { $lookup: { from: 'specialities', pipeline: [{ $count: 'value' }], as: 'total_document' } },
+      { $lookup: { from: 'specialities', pipeline: [{ $match: { status: 'active' } }, { $count: 'value' }], as: 'total_document' } },
       { $addFields: { count_document: { $arrayElemAt: ['$total_document.value', 0] } } }
     );
-  }
-
-  if (!aggregateQuery[0]) {
-    const speciality = await Speciality.find({}).sort({ createdAt: -1 });
-
-    if (!speciality[0]) {
-      throw new Error('Speciality Data is Empty');
-    }
-
-    return speciality;
   }
 
   const speciality = await Speciality.aggregate(aggregateQuery);
@@ -48,7 +38,7 @@ async function GetAllSpecialities(parent, args) {
 
 async function GetOneSpeciality(parent, args) {
   const speciality = await Speciality.findById(args._id);
-  if (!speciality) {
+  if (!speciality || speciality.status === 'deleted') {
     throw new Error('Speciality Data Not Found');
   }
   return speciality;
@@ -61,20 +51,19 @@ async function CreateSpeciality(parent, args) {
 }
 
 async function UpdateSpeciality(parent, args) {
-  const speciality = await Speciality.findByIdAndUpdate(args._id, { ...args.speciality_input }, { new: true, useFindAndModify: false });
-  if (!speciality) {
+  const checkSpecialityData = await Speciality.findById(args._id);
+  if (!checkSpecialityData || checkSpecialityData.status === 'deleted') {
     throw new Error('Speciality Data Not Found');
   }
-  return speciality;
+  return await Speciality.findByIdAndUpdate(args._id, { ...args.speciality_input }, { new: true, useFindAndModify: false });
 }
 
 async function DeleteSpeciality(parent, args) {
   const specialityDataCheck = await Speciality.findById({ _id: args._id });
-
-  if (specialityDataCheck) {
+  if (specialityDataCheck && specialityDataCheck.status === 'active') {
     const sectorDataCheck = await Sector.find({ speciality_id: mongoose.Types.ObjectId(args._id) });
     if (!sectorDataCheck[0]) {
-      const speciality = await Speciality.findByIdAndDelete(args._id);
+      const speciality = await Speciality.findByIdAndUpdate(args._id, { status: 'deleted' }, { new: true, useFindAndModify: false });
       return speciality;
     } else {
       throw new Error('Speciality Id is Still Used in The Sector');
