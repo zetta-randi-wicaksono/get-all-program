@@ -19,6 +19,7 @@ module.exports = gql`
   input SectorFilterInput {
     name: String
     speciality_id: [ID]
+    createdAt: FilterCreateAt
   }
 
   input SectorSortingInput {

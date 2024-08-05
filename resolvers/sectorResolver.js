@@ -12,6 +12,14 @@ async function GetAllSectors(parent, args) {
       const speciality_id = filter.speciality_id.map(mongoose.Types.ObjectId);
       filter.speciality_id = { $in: speciality_id };
     }
+    if (filter.createdAt) {
+      const fromDate = new Date(filter.createdAt.from);
+      const toDate = new Date(filter.createdAt.to);
+
+      toDate.setDate(toDate.getDate() + 1);
+
+      filter.createdAt = { $gte: new Date(fromDate), $lte: new Date(toDate) };
+    }
     aggregateQuery.push({ $match: filter });
   }
 

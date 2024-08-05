@@ -12,4 +12,9 @@ module.exports = gql`
     active
     deleted
   }
+
+  input FilterCreateAt {
+    from: Date
+    to: Date
+  }
 `;

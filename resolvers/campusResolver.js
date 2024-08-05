@@ -11,6 +11,14 @@ async function GetAllCampuses(parent, args) {
       const level_id = filter.level_id.map(mongoose.Types.ObjectId);
       filter.level_id = { $in: level_id };
     }
+    if (filter.createdAt) {
+      const fromDate = new Date(filter.createdAt.from);
+      const toDate = new Date(filter.createdAt.to);
+
+      toDate.setDate(toDate.getDate() + 1);
+
+      filter.createdAt = { $gte: new Date(fromDate), $lte: new Date(toDate) };
+    }
     aggregateQuery.push({ $match: filter });
   }
 

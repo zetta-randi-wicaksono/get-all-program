@@ -19,6 +19,7 @@ module.exports = gql`
   input CampusFilterInput {
     name: String
     level_id: [ID]
+    createdAt: FilterCreateAt
   }
 
   input CampusSortingInput {

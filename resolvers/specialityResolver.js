@@ -7,6 +7,14 @@ async function GetAllSpecialities(parent, args) {
   const aggregateQuery = [{ $match: { status: 'active' } }];
 
   if (filter) {
+    if (filter.createdAt) {
+      const fromDate = new Date(filter.createdAt.from);
+      const toDate = new Date(filter.createdAt.to);
+
+      toDate.setDate(toDate.getDate() + 1);
+
+      filter.createdAt = { $gte: new Date(fromDate), $lte: new Date(toDate) };
+    }
     aggregateQuery.push({ $match: filter });
   }
 

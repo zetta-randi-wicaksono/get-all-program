@@ -16,6 +16,7 @@ module.exports = gql`
 
   input SpecialityFilterInput {
     name: String
+    createdAt: FilterCreateAt
   }
 
   input SpecialitySortingInput {

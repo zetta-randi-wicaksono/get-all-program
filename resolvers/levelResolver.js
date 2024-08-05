@@ -12,6 +12,14 @@ async function GetAllLevels(parent, args) {
       const sector_id = filter.sector_id.map(mongoose.Types.ObjectId);
       filter.sector_id = { $in: sector_id };
     }
+    if (filter.createdAt) {
+      const fromDate = new Date(filter.createdAt.from);
+      const toDate = new Date(filter.createdAt.to);
+
+      toDate.setDate(toDate.getDate() + 1);
+
+      filter.createdAt = { $gte: new Date(fromDate), $lte: new Date(toDate) };
+    }
     aggregateQuery.push({ $match: filter });
   }
 
