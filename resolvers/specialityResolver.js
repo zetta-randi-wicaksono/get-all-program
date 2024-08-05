@@ -10,10 +10,11 @@ async function GetAllSpecialities(parent, args) {
     if (filter.createdAt) {
       const fromDate = new Date(filter.createdAt.from);
       const toDate = new Date(filter.createdAt.to);
-
       toDate.setDate(toDate.getDate() + 1);
-
       filter.createdAt = { $gte: new Date(fromDate), $lte: new Date(toDate) };
+    }
+    if (filter.name) {
+      filter.name = { $regex: filter.name, $options: 'i' };
     }
     aggregateQuery.push({ $match: filter });
   }
