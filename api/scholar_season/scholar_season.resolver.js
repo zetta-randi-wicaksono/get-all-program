@@ -93,6 +93,30 @@ async function UpdateScholarSeason(parent, args) {
   }
 }
 
+/**
+ * Delete the scholar season document according to the _id.
+ * @param {Object} args - The arguments provided by the query.
+ * @param {string} args._id - The _id used to find for scholar season document.
+ * @returns {Object} The scholar season document that have been deleted.
+ * @throws {Error} If no scholar season document are found.
+ */
+async function DeleteScholarSeason(parent, args) {
+  try {
+    const { _id } = args;
+    const scholarSeasonDataCheck = await ScholarSeason.findById(_id);
+
+    // *************** Check scholar season document if it exists and the status is active then the document can be deleted.
+    if (scholarSeasonDataCheck && scholarSeasonDataCheck.status === 'active') {
+      const scholarSeasonResult = await ScholarSeason.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
+      return scholarSeasonResult;
+    } else {
+      throw new Error('Scholar Season Data Not Found');
+    }
+  } catch (error) {
+    throw new Error(`An error occurred: ${error.message}`);
+  }
+}
+
 const resolvers = {
   Query: {
     GetAllScholarSeasons,
@@ -102,6 +126,7 @@ const resolvers = {
   Mutation: {
     CreateScholarSeason,
     UpdateScholarSeason,
+    DeleteScholarSeason,
   },
 };
 
