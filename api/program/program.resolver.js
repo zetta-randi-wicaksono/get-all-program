@@ -64,6 +64,32 @@ async function CreateProgram(parent, args) {
   }
 }
 
+/**
+ * Update the program document according to the _id.
+ * @param {Object} args - The arguments provided by the query.
+ * @param {string} args._id - The _id used to find for program document.
+ * @param {Object} args.program_input - The program input data that will be updated into the document.
+ * @returns {Object} The program document that have been updated.
+ * @throws {Error} If no program document are found.
+ */
+async function UpdateProgram(parent, args) {
+  try {
+    const { _id } = args;
+    const programDataCheck = await Program.findById(_id);
+
+    // *************** Validation throw error when scholar season data is null or scholar season status is deleted
+    if (!programDataCheck || programDataCheck.status === 'deleted') {
+      throw new Error('Program Data Not Found');
+    }
+
+    const updateProgramInput = { ...args.program_input };
+    const programResult = await Program.findByIdAndUpdate(_id, updateProgramInput, { new: true, useFindAndModify: false });
+    return programResult;
+  } catch (error) {
+    throw new Error(`An error occurred: ${error.message}`);
+  }
+}
+
 const resolvers = {
   Query: {
     GetAllPrograms,
@@ -72,6 +98,7 @@ const resolvers = {
 
   Mutation: {
     CreateProgram,
+    UpdateProgram,
   },
 };
 
