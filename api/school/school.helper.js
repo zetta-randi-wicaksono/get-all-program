@@ -1,3 +1,12 @@
+/**
+ * Handlers filter criteria for the aggregation query.
+ * @param {Object} filter - The filter creiteria.
+ * @param {Object} filter.createdAt - The date range in createdAt filter.
+ * @param {string} filter.createdAt.from - The start date in createdAt filter.
+ * @param {string} filter.createdAt.to - The end date in createdAt filter.
+ * @param {string} filter.name - The name filter.
+ * @returns {Object} The match filter object.
+ */
 function handleFiltersForGetAllSchools(filter) {
   const matchFilter = { status: 'active' }; // *************** Pre filtering data to find data with active status.
   if (filter) {
@@ -30,10 +39,37 @@ function handleFiltersForGetAllSchools(filter) {
   return matchFilter;
 }
 
-function createAggregateQueryForGetAllSchools(filter) {
-  const queryFilterMatch = handleFiltersForGetAllSchools(filter);
+/**
+ * Handlers sorting for the aggregation query.
+ * @param {Object} sort - The sorting cretieria.
+ * @returns {Object} The sort object.
+ */
+function handleSortingForGetAllSchools(sort) {
+  if (sort) {
+    // *************** Data type and value validation on sort prameters.
+    for (const key in sort) {
+      if (sort[key] !== -1 && sort[key] !== 1) {
+        throw new Error('Invalid sort parameter format. Must be 1 or -1');
+      }
+    }
 
-  const aggregateQuery = [{ $match: queryFilterMatch }];
+    return sort;
+  } else {
+    return { createdAt: -1 }; // *************** Default sorting by createdAt in descending order.
+  }
+}
+
+/**
+ * Constructs the aggregate query pipeline for fetching specialities.
+ * @param {Object} filter - The filter criteria.
+ * @param {Object} sort - The object criteria.
+ * @returns {Array} The aggregate query pipeline.
+ */
+function createAggregateQueryForGetAllSchools(filter, sort) {
+  const queryFilterMatch = handleFiltersForGetAllSchools(filter);
+  const querySorting = handleSortingForGetAllSchools(sort);
+
+  const aggregateQuery = [{ $match: queryFilterMatch }, { $sort: querySorting }];
   return aggregateQuery;
 }
 

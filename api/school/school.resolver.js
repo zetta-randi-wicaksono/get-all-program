@@ -7,13 +7,16 @@ const { createAggregateQueryForGetAllSchools } = require('./school.helper');
 // *************** QUERY ***************
 /**
  * Retrieves all schools from collection.
+ * @param {Object} args - The arguments provided by the query.
+ * @param {Object} args.filter - The filter criteria.
+ * @param {Object} args.sort - The sort criteria.
  * @returns {Array} The list of schools.
  * @throws {Error} If no schools are found.
  */
 async function GetAllSchools(parent, args) {
   try {
-    const { filter } = args;
-    const aggregateQuery = createAggregateQueryForGetAllSchools(filter); // *************** Create aggregation query from arguments
+    const { filter, sort } = args;
+    const aggregateQuery = createAggregateQueryForGetAllSchools(filter, sort); // *************** Create aggregation query from arguments
     const schoolsResult = await School.aggregate(aggregateQuery);
 
     // *************** Check schools collection length
