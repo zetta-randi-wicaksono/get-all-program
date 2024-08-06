@@ -23,9 +23,23 @@ const typeDefs = gql`
     not_published
   }
 
+  input ProgramInput {
+    name: String
+    speciality_id: ID
+    sector_id: ID
+    level_id: ID
+    campus_id: ID
+    school_id: ID
+    scholar_season_id: ID
+  }
+
   type Query {
     GetAllPrograms: [Program]
     GetOneProgram(_id: ID!): Program
+  }
+
+  type Mutation {
+    CreateProgram(program_input: ProgramInput): Program
   }
 `;
 

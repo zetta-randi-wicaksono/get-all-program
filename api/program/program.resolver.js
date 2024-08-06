@@ -45,10 +45,33 @@ async function GetOneProgram(parent, args) {
   }
 }
 
+// *************** MUTATION ***************
+/**
+ * Create a new document in the programs collection
+ * @param {Object} args - The arguments provided by the query.
+ * @param {Object} args.program_input - The program input data that will be entered into the document
+ * @returns {Object} The program document that have been created
+ * @throws {Error} If the name is already in use or already in programs collection.
+ */
+async function CreateProgram(parent, args) {
+  try {
+    const createProgramInput = { ...args.program_input };
+    const programResult = new Program(createProgramInput);
+    await programResult.save();
+    return programResult;
+  } catch (error) {
+    throw new Error(`An error occurred: ${error.message}`);
+  }
+}
+
 const resolvers = {
   Query: {
     GetAllPrograms,
     GetOneProgram,
+  },
+
+  Mutation: {
+    CreateProgram,
   },
 };
 
