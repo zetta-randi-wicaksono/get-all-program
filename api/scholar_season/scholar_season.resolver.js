@@ -64,6 +64,35 @@ async function CreateScholarSeason(parent, args) {
   }
 }
 
+/**
+ * Update the scholar season document according to the _id.
+ * @param {Object} args - The arguments provided by the query.
+ * @param {string} args._id - The _id used to find for scholar season document.
+ * @param {Object} args.scholar_season_input - The scholar season input data that will be updated into the document.
+ * @returns {Object} The scholar season document that have been updated.
+ * @throws {Error} If no scholar season document are found.
+ */
+async function UpdateScholarSeason(parent, args) {
+  try {
+    const { _id } = args;
+    const scholarSeasonDataCheck = await ScholarSeason.findById(_id);
+
+    // *************** Validation throw error when school data is null or school status is deleted
+    if (!scholarSeasonDataCheck || scholarSeasonDataCheck.status === 'deleted') {
+      throw new Error('Scholar Season Data Not Found');
+    }
+
+    const updateScholarSeasonInput = { ...args.scholar_season_input };
+    const scholarSeasonResult = await ScholarSeason.findByIdAndUpdate(_id, updateScholarSeasonInput, {
+      new: true,
+      useFindAndModify: false,
+    });
+    return scholarSeasonResult;
+  } catch (error) {
+    throw new Error(`An error occurred: ${error.message}`);
+  }
+}
+
 const resolvers = {
   Query: {
     GetAllScholarSeasons,
@@ -72,6 +101,7 @@ const resolvers = {
 
   Mutation: {
     CreateScholarSeason,
+    UpdateScholarSeason,
   },
 };
 

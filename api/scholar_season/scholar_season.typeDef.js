@@ -22,6 +22,7 @@ const typeDefs = gql`
 
   type Mutation {
     CreateScholarSeason(scholar_season_input: ScholarSeasonInput): ScholarSeason
+    UpdateScholarSeason(_id: ID!, scholar_season_input: ScholarSeasonInput): ScholarSeason
   }
 `;
 
