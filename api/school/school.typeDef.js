@@ -10,9 +10,17 @@ const typeDefs = gql`
     count_document: Int
   }
 
+  input SchoolInput {
+    name: String
+  }
+
   type Query {
     GetAllSchools: [School]
     GetOneSchool(_id: ID!): School
+  }
+
+  type Mutation {
+    CreateSchool(school_input: SchoolInput): School
   }
 `;
 
