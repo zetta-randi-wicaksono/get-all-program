@@ -44,7 +44,7 @@ async function GetOneSchool(parent, args) {
     const schoolResult = await School.findById(_id);
 
     // *************** Validation throw error when campus data is null or campus status is deleted
-    if (!campusResult || campusResult.status === 'deleted') {
+    if (!schoolResult || schoolResult.status === 'deleted') {
       throw new Error('Campus Data Not Found');
     }
 

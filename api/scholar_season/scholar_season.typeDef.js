@@ -13,6 +13,7 @@ const typeDefs = gql`
 
   type Query {
     GetAllScholarSeasons: [ScholarSeason]
+    GetOneScholarSeason(_id: ID!): ScholarSeason
   }
 `;
 
