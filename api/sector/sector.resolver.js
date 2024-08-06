@@ -34,7 +34,7 @@ async function GetAllSectors(parent, args) {
 /**
  * Retrieves one sector based on _id.
  * @param {Object} args - The arguments provided by the query.
- * @param {string} args._id - The _id used to search for sector documents.
+ * @param {string} args._id - The _id used to search for sector document.
  * @returns {Object} The sector document.
  * @throws {Error} If no sector are found.
  */

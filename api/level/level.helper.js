@@ -7,7 +7,7 @@
  * @param {string} filter.name - The name filter.
  * @returns {Object} The match filter object.
  */
-function handleFiltersForGetAllSectors(filter) {
+function handleFiltersForGetAllLevels(filter) {
   const matchFilter = { status: 'active' }; // *************** Pre filtering data to find data with active status.
   if (filter) {
     if (filter.createdAt) {
@@ -44,7 +44,7 @@ function handleFiltersForGetAllSectors(filter) {
  * @param {Object} sort - The sorting cretieria.
  * @returns {Object} The sort object.
  */
-function handleSortingForGetAllSectors(sort) {
+function handleSortingForGetAllLevels(sort) {
   if (sort) {
     // *************** Data type and value validation on sort prameters.
     for (const key in sort) {
@@ -67,7 +67,7 @@ function handleSortingForGetAllSectors(sort) {
  * @param {string} collection - The name of collection to count the total documents.
  * @returns {Array} The pagination pipeline stages.
  */
-function handlePaginationForGetAllSectors(pagination) {
+function handlePaginationForGetAllLevels(pagination) {
   paginationPipeline = [];
 
   if (pagination) {
@@ -79,10 +79,10 @@ function handlePaginationForGetAllSectors(pagination) {
     }
 
     paginationPipeline.push(
-      { $skip: page * limit }, // *************** Skip the number of documents according to the number of page.
-      { $limit: limit }, // *************** Limit the number of documents.
-      { $lookup: { from: 'sectors', pipeline: [{ $match: { status: 'active' } }, { $count: 'value' }], as: 'total_document' } }, // *************** Count the number of documents in the collection.
-      { $addFields: { count_document: { $arrayElemAt: ['$total_document.value', 0] } } } // *************** Added a new field to store the total of documents
+      { $skip: page * limit },
+      { $limit: limit },
+      { $lookup: { from: 'levels', pipeline: [{ $match: { status: 'active' } }, { $count: 'value' }], as: 'total_document' } },
+      { $addFields: { count_document: { $arrayElemAt: ['$total_document.value', 0] } } }
     );
   }
   return paginationPipeline;
@@ -95,14 +95,14 @@ function handlePaginationForGetAllSectors(pagination) {
  * @param {Object} pagination - The pagination criteria.
  * @returns {Array} The aggregate query pipeline
  */
-function createAggregateQueryForGetAllSectors(filter, sort, pagination) {
-  const queryFilterMatch = handleFiltersForGetAllSectors(filter);
-  const querySorting = handleSortingForGetAllSectors(sort);
-  const queryPagination = handlePaginationForGetAllSectors(pagination);
+function createAggregateQueryForGetAllLevels(filter, sort, pagination) {
+  const queryFilterMatch = handleFiltersForGetAllLevels(filter);
+  const querySorting = handleSortingForGetAllLevels(sort);
+  const queryPagination = handlePaginationForGetAllLevels(pagination);
 
   const aggregateQuery = [{ $match: queryFilterMatch }, { $sort: querySorting }, ...queryPagination];
   return aggregateQuery;
 }
 
 // *************** EXPORT MODULE ***************
-module.exports = { createAggregateQueryForGetAllSectors };
+module.exports = { createAggregateQueryForGetAllLevels };
