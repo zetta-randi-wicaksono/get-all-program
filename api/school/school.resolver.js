@@ -43,10 +43,11 @@ async function GetOneSchool(parent, args) {
     const { _id } = args;
     const schoolResult = await School.findById(_id);
 
-    // *************** Validation throw error when school data is null or school status is deleted
-    if (!schoolResult) {
-      throw new Error('School Data Not Found');
+    // *************** Validation throw error when campus data is null or campus status is deleted
+    if (!campusResult || campusResult.status === 'deleted') {
+      throw new Error('Campus Data Not Found');
     }
+
     return schoolResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
