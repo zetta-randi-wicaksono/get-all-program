@@ -12,20 +12,20 @@ const { createAggregateQueryForGetAllCampuses } = require('./campus.helper');
  * @param {Object} args.sort - The sort criteria.
  * @param {Object} args.pagination - The pagination criteria.
  * @returns {Array} The list of campuses.
- * @throws {Error} If no campus documents are found.
+ * @throws {Error} If no campuses are found.
  */
 async function GetAllCampuses(parent, args) {
   try {
     const { filter, sort, pagination } = args;
     const aggregateQuery = createAggregateQueryForGetAllCampuses(filter, sort, pagination); // *************** Create aggregation query from arguments
-    const campus = await Campus.aggregate(aggregateQuery);
+    const campusesResult = await Campus.aggregate(aggregateQuery);
 
     // *************** Check sectors collection length
-    if (!campus.length) {
-      throw new Error('Campus Data Not Found');
+    if (!campusesResult.length) {
+      throw new Error('Campuses Data Not Found');
     }
 
-    return campus;
+    return campusesResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -40,14 +40,15 @@ async function GetAllCampuses(parent, args) {
  */
 async function GetOneCampus(parent, args) {
   try {
-    const campus = await Campus.findById(args._id);
+    const { _id } = args;
+    const campusResult = await Campus.findById(_id);
 
     // *************** Validation throw error when level data is null or level status is deleted
-    if (!campus || campus.status === 'deleted') {
+    if (!campusResult || campusResult.status === 'deleted') {
       throw new Error('Campus Data Not Found');
     }
 
-    return campus;
+    return campusResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -57,15 +58,16 @@ async function GetOneCampus(parent, args) {
 /**
  * Create a new document in the campuses collection
  * @param {Object} args - The arguments provided by the query.
- * @param {Object} args.speciality_input - The campus input data that will be entered into the document
+ * @param {Object} args.campus_input - The campus input data that will be entered into the document
  * @returns {Object} The campus document that have been created
- * @throws {Error} If no campus document are found.
+ * @throws {Error} If the name is already in use or already in campuses collection.
  */
 async function CreateCampus(parent, args) {
   try {
-    const campus = new Campus({ ...args.campus_input });
-    await campus.save();
-    return campus;
+    const createCampusInput = { ...args.campus_input };
+    const campusResult = new Campus(createCampusInput);
+    await campusResult.save();
+    return campusResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -75,21 +77,23 @@ async function CreateCampus(parent, args) {
  * Update the campus document according to the _id.
  * @param {Object} args - The arguments provided by the query.
  * @param {string} args._id - The _id used to find for campus document.
- * @param {Object} args.speciality_input - The campus input data that will be updated into the document.
+ * @param {Object} args.campus_input - The campus input data that will be updated into the document.
  * @returns {Object} The campus document that have been updated.
  * @throws {Error} If no campus document are found.
  */
 async function UpdateCampus(parent, args) {
   try {
-    const checkCampusData = await Campus.findById(args._id);
+    const { _id } = args;
+    const campusDataCheck = await Campus.findById(_id);
 
     // *************** Validation throw error when level data is null or level status is deleted
-    if (!checkCampusData || checkCampusData.status === 'deleted') {
+    if (!campusDataCheck || campusDataCheck.status === 'deleted') {
       throw new Error('Campus Data Not Found');
     }
 
-    const campus = await Campus.findByIdAndUpdate(args._id, { ...args.campus_input }, { new: true, useFindAndModify: false });
-    return campus;
+    const updateCampusInput = { ...args.campus_input };
+    const campusResult = await Campus.findByIdAndUpdate(_id, updateCampusInput, { new: true, useFindAndModify: false });
+    return campusResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -104,12 +108,13 @@ async function UpdateCampus(parent, args) {
  */
 async function DeleteCampus(parent, args) {
   try {
-    const campusDataCheck = await Campus.findById(args._id);
+    const { _id } = args;
+    const campusDataCheck = await Campus.findById(_id);
 
     // *************** Check sector document if it exists and the status is active then the document can be deleted.
     if (campusDataCheck && campusDataCheck.status === 'active') {
-      const campus = await Campus.findByIdAndUpdate(args._id, { status: 'deleted' }, { new: true, useFindAndModify: false });
-      return campus;
+      const campusResult = await Campus.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
+      return campusResult;
     } else {
       throw new Error('Campus Data Not Found');
     }

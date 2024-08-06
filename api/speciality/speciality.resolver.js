@@ -18,14 +18,14 @@ async function GetAllSpecialities(parent, args) {
   try {
     const { filter, sort, pagination } = args;
     const aggregateQuery = createAggregateQueryForGetAllSpecialities(filter, sort, pagination); // *************** Create aggregation query from arguments
-    const speciality = await Speciality.aggregate(aggregateQuery);
+    const specialitiesResult = await Speciality.aggregate(aggregateQuery);
 
     // *************** Check specialities collection length
-    if (!speciality.length) {
-      throw new Error('Speciality Data Not Found');
+    if (!specialitiesResult.length) {
+      throw new Error('Specialities Data Not Found');
     }
 
-    return speciality;
+    return specialitiesResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -34,20 +34,21 @@ async function GetAllSpecialities(parent, args) {
 /**
  * Retrieves one speciality based on _id
  * @param {Object} args - The arguments provided by the query.
- * @param {string} args._id - The _id used to search for speciality documents
+ * @param {string} args._id - The _id used to search for speciality document
  * @returns {Object} The speciality document
- * @throws {Error} If no speciality are found.
+ * @throws {Error} If no speciality document are found.
  */
 async function GetOneSpeciality(parent, args) {
   try {
-    const speciality = await Speciality.findById(args._id);
+    const { _id } = args;
+    const specialityResult = await Speciality.findById(_id);
 
     // *************** Validation throw error when speciality data is null or speciality status is deleted
-    if (!speciality || speciality.status === 'deleted') {
+    if (!specialityResult || specialityResult.status === 'deleted') {
       throw new Error('Speciality Data Not Found');
     }
 
-    return speciality;
+    return specialityResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -55,61 +56,65 @@ async function GetOneSpeciality(parent, args) {
 
 // *************** MUTATION ***************
 /**
- * Create a new document in the speciality collection
+ * Create a new document in the specialities collection
  * @param {Object} args - The arguments provided by the query.
  * @param {Object} args.speciality_input - The speciality input data that will be entered into the document
- * @returns {Object} The speciality documents that have been created
- * @throws {Error} If no speciality are found.
+ * @returns {Object} The speciality document that have been created
+ * @throws {Error} If the name is already in use or already in specialities collection.
  */
 async function CreateSpeciality(parent, args) {
   try {
-    const speciality = new Speciality({ ...args.speciality_input });
-    await speciality.save();
-    return speciality;
+    const createSpecialityInput = { ...args.speciality_input };
+    const specialityResult = new Speciality(createSpecialityInput);
+    await specialityResult.save();
+    return specialityResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
 }
 
 /**
- * Update the speciality document according to the id.
+ * Update the speciality document according to the _id.
  * @param {Object} args - The arguments provided by the query.
- * @param {string} args._id - The _id used to find for speciality documents
- * @param {Object} args.speciality_input - The speciality input data that will be updated into the document
- * @returns {Object} The speciality documents that have been updated
- * @throws {Error} If no speciality are found.
+ * @param {string} args._id - The _id used to find for speciality document.
+ * @param {Object} args.speciality_input - The speciality input data that will be updated into the document.
+ * @returns {Object} The speciality document that have been updated
+ * @throws {Error} If no speciality document are found.
  */
 async function UpdateSpeciality(parent, args) {
   try {
-    const checkSpecialityData = await Speciality.findById(args._id);
+    const { _id } = args;
+    const specialityDataCheck = await Speciality.findById(_id);
 
     // *************** Validation throw error when speciality data is null or speciality status is deleted
-    if (!checkSpecialityData || checkSpecialityData.status === 'deleted') {
+    if (!specialityDataCheck || specialityDataCheck.status === 'deleted') {
       throw new Error('Speciality Data Not Found');
     }
 
-    const speciality = await Speciality.findByIdAndUpdate(args._id, { ...args.speciality_input }, { new: true, useFindAndModify: false });
-    return speciality;
+    const updateSpecialityInput = { ...args.speciality_input };
+    const specialityResult = await Speciality.findByIdAndUpdate(_id, updateSpecialityInput, { new: true, useFindAndModify: false });
+    return specialityResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
 }
 
 /**
- * Delete the speciality document according to the id.
+ * Delete the speciality document according to the _id.
  * @param {Object} args - The arguments provided by the query.
- * @param {string} args._id - The _id used to search for speciality documents
- * @returns {Object} The speciality documents that have been deleted
- * @throws {Error} If no speciality are found.
+ * @param {string} args._id - The _id used to search for speciality document.
+ * @returns {Object} The speciality document that have been deleted
+ * @throws {Error} If no speciality document are found.
  */
 async function DeleteSpeciality(parent, args) {
   try {
-    const specialityDataCheck = await Speciality.findById(args._id);
+    const { _id } = args;
+    const specialityDataCheck = await Speciality.findById(_id);
 
     // *************** Check speciality document if it exists and the status is active then the document can be deleted.
     if (specialityDataCheck && specialityDataCheck.status === 'active') {
-      const speciality = await Speciality.findByIdAndUpdate(args._id, { status: 'deleted' }, { new: true, useFindAndModify: false });
-      return speciality;
+      const specialityResult = await Speciality.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
+      return specialityResult;
     } else {
       throw new Error('Speciality Data Not Found');
     }
