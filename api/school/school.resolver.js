@@ -89,6 +89,30 @@ async function UpdateSchool(parent, args) {
   }
 }
 
+/**
+ * Delete the school document according to the _id.
+ * @param {Object} args - The arguments provided by the query.
+ * @param {string} args._id - The _id used to find for school document.
+ * @returns {Object} The school document that have been deleted.
+ * @throws {Error} If no school document are found.
+ */
+async function DeleteSchool(parent, args) {
+  try {
+    const { _id } = args;
+    const schoolDataCheck = await School.findById(_id);
+
+    // *************** Check school document if it exists and the status is active then the document can be deleted.
+    if (schoolDataCheck && schoolDataCheck.status === 'active') {
+      const schoolResult = await School.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
+      return schoolResult;
+    } else {
+      throw new Error('School Data Not Found');
+    }
+  } catch (error) {
+    throw new Error(`An error occurred: ${error.message}`);
+  }
+}
+
 const resolvers = {
   Query: {
     GetAllSchools,
@@ -98,6 +122,7 @@ const resolvers = {
   Mutation: {
     CreateSchool,
     UpdateSchool,
+    DeleteSchool,
   },
 };
 

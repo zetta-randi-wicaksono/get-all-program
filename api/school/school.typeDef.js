@@ -22,6 +22,7 @@ const typeDefs = gql`
   type Mutation {
     CreateSchool(school_input: SchoolInput): School
     UpdateSchool(_id: ID!, school_input: SchoolInput): School
+    DeleteSchool(_id: ID!): School
   }
 `;
 
