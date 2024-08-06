@@ -14,8 +14,13 @@ const typeDefs = gql`
     name: String
   }
 
+  input SchoolFilterInput {
+    name: String
+    createdAt: FilterCreateAtInput
+  }
+
   type Query {
-    GetAllSchools: [School]
+    GetAllSchools(filter: SchoolFilterInput): [School]
     GetOneSchool(_id: ID!): School
   }
 

@@ -1,6 +1,9 @@
 // *************** IMPORT MODULE ***************
 const School = require('./school.model');
 
+// *************** IMPORT HELPER FUNCTION ***************
+const { createAggregateQueryForGetAllSchools } = require('./school.helper');
+
 // *************** QUERY ***************
 /**
  * Retrieves all schools from collection.
@@ -9,7 +12,9 @@ const School = require('./school.model');
  */
 async function GetAllSchools(parent, args) {
   try {
-    const schoolsResult = await School.find({}).sort({ createdAt: -1 });
+    const { filter } = args;
+    const aggregateQuery = createAggregateQueryForGetAllSchools(filter); // *************** Create aggregation query from arguments
+    const schoolsResult = await School.aggregate(aggregateQuery);
 
     // *************** Check schools collection length
     if (!schoolsResult.length) {
