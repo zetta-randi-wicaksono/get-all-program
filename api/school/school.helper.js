@@ -60,16 +60,47 @@ function handleSortingForGetAllSchools(sort) {
 }
 
 /**
+ * Handlers pagination for the aggregation query.
+ * @param {Object} pagination - The pagination creiteria.
+ * @param {number} pagination.limit - The number of documents per page.
+ * @param {number} pagination.page - The page number, start from 0.
+ * @param {string} collection - The name of collection to count the total documents.
+ * @returns {Array} The pagination pipeline stages.
+ */
+function handlePaginationForGetAllSchools(pagination) {
+  paginationPipeline = [];
+
+  if (pagination) {
+    const { page, limit } = pagination;
+
+    // *************** Data type and value validation on pagination parameters.
+    if (typeof page !== 'number' || page < 0 || typeof limit !== 'number' || limit <= 0) {
+      throw new Error('Invalid pagination parameters');
+    }
+
+    paginationPipeline.push(
+      { $skip: page * limit },
+      { $limit: limit },
+      { $lookup: { from: 'schools', pipeline: [{ $match: { status: 'active' } }, { $count: 'value' }], as: 'total_document' } },
+      { $addFields: { count_document: { $arrayElemAt: ['$total_document.value', 0] } } }
+    );
+  }
+  return paginationPipeline;
+}
+
+/**
  * Constructs the aggregate query pipeline for fetching specialities.
  * @param {Object} filter - The filter criteria.
  * @param {Object} sort - The object criteria.
+ * @param {Object} pagination - The pagination criteria.
  * @returns {Array} The aggregate query pipeline.
  */
-function createAggregateQueryForGetAllSchools(filter, sort) {
+function createAggregateQueryForGetAllSchools(filter, sort, pagination) {
   const queryFilterMatch = handleFiltersForGetAllSchools(filter);
   const querySorting = handleSortingForGetAllSchools(sort);
+  const queryPagination = handlePaginationForGetAllSchools(pagination);
 
-  const aggregateQuery = [{ $match: queryFilterMatch }, { $sort: querySorting }];
+  const aggregateQuery = [{ $match: queryFilterMatch }, { $sort: querySorting }, ...queryPagination];
   return aggregateQuery;
 }
 
