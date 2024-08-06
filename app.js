@@ -1,33 +1,20 @@
+// *************** IMPORT CORE ***************
 const express = require('express');
-const bodyParser = require('body-parser');
 
 const { ApolloServer } = require('apollo-server-express');
-const { makeExecutableSchema } = require('graphql-tools');
-const { applyMiddleware } = require('graphql-middleware');
+// const { makeExecutableSchema } = require('graphql-tools');
+// const { applyMiddleware } = require('graphql-middleware');
 
+// *************** IMPORT MODULE ***************
 const conn = require('./models/connection');
-const typeDefs = require('./typeDefs');
-const resolvers = require('./resolvers');
-const specialityLoader = require('./data_loader/specialityLoader');
-const sectorLoader = require('./data_loader/sectorLoader');
-const levelLoader = require('./data_loader/levelLoader');
+const graphqlConfig = require('./api');
 
 const app = express();
 const port = 3000;
-const executableSchema = makeExecutableSchema({ typeDefs, resolvers });
-const protectedSchema = applyMiddleware(executableSchema);
+// const executableSchema = makeExecutableSchema({ typeDefs, resolvers });
+// const protectedSchema = applyMiddleware(executableSchema);
 
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static('public'));
-app.use(bodyParser.json());
-
-const server = new ApolloServer({
-  schema: protectedSchema,
-  context: ({ req }) => ({
-    req,
-    loaders: { specialityLoader, sectorLoader, levelLoader },
-  }),
-});
+const server = new ApolloServer(graphqlConfig);
 
 server.applyMiddleware({ app });
 
