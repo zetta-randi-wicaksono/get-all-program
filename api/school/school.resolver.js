@@ -6,7 +6,7 @@ const { createAggregateQueryForGetAllSchools } = require('./school.helper');
 
 // *************** QUERY ***************
 /**
- * Retrieves all schools from collection.
+ * Retrieves all schools based on provided filters, sorting, and pagination.
  * @param {Object} args - The arguments provided by the query.
  * @param {Object} args.filter - The filter criteria.
  * @param {Object} args.sort - The sort criteria.

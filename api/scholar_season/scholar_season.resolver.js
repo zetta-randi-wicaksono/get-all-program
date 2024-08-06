@@ -1,19 +1,26 @@
 // *************** IMPORT MODULE ***************
 const ScholarSeason = require('./scholar_season.model');
 
+// *************** IMPORT HELPER FUNCTION ***************
+const { createAggregateQueryForGetAllScholarSeasons } = require('./scholar_season.helper');
+
 // *************** QUERY ***************
 /**
- * Retrieves all scholar seasons from collection.
+ * Retrieves all scholar seasons based on provided filters, sorting, and pagination.
+ * @param {Object} args - The arguments provided by the query.
+ * @param {Object} args.filter - The filter criteria.
  * @returns {Array} The list of scholar seasons.
  * @throws {Error} If no scholar seasons are found.
  */
 async function GetAllScholarSeasons(parent, args) {
   try {
-    const scholarSeasonsResult = await ScholarSeason.find().sort({ createdAt: -1 });
+    const { filter } = args;
+    const aggregateQuery = createAggregateQueryForGetAllScholarSeasons(filter); // *************** Create aggregation query from arguments
+    const scholarSeasonsResult = await ScholarSeason.aggregate(aggregateQuery);
 
-    // *************** Check schools collection length
+    // *************** Check scholar seasons collection length
     if (!scholarSeasonsResult.length) {
-      throw new Error('Schools Data is Empty');
+      throw new Error('Scholar Season Data is Empty');
     }
 
     return scholarSeasonsResult;
@@ -77,7 +84,7 @@ async function UpdateScholarSeason(parent, args) {
     const { _id } = args;
     const scholarSeasonDataCheck = await ScholarSeason.findById(_id);
 
-    // *************** Validation throw error when school data is null or school status is deleted
+    // *************** Validation throw error when scholar season data is null or scholar season status is deleted
     if (!scholarSeasonDataCheck || scholarSeasonDataCheck.status === 'deleted') {
       throw new Error('Scholar Season Data Not Found');
     }
