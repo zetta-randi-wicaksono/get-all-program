@@ -60,16 +60,47 @@ function handleSortingForGetAllScholarSeasons(sort) {
 }
 
 /**
+ * Handlers pagination for the aggregation query.
+ * @param {Object} pagination - The pagination creiteria.
+ * @param {number} pagination.limit - The number of documents per page.
+ * @param {number} pagination.page - The page number, start from 0.
+ * @param {string} collection - The name of collection to count the total documents.
+ * @returns {Array} The pagination pipeline stages.
+ */
+function handlePaginationForGetAllScholarSeasons(pagination) {
+  paginationPipeline = [];
+
+  if (pagination) {
+    const { page, limit } = pagination;
+
+    // *************** Data type and value validation on pagination parameters.
+    if (typeof page !== 'number' || page < 0 || typeof limit !== 'number' || limit <= 0) {
+      throw new Error('Invalid pagination parameters');
+    }
+
+    paginationPipeline.push(
+      { $skip: page * limit },
+      { $limit: limit },
+      { $lookup: { from: 'scholar_seasons', pipeline: [{ $match: { status: 'active' } }, { $count: 'value' }], as: 'total_document' } },
+      { $addFields: { count_document: { $arrayElemAt: ['$total_document.value', 0] } } }
+    );
+  }
+  return paginationPipeline;
+}
+
+/**
  * Constructs the aggregate query pipeline for fetching specialities.
  * @param {Object} filter - The filter criteria.
  * @param {Object} sort - The object criteria.
+ * @param {Object} pagination - The pagination criteria.
  * @returns {Array} The aggregate query pipeline.
  */
-function createAggregateQueryForGetAllScholarSeasons(filter, sort) {
+function createAggregateQueryForGetAllScholarSeasons(filter, sort, pagination) {
   const queryFilterMatch = handleFiltersForGetAllScholarSeasons(filter);
   const querySorting = handleSortingForGetAllScholarSeasons(sort);
+  const queryPagination = handlePaginationForGetAllScholarSeasons(pagination);
 
-  const aggregateQuery = [{ $match: queryFilterMatch }, { $sort: querySorting }];
+  const aggregateQuery = [{ $match: queryFilterMatch }, { $sort: querySorting }, ...queryPagination];
   return aggregateQuery;
 }
 

@@ -10,13 +10,14 @@ const { createAggregateQueryForGetAllScholarSeasons } = require('./scholar_seaso
  * @param {Object} args - The arguments provided by the query.
  * @param {Object} args.filter - The filter criteria.
  * @param {Object} args.sort - The sort criteria.
+ * @param {Object} args.pagination - The pagination criteria.
  * @returns {Array} The list of scholar seasons.
  * @throws {Error} If no scholar seasons are found.
  */
 async function GetAllScholarSeasons(parent, args) {
   try {
-    const { filter, sort } = args;
-    const aggregateQuery = createAggregateQueryForGetAllScholarSeasons(filter, sort); // *************** Create aggregation query from arguments
+    const { filter, sort, pagination } = args;
+    const aggregateQuery = createAggregateQueryForGetAllScholarSeasons(filter, sort, pagination); // *************** Create aggregation query from arguments
     const scholarSeasonsResult = await ScholarSeason.aggregate(aggregateQuery);
 
     // *************** Check scholar seasons collection length

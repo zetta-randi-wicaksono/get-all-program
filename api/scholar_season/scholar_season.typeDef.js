@@ -26,7 +26,7 @@ const typeDefs = gql`
   }
 
   type Query {
-    GetAllScholarSeasons(filter: ScholarSeasonFilterInput, sort: ScholarSeasonSortingInput): [ScholarSeason]
+    GetAllScholarSeasons(filter: ScholarSeasonFilterInput, sort: ScholarSeasonSortingInput, pagination: PaginationInput): [ScholarSeason]
     GetOneScholarSeason(_id: ID!): ScholarSeason
   }
 

@@ -89,7 +89,7 @@ function handlePaginationForGetAllSchools(pagination) {
 }
 
 /**
- * Constructs the aggregate query pipeline for fetching specialities.
+ * Constructs the aggregate query pipeline for fetching schools.
  * @param {Object} filter - The filter criteria.
  * @param {Object} sort - The object criteria.
  * @param {Object} pagination - The pagination criteria.

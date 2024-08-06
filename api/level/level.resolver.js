@@ -20,7 +20,7 @@ async function GetAllLevels(parent, args) {
     const aggregateQuery = createAggregateQueryForGetAllLevels(filter, sort, pagination); // *************** Create aggregation query from arguments
     const levelsResult = await Level.aggregate(aggregateQuery);
 
-    // *************** Check sectors collection length
+    // *************** Check levels collection length
     if (!levelsResult.length) {
       throw new Error('Levels Data Not Found');
     }
@@ -64,8 +64,8 @@ async function GetOneLevel(parent, args) {
  */
 async function CreateLevel(parent, args) {
   try {
-    const createSectorInput = { ...args.level_input };
-    const levelResult = new Level(createSectorInput);
+    const createLevelInput = { ...args.level_input };
+    const levelResult = new Level(createLevelInput);
     await levelResult.save();
     return levelResult;
   } catch (error) {
@@ -111,7 +111,7 @@ async function DeleteLevel(parent, args) {
     const { _id } = args;
     const levelDataCheck = await Level.findById(_id);
 
-    // *************** Check sector document if it exists and the status is active then the document can be deleted.
+    // *************** Check level document if it exists and the status is active then the document can be deleted.
     if (levelDataCheck && levelDataCheck.status === 'active') {
       const levelResult = await Level.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
       return levelResult;
