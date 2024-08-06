@@ -7,10 +7,11 @@ const sector = require('./sector');
 const level = require('./level');
 const campus = require('./campus');
 const school = require('./school');
+const scholarSeason = require('./scholar_season');
 
 const graphqlConfig = {
-  resolvers: [speciality.resolver, sector.resolver, level.resolver, campus.resolver, school.resolver],
-  typeDefs: mergeTypeDefs([speciality.typeDef, sector.typeDef, level.typeDef, campus.typeDef, school.typeDef]),
+  resolvers: [speciality.resolver, sector.resolver, level.resolver, campus.resolver, school.resolver, scholarSeason.resolver],
+  typeDefs: mergeTypeDefs([speciality.typeDef, sector.typeDef, level.typeDef, campus.typeDef, school.typeDef, scholarSeason.typeDef]),
   context: {
     models: {
       speciality: speciality.model,
@@ -18,6 +19,7 @@ const graphqlConfig = {
       level: level.model,
       campus: campus.model,
       school: school.model,
+      scholarSeason: scholarSeason.model,
     },
   },
 };
