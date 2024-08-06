@@ -25,6 +25,7 @@ const typeDefs = gql`
 
   type Query {
     GetAllPrograms: [Program]
+    GetOneProgram(_id: ID!): Program
   }
 `;
 
