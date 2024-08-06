@@ -5,6 +5,7 @@ const typeDefs = gql`
   type School {
     _id: ID
     name: String!
+    status: EnumStatus
     createdAt: Date
     updatedAt: Date
     count_document: Int
