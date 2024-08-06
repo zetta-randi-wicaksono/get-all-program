@@ -4,14 +4,14 @@ const School = require('./school.model');
 // *************** QUERY ***************
 /**
  * Retrieves all schools from collection.
- * @returns {Array} The list of campuses.
- * @throws {Error} If no campuses are found.
+ * @returns {Array} The list of schools.
+ * @throws {Error} If no schools are found.
  */
 async function GetAllSchools(parent, args) {
   try {
     const schoolsResult = await School.find({}).sort({ createdAt: -1 });
 
-    // *************** Check sectors collection length
+    // *************** Check schools collection length
     if (!schoolsResult.length) {
       throw new Error('Schools Data is Empty');
     }
@@ -34,7 +34,7 @@ async function GetOneSchool(parent, args) {
     const { _id } = args;
     const schoolResult = await School.findById(_id);
 
-    // *************** Validation throw error when level data is null or level status is deleted
+    // *************** Validation throw error when school data is null or school status is deleted
     if (!schoolResult) {
       throw new Error('School Data Not Found');
     }
@@ -48,7 +48,7 @@ async function GetOneSchool(parent, args) {
 /**
  * Create a new document in the schools collection
  * @param {Object} args - The arguments provided by the query.
- * @param {Object} args.campus_input - The school input data that will be entered into the document
+ * @param {Object} args.school_input - The school input data that will be entered into the document
  * @returns {Object} The school document that have been created
  * @throws {Error} If the name is already in use or already in schools collection.
  */
@@ -63,6 +63,32 @@ async function CreateSchool(parent, args) {
   }
 }
 
+/**
+ * Update the school document according to the _id.
+ * @param {Object} args - The arguments provided by the query.
+ * @param {string} args._id - The _id used to find for school document.
+ * @param {Object} args.school_input - The school input data that will be updated into the document.
+ * @returns {Object} The school document that have been updated.
+ * @throws {Error} If no school document are found.
+ */
+async function UpdateSchool(parent, args) {
+  try {
+    const { _id } = args;
+    const schoolDataCheck = await School.findById(_id);
+
+    // *************** Validation throw error when school data is null or school status is deleted
+    if (!schoolDataCheck || schoolDataCheck.status === 'deleted') {
+      throw new Error('School Data Not Found');
+    }
+
+    const updateSchoolInput = { ...args.school_input };
+    const schoolResult = await School.findByIdAndUpdate(_id, updateSchoolInput, { new: true, useFindAndModify: false });
+    return schoolResult;
+  } catch (error) {
+    throw new Error(`An error occurred: ${error.message}`);
+  }
+}
+
 const resolvers = {
   Query: {
     GetAllSchools,
@@ -71,6 +97,7 @@ const resolvers = {
 
   Mutation: {
     CreateSchool,
+    UpdateSchool,
   },
 };
 

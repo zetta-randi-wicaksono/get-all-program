@@ -20,7 +20,7 @@ async function GetAllCampuses(parent, args) {
     const aggregateQuery = createAggregateQueryForGetAllCampuses(filter, sort, pagination); // *************** Create aggregation query from arguments
     const campusesResult = await Campus.aggregate(aggregateQuery);
 
-    // *************** Check sectors collection length
+    // *************** Check campuses collection length
     if (!campusesResult.length) {
       throw new Error('Campuses Data Not Found');
     }
@@ -34,7 +34,7 @@ async function GetAllCampuses(parent, args) {
 /**
  * Retrieves one campus document based on _id.
  * @param {Object} args - The arguments provided by the query.
- * @param {string} args._id - The _id used to search for level document.
+ * @param {string} args._id - The _id used to search for campus document.
  * @returns {Object} The campus document.
  * @throws {Error} If no campus document are found.
  */
@@ -43,7 +43,7 @@ async function GetOneCampus(parent, args) {
     const { _id } = args;
     const campusResult = await Campus.findById(_id);
 
-    // *************** Validation throw error when level data is null or level status is deleted
+    // *************** Validation throw error when campus data is null or campus status is deleted
     if (!campusResult || campusResult.status === 'deleted') {
       throw new Error('Campus Data Not Found');
     }
@@ -86,7 +86,7 @@ async function UpdateCampus(parent, args) {
     const { _id } = args;
     const campusDataCheck = await Campus.findById(_id);
 
-    // *************** Validation throw error when level data is null or level status is deleted
+    // *************** Validation throw error when campus data is null or campus status is deleted
     if (!campusDataCheck || campusDataCheck.status === 'deleted') {
       throw new Error('Campus Data Not Found');
     }
@@ -111,7 +111,7 @@ async function DeleteCampus(parent, args) {
     const { _id } = args;
     const campusDataCheck = await Campus.findById(_id);
 
-    // *************** Check sector document if it exists and the status is active then the document can be deleted.
+    // *************** Check campus document if it exists and the status is active then the document can be deleted.
     if (campusDataCheck && campusDataCheck.status === 'active') {
       const campusResult = await Campus.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
       return campusResult;
