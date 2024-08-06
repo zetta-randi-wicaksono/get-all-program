@@ -41,6 +41,7 @@ const typeDefs = gql`
   type Mutation {
     CreateProgram(program_input: ProgramInput): Program
     UpdateProgram(_id: ID!, program_input: ProgramInput): Program
+    DeleteProgram(_id: ID!): Program
   }
 `;
 

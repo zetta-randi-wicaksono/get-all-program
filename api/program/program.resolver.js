@@ -9,7 +9,7 @@ const Program = require('./program.model');
  */
 async function GetAllPrograms(parent, args) {
   try {
-    const programsResult = await Program.find({}).sort({ createdAt: -1 });
+    const programsResult = await Program.find({ status: 'active' }).sort({ createdAt: -1 });
 
     // *************** Check scholar seasons collection length
     if (!programsResult.length) {
@@ -90,6 +90,30 @@ async function UpdateProgram(parent, args) {
   }
 }
 
+/**
+ * Delete the program document according to the _id.
+ * @param {Object} args - The arguments provided by the query.
+ * @param {string} args._id - The _id used to find for program document.
+ * @returns {Object} The program document that have been deleted.
+ * @throws {Error} If no program document are found.
+ */
+async function DeleteProgram(parent, args) {
+  try {
+    const { _id } = args;
+    const programDataCheck = await Program.findById(_id);
+
+    // *************** Check program document if it exists and the status is active then the document can be deleted.
+    if (programDataCheck && programDataCheck.status === 'active') {
+      const programResult = await Program.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
+      return programResult;
+    } else {
+      throw new Error('Program Data Not Found');
+    }
+  } catch (error) {
+    throw new Error(`An error occurred: ${error.message}`);
+  }
+}
+
 const resolvers = {
   Query: {
     GetAllPrograms,
@@ -99,6 +123,7 @@ const resolvers = {
   Mutation: {
     CreateProgram,
     UpdateProgram,
+    DeleteProgram,
   },
 };
 
