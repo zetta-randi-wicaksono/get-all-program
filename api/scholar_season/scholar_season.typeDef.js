@@ -20,8 +20,13 @@ const typeDefs = gql`
     createdAt: FilterCreateAtInput
   }
 
+  input ScholarSeasonSortingInput {
+    name: Int
+    createdAt: Int
+  }
+
   type Query {
-    GetAllScholarSeasons(filter: ScholarSeasonFilterInput): [ScholarSeason]
+    GetAllScholarSeasons(filter: ScholarSeasonFilterInput, sort: ScholarSeasonSortingInput): [ScholarSeason]
     GetOneScholarSeason(_id: ID!): ScholarSeason
   }
 

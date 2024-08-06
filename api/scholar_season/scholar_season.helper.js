@@ -40,14 +40,36 @@ function handleFiltersForGetAllScholarSeasons(filter) {
 }
 
 /**
+ * Handlers sorting for the aggregation query.
+ * @param {Object} sort - The sorting cretieria.
+ * @returns {Object} The sort object.
+ */
+function handleSortingForGetAllScholarSeasons(sort) {
+  if (sort) {
+    // *************** Data type and value validation on sort prameters.
+    for (const key in sort) {
+      if (sort[key] !== -1 && sort[key] !== 1) {
+        throw new Error('Invalid sort parameter format. Must be 1 or -1');
+      }
+    }
+
+    return sort;
+  } else {
+    return { createdAt: -1 }; // *************** Default sorting by createdAt in descending order.
+  }
+}
+
+/**
  * Constructs the aggregate query pipeline for fetching specialities.
  * @param {Object} filter - The filter criteria.
+ * @param {Object} sort - The object criteria.
  * @returns {Array} The aggregate query pipeline.
  */
-function createAggregateQueryForGetAllScholarSeasons(filter) {
+function createAggregateQueryForGetAllScholarSeasons(filter, sort) {
   const queryFilterMatch = handleFiltersForGetAllScholarSeasons(filter);
+  const querySorting = handleSortingForGetAllScholarSeasons(sort);
 
-  const aggregateQuery = [{ $match: queryFilterMatch }];
+  const aggregateQuery = [{ $match: queryFilterMatch }, { $sort: querySorting }];
   return aggregateQuery;
 }
 
