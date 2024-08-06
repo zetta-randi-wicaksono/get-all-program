@@ -11,9 +11,17 @@ const typeDefs = gql`
     count_document: Int
   }
 
+  input ScholarSeasonInput {
+    name: String
+  }
+
   type Query {
     GetAllScholarSeasons: [ScholarSeason]
     GetOneScholarSeason(_id: ID!): ScholarSeason
+  }
+
+  type Mutation {
+    CreateScholarSeason(scholar_season_input: ScholarSeasonInput): ScholarSeason
   }
 `;
 

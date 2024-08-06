@@ -45,10 +45,33 @@ async function GetOneScholarSeason(parent, args) {
   }
 }
 
+// *************** MUTATION ***************
+/**
+ * Create a new document in the scholar seasons collection
+ * @param {Object} args - The arguments provided by the query.
+ * @param {Object} args.scholar_season_input - The scholar season input data that will be entered into the document
+ * @returns {Object} The scholar season document that have been created
+ * @throws {Error} If the name is already in use or already in scholar seasons collection.
+ */
+async function CreateScholarSeason(parent, args) {
+  try {
+    const createScholarSeasonInput = { ...args.scholar_season_input };
+    const scholarSeasonResult = new ScholarSeason(createScholarSeasonInput);
+    await scholarSeasonResult.save();
+    return scholarSeasonResult;
+  } catch (error) {
+    throw new Error(`An error occurred: ${error.message}`);
+  }
+}
+
 const resolvers = {
   Query: {
     GetAllScholarSeasons,
     GetOneScholarSeason,
+  },
+
+  Mutation: {
+    CreateScholarSeason,
   },
 };
 
