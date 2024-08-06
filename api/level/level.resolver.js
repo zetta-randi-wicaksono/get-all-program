@@ -6,7 +6,7 @@ const { createAggregateQueryForGetAllLevels } = require('./level.helper');
 
 // *************** QUERY ***************
 /**
- * Retrieves all specialities based on provided filters, sorting, and pagination.
+ * Retrieves all levels based on provided filters, sorting, and pagination.
  * @param {Object} args - The arguments provided by the query.
  * @param {Object} args.filter - The filter criteria.
  * @param {Object} args.sort - The sort criteria.

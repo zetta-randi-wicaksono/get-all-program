@@ -2,7 +2,7 @@
 const { gql } = require('apollo-server-express');
 
 const typeDefs = gql`
-  type Level {
+  type Campus {
     _id: ID
     name: String!
     status: EnumStatus
@@ -11,29 +11,29 @@ const typeDefs = gql`
     count_document: Int
   }
 
-  input LevelInput {
+  input CampusInput {
     name: String
   }
 
-  input LevelFilterInput {
+  input CampusFilterInput {
     name: String
     createdAt: FilterCreateAtInput
   }
 
-  input LevelSortingInput {
+  input CampusSortingInput {
     name: Int
     createdAt: Int
   }
 
   type Query {
-    GetAllLevels(filter: LevelFilterInput, sort: LevelSortingInput, pagination: PaginationInput): [Level]
-    GetOneLevel(_id: ID!): Level
+    GetAllCampuses(filter: CampusFilterInput, sort: CampusSortingInput, pagination: PaginationInput): [Campus]
+    GetOneCampus(_id: ID!): Campus
   }
 
   type Mutation {
-    CreateLevel(level_input: LevelInput): Level
-    UpdateLevel(_id: ID!, level_input: LevelInput): Level
-    DeleteLevel(_id: ID!): Level
+    CreateCampus(campus_input: CampusInput): Campus
+    UpdateCampus(_id: ID!, campus_input: CampusInput): Campus
+    DeleteCampus(_id: ID!): Campus
   }
 `;
 

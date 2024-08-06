@@ -1,4 +1,4 @@
-// *************** IMPORT LIBRARY ***************
+// *************** IMPORT CORE ***************
 const { gql } = require('apollo-server-express');
 
 const typeDefs = gql`

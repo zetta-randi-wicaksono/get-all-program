@@ -2,10 +2,10 @@
 const mongoose = require('mongoose');
 
 /**
- * Schema definition for Speciality
+ * Schema definition for Campus
  * @type {mongoose.Schema}
  */
-const specialitySchema = new mongoose.Schema(
+const campusSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
     status: { type: String, enum: ['active', 'deleted'], default: 'active', required: true },
@@ -16,4 +16,4 @@ const specialitySchema = new mongoose.Schema(
 );
 
 // *************** EXPORT MODULE ***************
-module.exports = new mongoose.model('Speciality', specialitySchema);
+module.exports = new mongoose.model('Campus', campusSchema);

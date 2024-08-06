@@ -2,7 +2,7 @@
 const mongoose = require('mongoose');
 
 /**
- * Schema definition for Sector
+ * Schema definition for Level
  * @type {mongoose.Schema}
  */
 const levelSchema = new mongoose.Schema(
