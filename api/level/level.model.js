@@ -1,4 +1,4 @@
-// *************** IMPORT LIBRARY ***************
+// *************** IMPORT CORE ***************
 const mongoose = require('mongoose');
 
 /**
@@ -15,5 +15,7 @@ const levelSchema = new mongoose.Schema(
   }
 );
 
+const Level = new mongoose.model('Level', levelSchema);
+
 // *************** EXPORT MODULE ***************
-module.exports = new mongoose.model('Level', levelSchema);
+module.exports = Level;

@@ -1,4 +1,4 @@
-// *************** IMPORT LIBRARY ***************
+// *************** IMPORT CORE ***************
 const mongoose = require('mongoose');
 
 /**
@@ -15,5 +15,7 @@ const sectorSchema = new mongoose.Schema(
   }
 );
 
+const Sector = new mongoose.model('Sector', sectorSchema);
+
 // *************** EXPORT MODULE ***************
-module.exports = new mongoose.model('Sector', sectorSchema);
+module.exports = Sector;

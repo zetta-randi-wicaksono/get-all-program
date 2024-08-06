@@ -1,4 +1,4 @@
-// *************** IMPORT LIBRARY ***************
+// *************** IMPORT CORE ***************
 const mongoose = require('mongoose');
 
 /**
@@ -15,5 +15,7 @@ const campusSchema = new mongoose.Schema(
   }
 );
 
+const Campus = new mongoose.model('Campus', campusSchema);
+
 // *************** EXPORT MODULE ***************
-module.exports = new mongoose.model('Campus', campusSchema);
+module.exports = Campus;

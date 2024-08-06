@@ -1,4 +1,4 @@
-// *************** IMPORT LIBRARY ***************
+// *************** IMPORT CORE ***************
 const mongoose = require('mongoose');
 
 /**
@@ -15,5 +15,7 @@ const specialitySchema = new mongoose.Schema(
   }
 );
 
+const Speciality = new mongoose.model('Speciality', specialitySchema);
+
 // *************** EXPORT MODULE ***************
-module.exports = new mongoose.model('Speciality', specialitySchema);
+module.exports = Speciality;
