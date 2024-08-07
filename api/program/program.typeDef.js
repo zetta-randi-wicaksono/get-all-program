@@ -47,6 +47,13 @@ const typeDefs = gql`
 
   input ProgramSortingInput {
     name: Int
+    speciality_id: Int
+    sector_id: Int
+    level_id: Int
+    campus_id: Int
+    school_id: Int
+    scholar_season_id: Int
+    program_publish_status: Int
     createdAt: Int
   }
 

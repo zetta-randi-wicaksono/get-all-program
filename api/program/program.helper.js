@@ -164,6 +164,8 @@ async function handleFiltersForGetAllPrograms(filter) {
  * @returns {Object} The sort object.
  */
 function handleSortingForGetAllPrograms(sort) {
+  sortPipeline = [];
+
   if (sort) {
     // *************** Data type and value validation on sort prameters.
     for (const key in sort) {
@@ -172,9 +174,56 @@ function handleSortingForGetAllPrograms(sort) {
       }
     }
 
-    return sort;
+    if (sort.name || sort.program_publish_status) {
+      sortPipeline.push({ $sort: sort });
+    }
+
+    if (sort.speciality_id) {
+      sortPipeline.push(
+        { $lookup: { from: 'specialities', localField: 'speciality_id', foreignField: '_id', as: 'speciality' } },
+        { $sort: { 'speciality.name': sort.speciality_id } }
+      );
+    }
+
+    if (sort.sector_id) {
+      sortPipeline.push(
+        { $lookup: { from: 'sectors', localField: 'sector_id', foreignField: '_id', as: 'sector' } },
+        { $sort: { 'sector.name': sort.sector_id } }
+      );
+    }
+
+    if (sort.level_id) {
+      sortPipeline.push(
+        { $lookup: { from: 'levels', localField: 'level_id', foreignField: '_id', as: 'level' } },
+        { $sort: { 'level.name': sort.level_id } }
+      );
+    }
+
+    if (sort.campus_id) {
+      sortPipeline.push(
+        { $lookup: { from: 'campus', localField: 'campus_id', foreignField: '_id', as: 'campus' } },
+        { $sort: { 'campus.name': sort.campus_id } }
+      );
+    }
+
+    if (sort.school_id) {
+      sortPipeline.push(
+        { $lookup: { from: 'schools', localField: 'school_id', foreignField: '_id', as: 'school' } },
+        { $sort: { 'shcool.name': sort.school_id } }
+      );
+    }
+
+    if (sort.scholar_season_id) {
+      sortPipeline.push(
+        { $lookup: { from: 'scholar_seasons', localField: 'scholar_season_id', foreignField: '_id', as: 'scholar_season' } },
+        { $sort: { 'scholar_season.name': sort.scholar_season_id } }
+      );
+    }
+
+    return sortPipeline;
   } else {
-    return { createdAt: -1 }; // *************** Default sorting by createdAt in descending order.
+    sortPipeline.push({ $sort: { createdAt: -1 } });
+    return sortPipeline; // *************** Default sorting by createdAt in descending order.
   }
 }
 
@@ -219,7 +268,7 @@ async function createAggregateQueryForGetAllPrograms(filter, sort, pagination) {
   const querySorting = handleSortingForGetAllPrograms(sort);
   const queryPagination = handlePaginationForGetAllPrograms(pagination);
 
-  const aggregateQuery = [{ $match: queryFilterMatch }, { $sort: querySorting }, ...queryPagination];
+  const aggregateQuery = [{ $match: queryFilterMatch }, ...querySorting, ...queryPagination];
   return aggregateQuery;
 }
 

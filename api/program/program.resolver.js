@@ -171,7 +171,7 @@ async function UnpublishProgram(parent, args) {
     }
 
     if (programDataCheck.program_publish_status === 'not_published') {
-      throw new Error('The Program Already Published. Cannot Unpublish The Not Published Program.');
+      throw new Error('The Program Already UnPublished. Cannot Unpublish The Not Published Program.');
     }
 
     const programResult = await Program.findByIdAndUpdate(
