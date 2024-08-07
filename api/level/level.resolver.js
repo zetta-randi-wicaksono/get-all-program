@@ -69,6 +69,12 @@ async function GetOneLevel(parent, args) {
 async function CreateLevel(parent, args) {
   try {
     const createLevelInput = { ...args.level_input };
+
+    const levelNameCheck = await Level.findOne({ name: createLevelInput.name }).collation({ locale: 'en', strength: 2 });
+    if (levelNameCheck) {
+      throw new Error(`Name '${createLevelInput.name}' Has Already Been Taken`);
+    }
+
     const levelResult = new Level(createLevelInput);
     await levelResult.save();
     return levelResult;
@@ -101,6 +107,14 @@ async function UpdateLevel(parent, args) {
     }
 
     const updateLevelInput = { ...args.level_input };
+
+    if (updateLevelInput.name) {
+      const levelNameCheck = await Level.findOne({ name: updateLevelInput.name }).collation({ locale: 'en', strength: 2 });
+      if (levelNameCheck) {
+        throw new Error(`Name '${updateLevelInput.name}' Has Already Been Taken`);
+      }
+    }
+
     const levelResult = await Level.findByIdAndUpdate(_id, updateLevelInput, { new: true, useFindAndModify: false });
     return levelResult;
   } catch (error) {

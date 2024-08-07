@@ -69,6 +69,12 @@ async function GetOneSector(parent, args) {
 async function CreateSector(parent, args) {
   try {
     const createSectorInput = { ...args.sector_input };
+
+    const sectorNameCheck = await Sector.findOne({ name: createSectorInput.name }).collation({ locale: 'en', strength: 2 });
+    if (sectorNameCheck) {
+      throw new Error(`Name '${createSectorInput.name}' Has Already Been Taken`);
+    }
+
     const sectorResult = new Sector(createSectorInput);
     await sectorResult.save();
     return sectorResult;
@@ -101,6 +107,14 @@ async function UpdateSector(parent, args) {
     }
 
     const updateSectorInput = { ...args.sector_input };
+
+    if (updateSectorInput.name) {
+      const sectorNameCheck = await Sector.findOne({ name: updateSectorInput.name }).collation({ locale: 'en', strength: 2 });
+      if (sectorNameCheck) {
+        throw new Error(`Name '${updateSectorInput.name}' Has Already Been Taken`);
+      }
+    }
+
     const sectorResult = await Sector.findByIdAndUpdate(args._id, updateSectorInput, { new: true, useFindAndModify: false });
     return sectorResult;
   } catch (error) {

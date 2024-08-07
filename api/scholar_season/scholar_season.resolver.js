@@ -69,6 +69,15 @@ async function GetOneScholarSeason(parent, args) {
 async function CreateScholarSeason(parent, args) {
   try {
     const createScholarSeasonInput = { ...args.scholar_season_input };
+
+    const scholarSeasonNameCheck = await ScholarSeason.findOne({ name: createScholarSeasonInput.name }).collation({
+      locale: 'en',
+      strength: 2,
+    });
+    if (scholarSeasonNameCheck) {
+      throw new Error(`Name '${createScholarSeasonInput.name}' Has Already Been Taken`);
+    }
+
     const scholarSeasonResult = new ScholarSeason(createScholarSeasonInput);
     await scholarSeasonResult.save();
     return scholarSeasonResult;
@@ -101,6 +110,17 @@ async function UpdateScholarSeason(parent, args) {
     }
 
     const updateScholarSeasonInput = { ...args.scholar_season_input };
+
+    if (updateScholarSeasonInput.name) {
+      const scholarSeasonNameCheck = await ScholarSeason.findOne({ name: updateScholarSeasonInput.name }).collation({
+        locale: 'en',
+        strength: 2,
+      });
+      if (scholarSeasonNameCheck) {
+        throw new Error(`Name '${updateScholarSeasonInput.name}' Has Already Been Taken`);
+      }
+    }
+
     const scholarSeasonResult = await ScholarSeason.findByIdAndUpdate(_id, updateScholarSeasonInput, {
       new: true,
       useFindAndModify: false,
