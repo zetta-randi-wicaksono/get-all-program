@@ -1,17 +1,18 @@
 // *************** IMPORT MODULE ***************
 const Program = require('./program.model');
+const Speciality = require('../speciality/speciality.model');
 
 // *************** QUERY ***************
 /**
  * Retrieves all programs from collection.
- * @returns {Array} The list of scholar seasons.
+ * @returns {Array} The list of program.
  * @throws {Error} If no programs are found.
  */
 async function GetAllPrograms(parent, args) {
   try {
     const programsResult = await Program.find({ status: 'active' }).sort({ createdAt: -1 });
 
-    // *************** Check scholar seasons collection length
+    // *************** Check program collection length
     if (!programsResult.length) {
       throw new Error('Program Data is Empty');
     }
@@ -55,8 +56,24 @@ async function GetOneProgram(parent, args) {
  */
 async function CreateProgram(parent, args) {
   try {
-    const createProgramInput = { ...args.program_input };
-    const programResult = new Program(createProgramInput);
+    const { program_input } = args;
+    const programDataCheck = await Program.findOne({ name: args.program_input.name }).collation({ locale: 'en', strength: 2 });
+
+    if (programDataCheck) {
+      throw new Error('Name has already been taken');
+    }
+
+    if (program_input.speciality_id) {
+      const speciality_id = program_input.speciality_id;
+      const specialityIdDataCheck = await Speciality.findOne({ _id: speciality_id, status: 'active' });
+      console.log('specialityIdDataCheck', specialityIdDataCheck);
+
+      if (!specialityIdDataCheck) {
+        throw new Error(`ID ${speciality_id} Not Found in Speciality Data`);
+      }
+    }
+
+    const programResult = new Program(program_input);
     await programResult.save();
     return programResult;
   } catch (error) {
@@ -77,7 +94,7 @@ async function UpdateProgram(parent, args) {
     const { _id } = args;
     const programDataCheck = await Program.findById(_id);
 
-    // *************** Validation throw error when scholar season data is null or scholar season status is deleted
+    // *************** Validation throw error when program data is null or program status is deleted
     if (!programDataCheck || programDataCheck.status === 'deleted') {
       throw new Error('Program Data Not Found');
     }
@@ -114,6 +131,48 @@ async function DeleteProgram(parent, args) {
   }
 }
 
+async function PublishProgram(parent, args) {
+  try {
+    const { _id } = args;
+    const programDataCheck = await Program.findById(_id);
+
+    // *************** Validation throw error when program data is null or program status is deleted
+    if (!programDataCheck || programDataCheck.status === 'deleted') {
+      throw new Error('Program Data Not Found');
+    }
+
+    const programResult = await Program.findByIdAndUpdate(
+      _id,
+      { program_publish_status: 'published' },
+      { new: true, useFindAndModify: false }
+    );
+    return programResult;
+  } catch (error) {
+    throw new Error(`An error occurred: ${error.message}`);
+  }
+}
+
+async function UnpublishProgram(parent, args) {
+  try {
+    const { _id } = args;
+    const programDataCheck = await Program.findById(_id);
+
+    // *************** Validation throw error when program data is null or program status is deleted
+    if (!programDataCheck || programDataCheck.status === 'deleted') {
+      throw new Error('Program Data Not Found');
+    }
+
+    const programResult = await Program.findByIdAndUpdate(
+      _id,
+      { program_publish_status: 'not_published' },
+      { new: true, useFindAndModify: false }
+    );
+    return programResult;
+  } catch (error) {
+    throw new Error(`An error occurred: ${error.message}`);
+  }
+}
+
 const resolvers = {
   Query: {
     GetAllPrograms,
@@ -124,6 +183,8 @@ const resolvers = {
     CreateProgram,
     UpdateProgram,
     DeleteProgram,
+    PublishProgram,
+    UnpublishProgram,
   },
 };
 
