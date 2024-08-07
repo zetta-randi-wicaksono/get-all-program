@@ -39,6 +39,14 @@ const graphqlConfig = {
       scholarSeason: scholarSeason.model,
       program: program.model,
     },
+    loaders: {
+      specialityLoader: speciality.loader,
+      sectorLoader: sector.loader,
+      schoolLoader: school.loader,
+      scholarSeasonLoader: scholarSeason.loader,
+      campusLoader: campus.loader,
+      levelLoader: level.loader,
+    },
   },
 };
 

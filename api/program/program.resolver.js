@@ -183,6 +183,54 @@ async function UnpublishProgram(parent, args) {
   }
 }
 
+async function speciality_id(program, args, context) {
+  const { specialityLoader } = context.loaders;
+  if (program.speciality_id) {
+    const specialities = await specialityLoader.load(program.speciality_id);
+    return specialities;
+  }
+}
+
+async function sector_id(program, args, context) {
+  const { sectorLoader } = context.loaders;
+  if (program.sector_id) {
+    const sectors = await sectorLoader.load(program.sector_id);
+    return sectors;
+  }
+}
+
+async function school_id(program, args, context) {
+  const { schoolLoader } = context.loaders;
+  if (program.school_id) {
+    const schools = await schoolLoader.load(program.school_id);
+    return schools;
+  }
+}
+
+async function scholar_season_id(program, args, context) {
+  const { scholarSeasonLoader } = context.loaders;
+  if (program.scholar_season_id) {
+    const scholarSeasons = await scholarSeasonLoader.load(program.scholar_season_id);
+    return scholarSeasons;
+  }
+}
+
+async function level_id(program, args, context) {
+  const { levelLoader } = context.loaders;
+  if (program.level_id) {
+    const levels = await levelLoader.load(program.level_id);
+    return levels;
+  }
+}
+
+async function campus_id(program, args, context) {
+  const { campusLoader } = context.loaders;
+  if (program.campus_id) {
+    const campuses = await campusLoader.load(program.campus_id);
+    return campuses;
+  }
+}
+
 const resolvers = {
   Query: {
     GetAllPrograms,
@@ -195,6 +243,15 @@ const resolvers = {
     DeleteProgram,
     PublishProgram,
     UnpublishProgram,
+  },
+
+  Program: {
+    speciality_id,
+    sector_id,
+    school_id,
+    scholar_season_id,
+    level_id,
+    campus_id,
   },
 };
 

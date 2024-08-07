@@ -7,12 +7,12 @@ const typeDefs = gql`
     name: String!
     status: EnumStatus
     program_publish_status: EnumProgramPublishStatus
-    speciality_id: ID
-    sector_id: ID
-    level_id: ID
-    campus_id: ID
-    school_id: ID
-    scholar_season_id: ID
+    speciality_id: Speciality
+    sector_id: Sector
+    level_id: Level
+    campus_id: Campus
+    school_id: School
+    scholar_season_id: ScholarSeason
     createdAt: Date
     updatedAt: Date
     count_document: Int
