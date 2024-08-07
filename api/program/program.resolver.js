@@ -1,24 +1,26 @@
 // *************** IMPORT MODULE ***************
 const Program = require('./program.model');
-const Speciality = require('../speciality/speciality.model');
-const Sector = require('../sector/sector.model');
-const Level = require('../level/level.model');
-const Campus = require('../campus/campus.model');
-const School = require('../school/school.model');
-const ScholarSeason = require('../scholar_season/scholar_season.model');
 
 // *************** IMPORT HELPER FUNCTION ***************
-const { handleValidationForProgramInput } = require('./program.helper');
+const { handleValidationForProgramInput, createAggregateQueryForGetAllPrograms } = require('./program.helper');
 
 // *************** QUERY ***************
 /**
  * Retrieves all programs from collection.
+ * @param {Object} args - The arguments provided by the query.
+ * @param {Object} args.filter - The filter criteria.
+ * @param {Object} args.sort - The sort criteria.
+ * @param {Object} args.pagination - The pagination criteria.
  * @returns {Array} The list of program.
  * @throws {Error} If no programs are found.
  */
 async function GetAllPrograms(parent, args) {
   try {
-    const programsResult = await Program.find({ status: 'active' }).sort({ createdAt: -1 });
+    const { filter, sort, pagination } = args;
+    const aggregateQuery = await createAggregateQueryForGetAllPrograms(filter, sort, pagination); // *************** Create aggregation query from arguments
+    console.log(aggregateQuery);
+
+    const programsResult = await Program.aggregate(aggregateQuery);
 
     // *************** Check program collection length
     if (!programsResult.length) {

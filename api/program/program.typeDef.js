@@ -33,8 +33,25 @@ const typeDefs = gql`
     scholar_season_id: ID
   }
 
+  input ProgramFilterInput {
+    name: String
+    speciality_id: [ID]
+    sector_id: [ID]
+    level_id: [ID]
+    campus_id: [ID]
+    school_id: [ID]
+    scholar_season_id: [ID]
+    program_publish_status: EnumProgramPublishStatus
+    createdAt: FilterCreateAtInput
+  }
+
+  input ProgramSortingInput {
+    name: Int
+    createdAt: Int
+  }
+
   type Query {
-    GetAllPrograms: [Program]
+    GetAllPrograms(filter: ProgramFilterInput, sort: ProgramSortingInput, pagination: PaginationInput): [Program]
     GetOneProgram(_id: ID!): Program
   }
 

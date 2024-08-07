@@ -22,6 +22,7 @@ async function GetAllSchools(parent, args) {
   try {
     const { filter, sort, pagination } = args;
     const aggregateQuery = createAggregateQueryForGetAllSchools(filter, sort, pagination); // *************** Create aggregation query from arguments
+
     const schoolsResult = await School.aggregate(aggregateQuery);
 
     // *************** Check schools collection length
