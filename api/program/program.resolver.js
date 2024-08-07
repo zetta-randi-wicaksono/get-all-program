@@ -1,6 +1,11 @@
 // *************** IMPORT MODULE ***************
 const Program = require('./program.model');
 const Speciality = require('../speciality/speciality.model');
+const Sector = require('../sector/sector.model');
+const Level = require('../level/level.model');
+const Campus = require('../campus/campus.model');
+const School = require('../school/school.model');
+const ScholarSeason = require('../scholar_season/scholar_season.model');
 
 // *************** QUERY ***************
 /**
@@ -25,7 +30,7 @@ async function GetAllPrograms(parent, args) {
 
 /**
  * Retrieves one program document based on _id.
- * @param {Object} args  - The arguments provided by the query.
+ * @param {Object} args - The arguments provided by the query.
  * @param {string} args._id - The _id used to search for program document.
  * @returns {Object} The program document.
  * @throws {Error} If no program document are found.
@@ -64,12 +69,62 @@ async function CreateProgram(parent, args) {
     }
 
     if (program_input.speciality_id) {
-      const speciality_id = program_input.speciality_id;
-      const specialityIdDataCheck = await Speciality.findOne({ _id: speciality_id, status: 'active' });
+      const specialityId = program_input.speciality_id;
+      const specialityIdDataCheck = await Speciality.findOne({ _id: specialityId, status: 'active' });
       console.log('specialityIdDataCheck', specialityIdDataCheck);
 
       if (!specialityIdDataCheck) {
-        throw new Error(`ID ${speciality_id} Not Found in Speciality Data`);
+        throw new Error(`ID ${specialityId} Not Found in Speciality Data`);
+      }
+    }
+
+    if (program_input.sector_id) {
+      const sectorId = program_input.sector_id;
+      const sectorIdDataCheck = await Sector.findOne({ _id: sectorId, status: 'active' });
+      console.log('sectorIdDataCheck', sectorIdDataCheck);
+
+      if (!sectorIdDataCheck) {
+        throw new Error(`ID ${sectorId} Not Found in Sector Data`);
+      }
+    }
+
+    if (program_input.level_id) {
+      const levelId = program_input.level_id;
+      const levelIdDataCheck = await Level.findOne({ _id: levelId, status: 'active' });
+      console.log('levelIdDataCheck', levelIdDataCheck);
+
+      if (!levelIdDataCheck) {
+        throw new Error(`ID ${levelId} Not Found in Level Data`);
+      }
+    }
+
+    if (program_input.campus_id) {
+      const campusId = program_input.campus_id;
+      const campusIdDataCheck = await Campus.findOne({ _id: campusId, status: 'active' });
+      console.log('campusIdDataCheck', campusIdDataCheck);
+
+      if (!campusIdDataCheck) {
+        throw new Error(`ID ${campusId} Not Found in Campus Data`);
+      }
+    }
+
+    if (program_input.school_id) {
+      const schoolId = program_input.school_id;
+      const schoolIdDataCheck = await School.findOne({ _id: schoolId, status: 'active' });
+      console.log('schoolIdDataCheck', schoolIdDataCheck);
+
+      if (!schoolIdDataCheck) {
+        throw new Error(`ID ${schoolId} Not Found in School Data`);
+      }
+    }
+
+    if (program_input.scholar_season_id) {
+      const scholarSeasonId = program_input.scholar_season_id;
+      const scholarSeasonIdDataCheck = await ScholarSeason.findOne({ _id: scholarSeasonId, status: 'active' });
+      console.log('scholarSeasonIdDataCheck', scholarSeasonIdDataCheck);
+
+      if (!scholarSeasonIdDataCheck) {
+        throw new Error(`ID ${scholarSeasonId} Not Found in Scholar Season Data`);
       }
     }
 
