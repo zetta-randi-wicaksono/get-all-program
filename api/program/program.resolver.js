@@ -93,6 +93,10 @@ async function UpdateProgram(parent, args) {
       throw new Error('Program Data Not Found');
     }
 
+    if (programDataCheck.program_publish_status === 'published') {
+      throw new Error('Cannot Update Published Program. To Update You Need Unpublish The Program');
+    }
+
     await handleValidationForProgramInput(program_input);
 
     const programResult = await Program.findByIdAndUpdate(_id, program_input, { new: true, useFindAndModify: false });
@@ -116,6 +120,9 @@ async function DeleteProgram(parent, args) {
 
     // *************** Check program document if it exists and the status is active then the document can be deleted.
     if (programDataCheck && programDataCheck.status === 'active') {
+      if (programDataCheck.program_publish_status === 'published') {
+        throw new Error('Cannot Delete Published Program. To Delete You Need Unpublish The Program');
+      }
       const programResult = await Program.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
       return programResult;
     } else {
@@ -134,6 +141,10 @@ async function PublishProgram(parent, args) {
     // *************** Validation throw error when program data is null or program status is deleted
     if (!programDataCheck || programDataCheck.status === 'deleted') {
       throw new Error('Program Data Not Found');
+    }
+
+    if (programDataCheck.program_publish_status === 'published') {
+      throw new Error('The Program Already Published. Cannot Publish The Published Program.');
     }
 
     const programResult = await Program.findByIdAndUpdate(
@@ -155,6 +166,10 @@ async function UnpublishProgram(parent, args) {
     // *************** Validation throw error when program data is null or program status is deleted
     if (!programDataCheck || programDataCheck.status === 'deleted') {
       throw new Error('Program Data Not Found');
+    }
+
+    if (programDataCheck.program_publish_status === 'not_published') {
+      throw new Error('The Program Already Published. Cannot Unpublish The Not Published Program.');
     }
 
     const programResult = await Program.findByIdAndUpdate(

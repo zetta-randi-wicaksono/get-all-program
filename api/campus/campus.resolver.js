@@ -1,5 +1,9 @@
+// *************** IMPORT CORE ***************
+const mongoose = require('mongoose');
+
 // *************** IMPORT MODULE ***************
 const Campus = require('./campus.model');
+const Program = require('../program/program.model');
 
 // *************** IMPORT HELPER FUNCTION ***************
 const { createAggregateQueryForGetAllCampuses } = require('./campus.helper');
@@ -91,6 +95,11 @@ async function UpdateCampus(parent, args) {
       throw new Error('Campus Data Not Found');
     }
 
+    const connectedToProgramCheck = await Program.find({ campus_id: mongoose.Types.ObjectId(_id) });
+    if (connectedToProgramCheck.length) {
+      throw new Error('Cannot Update. Campus Id is Still Used in The Program');
+    }
+
     const updateCampusInput = { ...args.campus_input };
     const campusResult = await Campus.findByIdAndUpdate(_id, updateCampusInput, { new: true, useFindAndModify: false });
     return campusResult;
@@ -113,8 +122,13 @@ async function DeleteCampus(parent, args) {
 
     // *************** Check campus document if it exists and the status is active then the document can be deleted.
     if (campusDataCheck && campusDataCheck.status === 'active') {
-      const campusResult = await Campus.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
-      return campusResult;
+      const connectedToProgramCheck = await Program.find({ campus_id: mongoose.Types.ObjectId(_id) });
+      if (!connectedToProgramCheck.length) {
+        const campusResult = await Campus.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
+        return campusResult;
+      } else {
+        throw new Error('Cannot Delete. Campus Id is Still Used in The Program');
+      }
     } else {
       throw new Error('Campus Data Not Found');
     }

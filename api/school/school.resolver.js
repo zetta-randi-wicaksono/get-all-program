@@ -1,5 +1,9 @@
+// *************** IMPORT CORE ***************
+const mongoose = require('mongoose');
+
 // *************** IMPORT MODULE ***************
 const School = require('./school.model');
+const Program = require('../program/program.model');
 
 // *************** IMPORT HELPER FUNCTION ***************
 const { createAggregateQueryForGetAllSchools } = require('./school.helper');
@@ -91,6 +95,11 @@ async function UpdateSchool(parent, args) {
       throw new Error('School Data Not Found');
     }
 
+    const connectedToProgramCheck = await Program.find({ school_id: mongoose.Types.ObjectId(_id) });
+    if (connectedToProgramCheck.length) {
+      throw new Error('Cannot Update. School Id is Still Used in The Program');
+    }
+
     const updateSchoolInput = { ...args.school_input };
     const schoolResult = await School.findByIdAndUpdate(_id, updateSchoolInput, { new: true, useFindAndModify: false });
     return schoolResult;
@@ -113,8 +122,13 @@ async function DeleteSchool(parent, args) {
 
     // *************** Check school document if it exists and the status is active then the document can be deleted.
     if (schoolDataCheck && schoolDataCheck.status === 'active') {
-      const schoolResult = await School.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
-      return schoolResult;
+      const connectedToProgramCheck = await Program.find({ school_id: mongoose.Types.ObjectId(_id) });
+      if (!connectedToProgramCheck.length) {
+        const schoolResult = await School.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
+        return schoolResult;
+      } else {
+        throw new Error('Cannot Delete. Sector Id is Still Used in The Program');
+      }
     } else {
       throw new Error('School Data Not Found');
     }

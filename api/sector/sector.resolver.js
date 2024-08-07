@@ -1,5 +1,9 @@
+// *************** IMPORT CORE ***************
+const mongoose = require('mongoose');
+
 // *************** IMPORT MODULE ***************
 const Sector = require('./sector.model');
+const Program = require('../program/program.model');
 
 // *************** IMPORT HELPER FUNCTION ***************
 const { createAggregateQueryForGetAllSectors } = require('./sector.helper');
@@ -91,6 +95,11 @@ async function UpdateSector(parent, args) {
       throw new Error('Sector Data Not Found');
     }
 
+    const connectedToProgramCheck = await Program.find({ sector_id: mongoose.Types.ObjectId(_id) });
+    if (connectedToProgramCheck.length) {
+      throw new Error('Cannot Update. Sector Id is Still Used in The Program');
+    }
+
     const updateSectorInput = { ...args.sector_input };
     const sectorResult = await Sector.findByIdAndUpdate(args._id, updateSectorInput, { new: true, useFindAndModify: false });
     return sectorResult;
@@ -113,8 +122,13 @@ async function DeleteSector(parent, args) {
 
     // *************** Check sector document if it exists and the status is active then the document can be deleted.
     if (sectorDataCheck && sectorDataCheck.status === 'active') {
-      const sectorResult = await Sector.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
-      return sectorResult;
+      const connectedToProgramCheck = await Program.find({ sector_id: mongoose.Types.ObjectId(_id) });
+      if (!connectedToProgramCheck.length) {
+        const sectorResult = await Sector.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
+        return sectorResult;
+      } else {
+        throw new Error('Cannot Delete. Sector Id is Still Used in The Program');
+      }
     } else {
       throw new Error('Sector Data Not Found');
     }

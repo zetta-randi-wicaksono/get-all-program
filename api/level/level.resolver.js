@@ -1,5 +1,9 @@
+// *************** IMPORT CORE ***************
+const mongoose = require('mongoose');
+
 // *************** IMPORT MODULE ***************
 const Level = require('./level.model');
+const Program = require('../program/program.model');
 
 // *************** IMPORT HELPER FUNCTION ***************
 const { createAggregateQueryForGetAllLevels } = require('./level.helper');
@@ -91,6 +95,11 @@ async function UpdateLevel(parent, args) {
       throw new Error('Level Data Not Found');
     }
 
+    const connectedToProgramCheck = await Program.find({ level_id: mongoose.Types.ObjectId(_id) });
+    if (connectedToProgramCheck.length) {
+      throw new Error('Cannot Update. Level Id is Still Used in The Program');
+    }
+
     const updateLevelInput = { ...args.level_input };
     const levelResult = await Level.findByIdAndUpdate(_id, updateLevelInput, { new: true, useFindAndModify: false });
     return levelResult;
@@ -113,8 +122,13 @@ async function DeleteLevel(parent, args) {
 
     // *************** Check level document if it exists and the status is active then the document can be deleted.
     if (levelDataCheck && levelDataCheck.status === 'active') {
-      const levelResult = await Level.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
-      return levelResult;
+      const connectedToProgramCheck = await Program.find({ level_id: mongoose.Types.ObjectId(_id) });
+      if (!connectedToProgramCheck.length) {
+        const levelResult = await Level.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
+        return levelResult;
+      } else {
+        throw new Error('Cannot Delete. Level Id is Still Used in The Program');
+      }
     } else {
       throw new Error('Level Data Not Found');
     }

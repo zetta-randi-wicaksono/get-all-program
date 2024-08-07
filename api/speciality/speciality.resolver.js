@@ -1,5 +1,9 @@
+// *************** IMPORT CORE ***************
+const mongoose = require('mongoose');
+
 // *************** IMPORT MODULE ***************
 const Speciality = require('./speciality.model');
+const Program = require('../program/program.model');
 
 // *************** IMPORT HELPER FUNCTION ***************
 const { createAggregateQueryForGetAllSpecialities } = require('./speciality.helper');
@@ -91,6 +95,11 @@ async function UpdateSpeciality(parent, args) {
       throw new Error('Speciality Data Not Found');
     }
 
+    const connectedToProgramCheck = await Program.find({ speciality_id: mongoose.Types.ObjectId(_id) });
+    if (connectedToProgramCheck.length) {
+      throw new Error('Cannot Update. Speciality Id is Still Used in The Program');
+    }
+
     const updateSpecialityInput = { ...args.speciality_input };
     const specialityResult = await Speciality.findByIdAndUpdate(_id, updateSpecialityInput, { new: true, useFindAndModify: false });
     return specialityResult;
@@ -113,8 +122,13 @@ async function DeleteSpeciality(parent, args) {
 
     // *************** Check speciality document if it exists and the status is active then the document can be deleted.
     if (specialityDataCheck && specialityDataCheck.status === 'active') {
-      const specialityResult = await Speciality.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
-      return specialityResult;
+      const connectedToProgramCheck = await Program.find({ speciality_id: mongoose.Types.ObjectId(_id) });
+      if (!connectedToProgramCheck.length) {
+        const specialityResult = await Speciality.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
+        return specialityResult;
+      } else {
+        throw new Error('Cannot Delete. Speciality Id is Still Used in The Program');
+      }
     } else {
       throw new Error('Speciality Data Not Found');
     }

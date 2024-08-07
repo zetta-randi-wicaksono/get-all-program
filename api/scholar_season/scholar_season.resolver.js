@@ -1,5 +1,9 @@
+// *************** IMPORT CORE ***************
+const mongoose = require('mongoose');
+
 // *************** IMPORT MODULE ***************
 const ScholarSeason = require('./scholar_season.model');
+const Program = require('../program/program.model');
 
 // *************** IMPORT HELPER FUNCTION ***************
 const { createAggregateQueryForGetAllScholarSeasons } = require('./scholar_season.helper');
@@ -91,6 +95,11 @@ async function UpdateScholarSeason(parent, args) {
       throw new Error('Scholar Season Data Not Found');
     }
 
+    const connectedToProgramCheck = await Program.find({ scholar_season_id: mongoose.Types.ObjectId(_id) });
+    if (connectedToProgramCheck.length) {
+      throw new Error('Cannot Update. Scholar Season Id is Still Used in The Program');
+    }
+
     const updateScholarSeasonInput = { ...args.scholar_season_input };
     const scholarSeasonResult = await ScholarSeason.findByIdAndUpdate(_id, updateScholarSeasonInput, {
       new: true,
@@ -116,8 +125,17 @@ async function DeleteScholarSeason(parent, args) {
 
     // *************** Check scholar season document if it exists and the status is active then the document can be deleted.
     if (scholarSeasonDataCheck && scholarSeasonDataCheck.status === 'active') {
-      const scholarSeasonResult = await ScholarSeason.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
-      return scholarSeasonResult;
+      const connectedToProgramCheck = await Program.find({ scholar_season_id: mongoose.Types.ObjectId(_id) });
+      if (!connectedToProgramCheck.length) {
+        const scholarSeasonResult = await ScholarSeason.findByIdAndUpdate(
+          _id,
+          { status: 'deleted' },
+          { new: true, useFindAndModify: false }
+        );
+        return scholarSeasonResult;
+      } else {
+        throw new Error('Cannot Delete. Scholar Season Id is Still Used in The Program');
+      }
     } else {
       throw new Error('Scholar Season Data Not Found');
     }
