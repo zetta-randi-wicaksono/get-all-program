@@ -7,6 +7,9 @@ const Campus = require('../campus/campus.model');
 const School = require('../school/school.model');
 const ScholarSeason = require('../scholar_season/scholar_season.model');
 
+// *************** IMPORT HELPER FUNCTION ***************
+const { handleValidationForProgramInput } = require('./program.helper');
+
 // *************** QUERY ***************
 /**
  * Retrieves all programs from collection.
@@ -62,71 +65,7 @@ async function GetOneProgram(parent, args) {
 async function CreateProgram(parent, args) {
   try {
     const { program_input } = args;
-    const programDataCheck = await Program.findOne({ name: args.program_input.name }).collation({ locale: 'en', strength: 2 });
-
-    if (programDataCheck) {
-      throw new Error('Name has already been taken');
-    }
-
-    if (program_input.speciality_id) {
-      const specialityId = program_input.speciality_id;
-      const specialityIdDataCheck = await Speciality.findOne({ _id: specialityId, status: 'active' });
-      console.log('specialityIdDataCheck', specialityIdDataCheck);
-
-      if (!specialityIdDataCheck) {
-        throw new Error(`ID ${specialityId} Not Found in Speciality Data`);
-      }
-    }
-
-    if (program_input.sector_id) {
-      const sectorId = program_input.sector_id;
-      const sectorIdDataCheck = await Sector.findOne({ _id: sectorId, status: 'active' });
-      console.log('sectorIdDataCheck', sectorIdDataCheck);
-
-      if (!sectorIdDataCheck) {
-        throw new Error(`ID ${sectorId} Not Found in Sector Data`);
-      }
-    }
-
-    if (program_input.level_id) {
-      const levelId = program_input.level_id;
-      const levelIdDataCheck = await Level.findOne({ _id: levelId, status: 'active' });
-      console.log('levelIdDataCheck', levelIdDataCheck);
-
-      if (!levelIdDataCheck) {
-        throw new Error(`ID ${levelId} Not Found in Level Data`);
-      }
-    }
-
-    if (program_input.campus_id) {
-      const campusId = program_input.campus_id;
-      const campusIdDataCheck = await Campus.findOne({ _id: campusId, status: 'active' });
-      console.log('campusIdDataCheck', campusIdDataCheck);
-
-      if (!campusIdDataCheck) {
-        throw new Error(`ID ${campusId} Not Found in Campus Data`);
-      }
-    }
-
-    if (program_input.school_id) {
-      const schoolId = program_input.school_id;
-      const schoolIdDataCheck = await School.findOne({ _id: schoolId, status: 'active' });
-      console.log('schoolIdDataCheck', schoolIdDataCheck);
-
-      if (!schoolIdDataCheck) {
-        throw new Error(`ID ${schoolId} Not Found in School Data`);
-      }
-    }
-
-    if (program_input.scholar_season_id) {
-      const scholarSeasonId = program_input.scholar_season_id;
-      const scholarSeasonIdDataCheck = await ScholarSeason.findOne({ _id: scholarSeasonId, status: 'active' });
-      console.log('scholarSeasonIdDataCheck', scholarSeasonIdDataCheck);
-
-      if (!scholarSeasonIdDataCheck) {
-        throw new Error(`ID ${scholarSeasonId} Not Found in Scholar Season Data`);
-      }
-    }
+    await handleValidationForProgramInput(program_input);
 
     const programResult = new Program(program_input);
     await programResult.save();
@@ -146,7 +85,7 @@ async function CreateProgram(parent, args) {
  */
 async function UpdateProgram(parent, args) {
   try {
-    const { _id } = args;
+    const { _id, program_input } = args;
     const programDataCheck = await Program.findById(_id);
 
     // *************** Validation throw error when program data is null or program status is deleted
@@ -154,8 +93,9 @@ async function UpdateProgram(parent, args) {
       throw new Error('Program Data Not Found');
     }
 
-    const updateProgramInput = { ...args.program_input };
-    const programResult = await Program.findByIdAndUpdate(_id, updateProgramInput, { new: true, useFindAndModify: false });
+    await handleValidationForProgramInput(program_input);
+
+    const programResult = await Program.findByIdAndUpdate(_id, program_input, { new: true, useFindAndModify: false });
     return programResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
