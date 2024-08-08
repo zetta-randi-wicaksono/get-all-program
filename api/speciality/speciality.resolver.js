@@ -118,7 +118,7 @@ async function UpdateSpeciality(parent, args) {
         strength: 2,
       });
 
-      if (specialityNameCheck) {
+      if (specialityNameCheck && specialityNameCheck._id.toString() !== _id) {
         throw new Error(`Name '${updateSpecialityInput.name}' Has Already Been Taken`);
       }
     }

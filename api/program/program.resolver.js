@@ -65,6 +65,12 @@ async function GetOneProgram(parent, args) {
 async function CreateProgram(parent, args) {
   try {
     const { program_input } = args;
+
+    const programNameCheck = await Program.findOne({ name: program_input.name, status: 'active' }).collation({ locale: 'en', strength: 2 });
+    if (programNameCheck) {
+      throw new Error(`Name '${program_input.name}' Has Already Been Taken`);
+    }
+
     await handleValidationForProgramInput(program_input);
 
     const programResult = new Program(program_input);
@@ -95,6 +101,16 @@ async function UpdateProgram(parent, args) {
 
     if (programDataCheck.program_publish_status === 'published') {
       throw new Error('Cannot Update Published Program. To Update You Need Unpublish The Program');
+    }
+
+    if (program_input.name) {
+      const programNameCheck = await Program.findOne({ name: program_input.name, status: 'active' }).collation({
+        locale: 'en',
+        strength: 2,
+      });
+      if (programNameCheck && programNameCheck._id.toString() !== _id) {
+        throw new Error(`Name '${program_input.name}' Has Already Been Taken`);
+      }
     }
 
     await handleValidationForProgramInput(program_input);

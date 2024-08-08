@@ -113,7 +113,7 @@ async function UpdateLevel(parent, args) {
         locale: 'en',
         strength: 2,
       });
-      if (levelNameCheck) {
+      if (levelNameCheck && levelNameCheck._id.toString() !== _id) {
         throw new Error(`Name '${updateLevelInput.name}' Has Already Been Taken`);
       }
     }

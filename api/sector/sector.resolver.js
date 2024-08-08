@@ -116,7 +116,7 @@ async function UpdateSector(parent, args) {
         locale: 'en',
         strength: 2,
       });
-      if (sectorNameCheck) {
+      if (sectorNameCheck && sectorNameCheck._id.toString() !== _id) {
         throw new Error(`Name '${updateSectorInput.name}' Has Already Been Taken`);
       }
     }

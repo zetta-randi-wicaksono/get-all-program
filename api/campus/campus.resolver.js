@@ -116,7 +116,7 @@ async function UpdateCampus(parent, args) {
         locale: 'en',
         strength: 2,
       });
-      if (campusNameCheck) {
+      if (campusNameCheck && campusNameCheck._id.toString() !== _id) {
         throw new Error(`Name '${updateCampusInput.name}' Has Already Been Taken`);
       }
     }

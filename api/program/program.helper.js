@@ -22,15 +22,6 @@ const ScholarSeason = require('../scholar_season/scholar_season.model');
  * @param {string} programInput.scholar_season_id - The input scholar_season_id that will be validate in scholar_seasons collection
  */
 async function handleValidationForProgramInput(programInput) {
-  if (programInput.name) {
-    const programInputName = programInput.name;
-    const programDataCheck = await Program.findOne({ name: programInputName, status: 'active' }).collation({ locale: 'en', strength: 2 });
-
-    if (programDataCheck) {
-      throw new Error(`Name '${programInputName}' Has Already Been Taken`);
-    }
-  }
-
   if (programInput.speciality_id) {
     const specialityId = programInput.speciality_id;
     const specialityIdDataCheck = await Speciality.findOne({ _id: specialityId, status: 'active' });

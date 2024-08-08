@@ -116,7 +116,7 @@ async function UpdateScholarSeason(parent, args) {
         locale: 'en',
         strength: 2,
       });
-      if (scholarSeasonNameCheck) {
+      if (scholarSeasonNameCheck && scholarSeasonNameCheck._id.toString() !== _id) {
         throw new Error(`Name '${updateScholarSeasonInput.name}' Has Already Been Taken`);
       }
     }
