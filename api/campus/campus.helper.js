@@ -67,7 +67,7 @@ function handleSortingForGetAllCampuses(sort) {
  * @param {string} collection - The name of collection to count the total documents.
  * @returns {Array} The pagination pipeline stages.
  */
-function handlePaginationForGetAllCampuses(pagination) {
+function handlePaginationForGetAllCampuses(pagination, queryFilterMatch) {
   paginationPipeline = [];
 
   if (pagination) {
@@ -81,7 +81,7 @@ function handlePaginationForGetAllCampuses(pagination) {
     paginationPipeline.push(
       { $skip: page * limit },
       { $limit: limit },
-      { $lookup: { from: 'campus', pipeline: [{ $match: { status: 'active' } }, { $count: 'value' }], as: 'total_document' } },
+      { $lookup: { from: 'campus', pipeline: [{ $match: queryFilterMatch }, { $count: 'value' }], as: 'total_document' } },
       { $addFields: { count_document: { $arrayElemAt: ['$total_document.value', 0] } } }
     );
   }
@@ -98,7 +98,7 @@ function handlePaginationForGetAllCampuses(pagination) {
 function createAggregateQueryForGetAllCampuses(filter, sort, pagination) {
   const queryFilterMatch = handleFiltersForGetAllCampuses(filter);
   const querySorting = handleSortingForGetAllCampuses(sort);
-  const queryPagination = handlePaginationForGetAllCampuses(pagination);
+  const queryPagination = handlePaginationForGetAllCampuses(pagination, queryFilterMatch);
 
   const aggregateQuery = [{ $match: queryFilterMatch }, { $sort: querySorting }, ...queryPagination];
   return aggregateQuery;

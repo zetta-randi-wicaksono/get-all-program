@@ -68,7 +68,7 @@ function handleSortingForGetAllSpecialities(sort) {
  * @param {string} collection - The name of collection to count the total documents.
  * @returns {Array} The pagination pipeline stages.
  */
-function handlePaginationForGetAllSpecialities(pagination) {
+function handlePaginationForGetAllSpecialities(pagination, queryFilterMatch) {
   const paginationPipeline = [];
   if (pagination) {
     const { page, limit } = pagination;
@@ -81,7 +81,7 @@ function handlePaginationForGetAllSpecialities(pagination) {
     paginationPipeline.push(
       { $skip: page * limit }, // *************** Skip the number of documents according to the number of page.
       { $limit: limit }, // *************** Limit the number of documents.
-      { $lookup: { from: 'specialities', pipeline: [{ $match: { status: 'active' } }, { $count: 'value' }], as: 'total_document' } }, // *************** Count the number of documents in the collection.
+      { $lookup: { from: 'specialities', pipeline: [{ $match: queryFilterMatch }, { $count: 'value' }], as: 'total_document' } }, // *************** Count the number of documents in the collection.
       { $addFields: { count_document: { $arrayElemAt: ['$total_document.value', 0] } } } // *************** Added a new field to store the total of documents
     );
   }
@@ -98,7 +98,7 @@ function handlePaginationForGetAllSpecialities(pagination) {
 function createAggregateQueryForGetAllSpecialities(filter, sort, pagination) {
   const queryFilterMatch = handleFiltersForGetAllSpecialities(filter);
   const querySorting = handleSortingForGetAllSpecialities(sort);
-  const queryPagination = handlePaginationForGetAllSpecialities(pagination);
+  const queryPagination = handlePaginationForGetAllSpecialities(pagination, queryFilterMatch);
 
   const aggregateQuery = [{ $match: queryFilterMatch }, { $sort: querySorting }, ...queryPagination];
   return aggregateQuery;

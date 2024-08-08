@@ -67,7 +67,7 @@ function handleSortingForGetAllSectors(sort) {
  * @param {string} collection - The name of collection to count the total documents.
  * @returns {Array} The pagination pipeline stages.
  */
-function handlePaginationForGetAllSectors(pagination) {
+function handlePaginationForGetAllSectors(pagination, queryFilterMatch) {
   paginationPipeline = [];
 
   if (pagination) {
@@ -81,7 +81,7 @@ function handlePaginationForGetAllSectors(pagination) {
     paginationPipeline.push(
       { $skip: page * limit }, // *************** Skip the number of documents according to the number of page.
       { $limit: limit }, // *************** Limit the number of documents.
-      { $lookup: { from: 'sectors', pipeline: [{ $match: { status: 'active' } }, { $count: 'value' }], as: 'total_document' } }, // *************** Count the number of documents in the collection.
+      { $lookup: { from: 'sectors', pipeline: [{ $match: queryFilterMatch }, { $count: 'value' }], as: 'total_document' } }, // *************** Count the number of documents in the collection.
       { $addFields: { count_document: { $arrayElemAt: ['$total_document.value', 0] } } } // *************** Added a new field to store the total of documents
     );
   }
@@ -98,7 +98,7 @@ function handlePaginationForGetAllSectors(pagination) {
 function createAggregateQueryForGetAllSectors(filter, sort, pagination) {
   const queryFilterMatch = handleFiltersForGetAllSectors(filter);
   const querySorting = handleSortingForGetAllSectors(sort);
-  const queryPagination = handlePaginationForGetAllSectors(pagination);
+  const queryPagination = handlePaginationForGetAllSectors(pagination, queryFilterMatch);
 
   const aggregateQuery = [{ $match: queryFilterMatch }, { $sort: querySorting }, ...queryPagination];
   return aggregateQuery;

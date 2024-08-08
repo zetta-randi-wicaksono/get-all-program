@@ -20,6 +20,8 @@ async function GetAllPrograms(parent, args) {
     const aggregateQuery = await createAggregateQueryForGetAllPrograms(filter, sort, pagination); // *************** Create aggregation query from arguments
     const programsResult = await Program.aggregate(aggregateQuery);
 
+    console.log(aggregateQuery);
+
     // *************** Check program collection length
     if (!programsResult.length) {
       throw new Error('Program Data is Empty');

@@ -257,7 +257,7 @@ function handleSortingForGetAllPrograms(sort) {
  * @param {string} collection - The name of collection to count the total documents.
  * @returns {Array} The pagination pipeline stages.
  */
-function handlePaginationForGetAllPrograms(pagination) {
+function handlePaginationForGetAllPrograms(pagination, queryFilterMatch) {
   paginationPipeline = [];
 
   if (pagination) {
@@ -271,7 +271,7 @@ function handlePaginationForGetAllPrograms(pagination) {
     paginationPipeline.push(
       { $skip: page * limit },
       { $limit: limit },
-      { $lookup: { from: 'programs', pipeline: [{ $match: { status: 'active' } }, { $count: 'value' }], as: 'total_document' } },
+      { $lookup: { from: 'programs', pipeline: [{ $match: queryFilterMatch }, { $count: 'value' }], as: 'total_document' } },
       { $addFields: { count_document: { $arrayElemAt: ['$total_document.value', 0] } } }
     );
   }
@@ -288,7 +288,7 @@ function handlePaginationForGetAllPrograms(pagination) {
 async function createAggregateQueryForGetAllPrograms(filter, sort, pagination) {
   const queryFilterMatch = await handleFiltersForGetAllPrograms(filter);
   const querySorting = handleSortingForGetAllPrograms(sort);
-  const queryPagination = handlePaginationForGetAllPrograms(pagination);
+  const queryPagination = handlePaginationForGetAllPrograms(pagination, queryFilterMatch);
 
   const aggregateQuery = [{ $match: queryFilterMatch }, ...querySorting, ...queryPagination];
   return aggregateQuery;

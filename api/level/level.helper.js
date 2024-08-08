@@ -67,7 +67,7 @@ function handleSortingForGetAllLevels(sort) {
  * @param {string} collection - The name of collection to count the total documents.
  * @returns {Array} The pagination pipeline stages.
  */
-function handlePaginationForGetAllLevels(pagination) {
+function handlePaginationForGetAllLevels(pagination, queryFilterMatch) {
   paginationPipeline = [];
 
   if (pagination) {
@@ -81,7 +81,7 @@ function handlePaginationForGetAllLevels(pagination) {
     paginationPipeline.push(
       { $skip: page * limit },
       { $limit: limit },
-      { $lookup: { from: 'levels', pipeline: [{ $match: { status: 'active' } }, { $count: 'value' }], as: 'total_document' } },
+      { $lookup: { from: 'levels', pipeline: [{ $match: queryFilterMatch }, { $count: 'value' }], as: 'total_document' } },
       { $addFields: { count_document: { $arrayElemAt: ['$total_document.value', 0] } } }
     );
   }
@@ -98,7 +98,7 @@ function handlePaginationForGetAllLevels(pagination) {
 function createAggregateQueryForGetAllLevels(filter, sort, pagination) {
   const queryFilterMatch = handleFiltersForGetAllLevels(filter);
   const querySorting = handleSortingForGetAllLevels(sort);
-  const queryPagination = handlePaginationForGetAllLevels(pagination);
+  const queryPagination = handlePaginationForGetAllLevels(pagination, queryFilterMatch);
 
   const aggregateQuery = [{ $match: queryFilterMatch }, { $sort: querySorting }, ...queryPagination];
   return aggregateQuery;
