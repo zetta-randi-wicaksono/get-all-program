@@ -70,6 +70,7 @@ async function CreateScholarSeason(parent, args) {
   try {
     const createScholarSeasonInput = { ...args.scholar_season_input };
 
+    // *************** Fetch scholar season data to validate the name input
     const scholarSeasonNameCheck = await ScholarSeason.findOne({ name: createScholarSeasonInput.name, status: 'active' }).collation({
       locale: 'en',
       strength: 2,
@@ -104,6 +105,7 @@ async function UpdateScholarSeason(parent, args) {
       throw new Error('Scholar Season Data Not Found');
     }
 
+    // *************** Validation throw error when scholar season data is connected to program collection
     const connectedToProgramCheck = await Program.find({ scholar_season_id: mongoose.Types.ObjectId(_id) });
     if (connectedToProgramCheck.length) {
       throw new Error('Cannot Update. Scholar Season Id is Still Used in The Program');
@@ -111,6 +113,7 @@ async function UpdateScholarSeason(parent, args) {
 
     const updateScholarSeasonInput = { ...args.scholar_season_input };
 
+    // *************** Validation throw error when scholar season name is already taken in another document
     if (updateScholarSeasonInput.name) {
       const scholarSeasonNameCheck = await ScholarSeason.findOne({ name: updateScholarSeasonInput.name, status: 'active' }).collation({
         locale: 'en',
@@ -146,6 +149,8 @@ async function DeleteScholarSeason(parent, args) {
     // *************** Check scholar season document if it exists and the status is active then the document can be deleted.
     if (scholarSeasonDataCheck && scholarSeasonDataCheck.status === 'active') {
       const connectedToProgramCheck = await Program.find({ scholar_season_id: mongoose.Types.ObjectId(_id) });
+
+      // *************** Validation throw error when scholar season data is connected to program collection
       if (!connectedToProgramCheck.length) {
         const scholarSeasonResult = await ScholarSeason.findByIdAndUpdate(
           _id,

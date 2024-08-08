@@ -1,3 +1,4 @@
+// *************** IMPORT CORE ***************
 const mongoose = require('mongoose');
 
 const url = 'mongodb://localhost:27017/';
@@ -16,4 +17,5 @@ const conn = mongoose
     return 'Error Connecting to MongoDB: ', error;
   });
 
+// *************** EXPORT MODULE ***************
 module.exports = conn;

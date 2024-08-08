@@ -20,8 +20,6 @@ async function GetAllPrograms(parent, args) {
     const aggregateQuery = await createAggregateQueryForGetAllPrograms(filter, sort, pagination); // *************** Create aggregation query from arguments
     const programsResult = await Program.aggregate(aggregateQuery);
 
-    console.log(aggregateQuery);
-
     // *************** Check program collection length
     if (!programsResult.length) {
       throw new Error('Program Data is Empty');
@@ -68,6 +66,7 @@ async function CreateProgram(parent, args) {
   try {
     const { program_input } = args;
 
+    // *************** Fetch program data to validate the program name input
     const programNameCheck = await Program.findOne({ name: program_input.name, status: 'active' }).collation({ locale: 'en', strength: 2 });
     if (programNameCheck) {
       throw new Error(`Name '${program_input.name}' Has Already Been Taken`);
@@ -101,10 +100,12 @@ async function UpdateProgram(parent, args) {
       throw new Error('Program Data Not Found');
     }
 
+    // *************** Validation throw error when try to update program with program publish status is published
     if (programDataCheck.program_publish_status === 'published') {
       throw new Error('Cannot Update Published Program. To Update You Need Unpublish The Program');
     }
 
+    // *************** Validation throw error when program name is already taken in another document
     if (program_input.name) {
       const programNameCheck = await Program.findOne({ name: program_input.name, status: 'active' }).collation({
         locale: 'en',
@@ -138,6 +139,7 @@ async function DeleteProgram(parent, args) {
 
     // *************** Check program document if it exists and the status is active then the document can be deleted.
     if (programDataCheck && programDataCheck.status === 'active') {
+      // *************** Validation throw error when try to delete program with program publish status is published
       if (programDataCheck.program_publish_status === 'published') {
         throw new Error('Cannot Delete Published Program. To Delete You Need Unpublish The Program');
       }
@@ -168,6 +170,7 @@ async function PublishProgram(parent, args) {
       throw new Error('Program Data Not Found');
     }
 
+    // *************** Validation throw error when program pubish status already published
     if (programDataCheck.program_publish_status === 'published') {
       throw new Error('The Program Already Published. Cannot Publish The Published Program.');
     }
@@ -200,6 +203,7 @@ async function UnpublishProgram(parent, args) {
       throw new Error('Program Data Not Found');
     }
 
+    // *************** Validation throw error when program pubish status already not_published
     if (programDataCheck.program_publish_status === 'not_published') {
       throw new Error('The Program Already UnPublished. Cannot Unpublish The Not Published Program.');
     }
@@ -216,27 +220,29 @@ async function UnpublishProgram(parent, args) {
 }
 
 /**
- * Populate speciality_id field from speciality collection
- * @param {Object} program
- * @param {Object} context
- * @returns {Object}
+ * Fetch and populate speciality_id field from speciality collection
+ * @param {Object} program - The program object that contains the speciality_id.
+ * @param {Object} context - The context object containing loaders, including specialityLoader.
+ * @returns {Object} - The speciality object associated with the program's speciality_id, or null if not found.
  */
 async function speciality_id(program, args, context) {
   const { specialityLoader } = context.loaders;
   if (program.speciality_id) {
+    // *************** Load and return the speciality document that associated with the given speciality_id
     const specialities = await specialityLoader.load(program.speciality_id);
     return specialities;
   }
 }
 
 /**
- * Populate sector_id field from sectors collection
- * @param {Object} program
- * @param {Object} context
- * @returns {Object}
+ * Fetch and populate sector_id field from sector collection
+ * @param {Object} program - The program object that contains the sector_id.
+ * @param {Object} context - The context object containing loaders, including sectorLoader.
+ * @returns {Object} - The sector object associated with the program's sector_id, or null if not found.
  */
 async function sector_id(program, args, context) {
   const { sectorLoader } = context.loaders;
+  // *************** Load and return the sector document that associated with the given speciality_id
   if (program.sector_id) {
     const sectors = await sectorLoader.load(program.sector_id);
     return sectors;
@@ -244,13 +250,14 @@ async function sector_id(program, args, context) {
 }
 
 /**
- * Populate school_id field from schools collection
- * @param {Object} program
- * @param {Object} context
- * @returns {Object}
+ * Fetch and populate school_id field from school collection
+ * @param {Object} program - The program object that contains the school_id.
+ * @param {Object} context - The context object containing loaders, including schoolLoader.
+ * @returns {Object} - The school object associated with the program's school_id, or null if not found.
  */
 async function school_id(program, args, context) {
   const { schoolLoader } = context.loaders;
+  // *************** Load and return the school document that associated with the given speciality_id
   if (program.school_id) {
     const schools = await schoolLoader.load(program.school_id);
     return schools;
@@ -258,13 +265,14 @@ async function school_id(program, args, context) {
 }
 
 /**
- * Populate scholar_season_id field from scholar_seasons collection
- * @param {Object} program
- * @param {Object} context
- * @returns {Object}
+ * Fetch and populate scholar_season_id field from school collection
+ * @param {Object} program - The program object that contains the scholar_season_id.
+ * @param {Object} context - The context object containing loaders, including scholarSeasonLoader.
+ * @returns {Object} - The scholar season object associated with the program's scholar_season_id, or null if not found.
  */
 async function scholar_season_id(program, args, context) {
   const { scholarSeasonLoader } = context.loaders;
+  // *************** Load and return the scholar season document that associated with the given speciality_ids
   if (program.scholar_season_id) {
     const scholarSeasons = await scholarSeasonLoader.load(program.scholar_season_id);
     return scholarSeasons;
@@ -272,13 +280,14 @@ async function scholar_season_id(program, args, context) {
 }
 
 /**
- * Populate level_id field from levels collection
- * @param {Object} program
- * @param {Object} context
- * @returns {Object}
+ * Fetch and populate level_id field from level collection
+ * @param {Object} program - The program object that contains the level_id.
+ * @param {Object} context - The context object containing loaders, including levelLoader.
+ * @returns {Object} - The level object associated with the program's level_id, or null if not found.
  */
 async function level_id(program, args, context) {
   const { levelLoader } = context.loaders;
+  // *************** Load and return the level document that associated with the given speciality_id
   if (program.level_id) {
     const levels = await levelLoader.load(program.level_id);
     return levels;
@@ -286,13 +295,14 @@ async function level_id(program, args, context) {
 }
 
 /**
- * Populate campus_id field from campuses collection
- * @param {Object} program
- * @param {Object} context
- * @returns {Object}
+ * Fetch and populate campus_id field from campus collection
+ * @param {Object} program - The program object that contains the campus_id.
+ * @param {Object} context - The context object containing loaders, including campusLoader.
+ * @returns {Object} - The campus object associated with the program's campus_id, or null if not found.
  */
 async function campus_id(program, args, context) {
   const { campusLoader } = context.loaders;
+  // *************** Load and return the campus document that associated with the given speciality_id
   if (program.campus_id) {
     const campuses = await campusLoader.load(program.campus_id);
     return campuses;

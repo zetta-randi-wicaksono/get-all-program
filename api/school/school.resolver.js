@@ -71,6 +71,7 @@ async function CreateSchool(parent, args) {
   try {
     const createSchoolInput = { ...args.school_input };
 
+    // *************** Fetch school data to validate the name input
     const schoolNameCheck = await School.findOne({ name: createSchoolInput.name, status: 'active' }).collation({
       locale: 'en',
       strength: 2,
@@ -105,6 +106,7 @@ async function UpdateSchool(parent, args) {
       throw new Error('School Data Not Found');
     }
 
+    // *************** Validation throw error when school data is connected to program collection
     const connectedToProgramCheck = await Program.find({ school_id: mongoose.Types.ObjectId(_id) });
     if (connectedToProgramCheck.length) {
       throw new Error('Cannot Update. School Id is Still Used in The Program');
@@ -112,6 +114,7 @@ async function UpdateSchool(parent, args) {
 
     const updateSchoolInput = { ...args.school_input };
 
+    // *************** Validation throw error when school name is already taken in another document
     if (updateSchoolInput.name) {
       const schoolNameCheck = await School.findOne({ name: updateSchoolInput.name, status: 'active' }).collation({
         locale: 'en',
@@ -144,6 +147,8 @@ async function DeleteSchool(parent, args) {
     // *************** Check school document if it exists and the status is active then the document can be deleted.
     if (schoolDataCheck && schoolDataCheck.status === 'active') {
       const connectedToProgramCheck = await Program.find({ school_id: mongoose.Types.ObjectId(_id) });
+
+      // *************** Validation throw error when school data is connected to program collection
       if (!connectedToProgramCheck.length) {
         const schoolResult = await School.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
         return schoolResult;

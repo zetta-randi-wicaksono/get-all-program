@@ -70,6 +70,7 @@ async function CreateLevel(parent, args) {
   try {
     const createLevelInput = { ...args.level_input };
 
+    // *************** Fetch level data to validate the name input
     const levelNameCheck = await Level.findOne({ name: createLevelInput.name, status: 'active' }).collation({ locale: 'en', strength: 2 });
     if (levelNameCheck) {
       throw new Error(`Name '${createLevelInput.name}' Has Already Been Taken`);
@@ -101,6 +102,7 @@ async function UpdateLevel(parent, args) {
       throw new Error('Level Data Not Found');
     }
 
+    // *************** Validation throw error when level data is connected to program collection
     const connectedToProgramCheck = await Program.find({ level_id: mongoose.Types.ObjectId(_id) });
     if (connectedToProgramCheck.length) {
       throw new Error('Cannot Update. Level Id is Still Used in The Program');
@@ -108,6 +110,7 @@ async function UpdateLevel(parent, args) {
 
     const updateLevelInput = { ...args.level_input };
 
+    // *************** Validation throw error when level name is already taken in another document
     if (updateLevelInput.name) {
       const levelNameCheck = await Level.findOne({ name: updateLevelInput.name, status: 'active' }).collation({
         locale: 'en',
@@ -140,6 +143,8 @@ async function DeleteLevel(parent, args) {
     // *************** Check level document if it exists and the status is active then the document can be deleted.
     if (levelDataCheck && levelDataCheck.status === 'active') {
       const connectedToProgramCheck = await Program.find({ level_id: mongoose.Types.ObjectId(_id) });
+
+      // *************** Validation throw error when level data is connected to program collection
       if (!connectedToProgramCheck.length) {
         const levelResult = await Level.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
         return levelResult;

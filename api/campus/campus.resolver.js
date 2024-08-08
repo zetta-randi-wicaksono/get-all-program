@@ -70,6 +70,7 @@ async function CreateCampus(parent, args) {
   try {
     const createCampusInput = { ...args.campus_input };
 
+    // *************** Fetch campus data to validate the name input
     const campusNameCheck = await Campus.findOne({ name: createCampusInput.name, status: 'active' }).collation({
       locale: 'en',
       strength: 2,
@@ -104,6 +105,7 @@ async function UpdateCampus(parent, args) {
       throw new Error('Campus Data Not Found');
     }
 
+    // *************** Validation throw error when campus data is connected to program collection
     const connectedToProgramCheck = await Program.find({ campus_id: mongoose.Types.ObjectId(_id) });
     if (connectedToProgramCheck.length) {
       throw new Error('Cannot Update. Campus Id is Still Used in The Program');
@@ -111,6 +113,7 @@ async function UpdateCampus(parent, args) {
 
     const updateCampusInput = { ...args.campus_input };
 
+    // *************** Validation throw error when campus name is already taken in another document
     if (updateCampusInput.name) {
       const campusNameCheck = await Campus.findOne({ name: updateCampusInput.name, status: 'active' }).collation({
         locale: 'en',
@@ -143,6 +146,8 @@ async function DeleteCampus(parent, args) {
     // *************** Check campus document if it exists and the status is active then the document can be deleted.
     if (campusDataCheck && campusDataCheck.status === 'active') {
       const connectedToProgramCheck = await Program.find({ campus_id: mongoose.Types.ObjectId(_id) });
+
+      // *************** Validation throw error when campus data is connected to program collection
       if (!connectedToProgramCheck.length) {
         const campusResult = await Campus.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
         return campusResult;

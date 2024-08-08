@@ -83,6 +83,13 @@ async function handleValidationForProgramInput(programInput) {
  * @returns {Array} - The list of id with mongoose object id data type
  */
 function convertStringsToObjectIds(ids) {
+  for (const id in ids) {
+    console.log(ids);
+
+    if (typeof id !== 'string') {
+      throw new Error(`Id ${id} is not a string. Id must be a string`);
+    }
+  }
   const objectIds = ids.map(mongoose.Types.ObjectId);
   return objectIds;
 }

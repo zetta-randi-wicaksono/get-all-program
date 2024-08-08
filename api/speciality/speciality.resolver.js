@@ -70,11 +70,11 @@ async function CreateSpeciality(parent, args) {
   try {
     const createSpecialityInput = { ...args.speciality_input };
 
+    // *************** Fetch speciality data to validate the name input
     const specialityNameCheck = await Speciality.findOne({ name: createSpecialityInput.name, status: 'active' }).collation({
       locale: 'en',
       strength: 2,
     });
-    console.log(specialityNameCheck);
     if (specialityNameCheck) {
       throw new Error(`Name '${createSpecialityInput.name}' Has Already Been Taken`);
     }
@@ -105,6 +105,7 @@ async function UpdateSpeciality(parent, args) {
       throw new Error('Speciality Data Not Found');
     }
 
+    // *************** Validation throw error when speciality data is connected to program collection
     const connectedToProgramCheck = await Program.find({ speciality_id: mongoose.Types.ObjectId(_id) });
     if (connectedToProgramCheck.length) {
       throw new Error('Cannot Update. Speciality Id is Still Used in The Program');
@@ -112,6 +113,7 @@ async function UpdateSpeciality(parent, args) {
 
     const updateSpecialityInput = { ...args.speciality_input };
 
+    // *************** Validation throw error when speciality name is already taken in another document
     if (updateSpecialityInput.name) {
       const specialityNameCheck = await Speciality.findOne({ name: updateSpecialityInput.name, status: 'active' }).collation({
         locale: 'en',
@@ -145,6 +147,8 @@ async function DeleteSpeciality(parent, args) {
     // *************** Check speciality document if it exists and the status is active then the document can be deleted.
     if (specialityDataCheck && specialityDataCheck.status === 'active') {
       const connectedToProgramCheck = await Program.find({ speciality_id: mongoose.Types.ObjectId(_id) });
+
+      // *************** Validation throw error when speciality data is connected to program collection
       if (!connectedToProgramCheck.length) {
         const specialityResult = await Speciality.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
         return specialityResult;

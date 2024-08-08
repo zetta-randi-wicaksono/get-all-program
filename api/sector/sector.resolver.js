@@ -70,6 +70,7 @@ async function CreateSector(parent, args) {
   try {
     const createSectorInput = { ...args.sector_input };
 
+    // *************** Fetch sectpr data to validate the name input
     const sectorNameCheck = await Sector.findOne({ name: createSectorInput.name, status: 'active' }).collation({
       locale: 'en',
       strength: 2,
@@ -104,6 +105,7 @@ async function UpdateSector(parent, args) {
       throw new Error('Sector Data Not Found');
     }
 
+    // *************** Validation throw error when sector data is connected to program collection
     const connectedToProgramCheck = await Program.find({ sector_id: mongoose.Types.ObjectId(_id) });
     if (connectedToProgramCheck.length) {
       throw new Error('Cannot Update. Sector Id is Still Used in The Program');
@@ -111,6 +113,7 @@ async function UpdateSector(parent, args) {
 
     const updateSectorInput = { ...args.sector_input };
 
+    // *************** Validation throw error when sector name is already taken in another document
     if (updateSectorInput.name) {
       const sectorNameCheck = await Sector.findOne({ name: updateSectorInput.name, status: 'active' }).collation({
         locale: 'en',
@@ -143,6 +146,8 @@ async function DeleteSector(parent, args) {
     // *************** Check sector document if it exists and the status is active then the document can be deleted.
     if (sectorDataCheck && sectorDataCheck.status === 'active') {
       const connectedToProgramCheck = await Program.find({ sector_id: mongoose.Types.ObjectId(_id) });
+
+      // *************** Validation throw error when sector data is connected to program collection
       if (!connectedToProgramCheck.length) {
         const sectorResult = await Sector.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
         return sectorResult;
