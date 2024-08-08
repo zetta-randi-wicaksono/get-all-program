@@ -70,7 +70,7 @@ async function CreateScholarSeason(parent, args) {
   try {
     const createScholarSeasonInput = { ...args.scholar_season_input };
 
-    const scholarSeasonNameCheck = await ScholarSeason.findOne({ name: createScholarSeasonInput.name }).collation({
+    const scholarSeasonNameCheck = await ScholarSeason.findOne({ name: createScholarSeasonInput.name, status: 'active' }).collation({
       locale: 'en',
       strength: 2,
     });
@@ -112,7 +112,7 @@ async function UpdateScholarSeason(parent, args) {
     const updateScholarSeasonInput = { ...args.scholar_season_input };
 
     if (updateScholarSeasonInput.name) {
-      const scholarSeasonNameCheck = await ScholarSeason.findOne({ name: updateScholarSeasonInput.name }).collation({
+      const scholarSeasonNameCheck = await ScholarSeason.findOne({ name: updateScholarSeasonInput.name, status: 'active' }).collation({
         locale: 'en',
         strength: 2,
       });

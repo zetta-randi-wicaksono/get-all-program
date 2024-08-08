@@ -7,7 +7,7 @@ const mongoose = require('mongoose');
  */
 const programSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true, unique: true, collation: { locale: 'en', strength: 2 } },
+    name: { type: String, required: true },
     status: { type: String, enum: ['active', 'deleted'], default: 'active', required: true },
     program_publish_status: { type: String, enum: ['published', 'not_published'], default: 'not_published', required: true },
     speciality_id: { type: mongoose.Types.ObjectId, ref: 'specialities' },
@@ -21,8 +21,6 @@ const programSchema = new mongoose.Schema(
     timestamps: true, // *************** Automatically adds createdAt and updatedAt fields.
   }
 );
-
-programSchema.index({ name: 1 }, { unique: true, collation: { locale: 'en', strength: 2 } });
 
 const Program = new mongoose.model('Program', programSchema);
 

@@ -10,10 +10,21 @@ const Campus = require('../campus/campus.model');
 const School = require('../school/school.model');
 const ScholarSeason = require('../scholar_season/scholar_season.model');
 
+/**
+ * Validation for field that can have connection with another collection
+ * @param {Object} programInput - The input data that will be validated
+ * @param {string} programInput.name - The input name that will be validate for duplicate
+ * @param {string} programInput.speciality_id - The input speciality_id that will be validate in specialities collection
+ * @param {string} programInput.sector_id - The input sector_id that will be validate in sectors collection
+ * @param {string} programInput.level_id - The input level_id that will be validate in levels collection
+ * @param {string} programInput.campus_id - The input campus_id that will be validate in campus collection
+ * @param {string} programInput.school_id - The input school_id that will be validate in schools collection
+ * @param {string} programInput.scholar_season_id - The input scholar_season_id that will be validate in scholar_seasons collection
+ */
 async function handleValidationForProgramInput(programInput) {
   if (programInput.name) {
     const programInputName = programInput.name;
-    const programDataCheck = await Program.findOne({ name: programInputName }).collation({ locale: 'en', strength: 2 });
+    const programDataCheck = await Program.findOne({ name: programInputName, status: 'active' }).collation({ locale: 'en', strength: 2 });
 
     if (programDataCheck) {
       throw new Error(`Name '${programInputName}' Has Already Been Taken`);
@@ -75,6 +86,11 @@ async function handleValidationForProgramInput(programInput) {
   }
 }
 
+/**
+ * Convert id data type from string to mongoose object id
+ * @param {Array} ids - The list of id with string data type
+ * @returns {Array} - The list of id with mongoose object id data type
+ */
 function convertStringsToObjectIds(ids) {
   const objectIds = ids.map(mongoose.Types.ObjectId);
   return objectIds;
@@ -83,6 +99,13 @@ function convertStringsToObjectIds(ids) {
 /**
  * Handlers filter criteria for the aggregation query.
  * @param {Object} filter - The filter creiteria.
+ * @param {Array} filter.speciality_id - The id of speciality_id that will be filtered.
+ * @param {Array} filter.sector_id - The id of sector_id that will be filtered.
+ * @param {Array} filter.level_id - The id of level_id that will be filtered.
+ * @param {Array} filter.campus_id - The id of campus_id that will be filtered.
+ * @param {Array} filter.school_id - The id of school_id that will be filtered.
+ * @param {Array} filter.scholar_season_id - The id of scholar_season_id that will be filtered.
+ * @param {string} filter.program_publish_status - The status of published or not_published filter.
  * @param {Object} filter.createdAt - The date range in createdAt filter.
  * @param {string} filter.createdAt.from - The start date in createdAt filter.
  * @param {string} filter.createdAt.to - The end date in createdAt filter.
@@ -161,7 +184,15 @@ async function handleFiltersForGetAllPrograms(filter) {
 /**
  * Handlers sorting for the aggregation query.
  * @param {Object} sort - The sorting cretieria.
- * @returns {Object} The sort object.
+ * @param {Object} sort.name - The sorting by cretieria name.
+ * @param {Object} sort.program_publish_status - The sorting by program_publish_status cretieria.
+ * @param {Object} sort.speciality_id - The sorting by speciality name cretieria.
+ * @param {Object} sort.sector_id - The sorting sector name cretieria.
+ * @param {Object} sort.level_id - The sorting level name cretieria.
+ * @param {Object} sort.campus_id - The sorting campus name cretieria.
+ * @param {Object} sort.school_id - The sorting school name cretieria.
+ * @param {Object} sort.scholar_season_id - The scholar season name cretieria.
+ * @returns {Array} The sort pipeline.
  */
 function handleSortingForGetAllPrograms(sort) {
   sortPipeline = [];

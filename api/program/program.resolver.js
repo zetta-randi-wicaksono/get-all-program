@@ -18,8 +18,6 @@ async function GetAllPrograms(parent, args) {
   try {
     const { filter, sort, pagination } = args;
     const aggregateQuery = await createAggregateQueryForGetAllPrograms(filter, sort, pagination); // *************** Create aggregation query from arguments
-    console.log(aggregateQuery);
-
     const programsResult = await Program.aggregate(aggregateQuery);
 
     // *************** Check program collection length
@@ -135,6 +133,13 @@ async function DeleteProgram(parent, args) {
   }
 }
 
+/**
+ * Update program publish status to published
+ * @param {Object} args - The arguments provided by the query.
+ * @param {string} args._id - The _id used to find for program document.
+ * @returns {Object} The program document that have been published.
+ * @throws {Error} If no program document are found or already published.
+ */
 async function PublishProgram(parent, args) {
   try {
     const { _id } = args;
@@ -160,6 +165,13 @@ async function PublishProgram(parent, args) {
   }
 }
 
+/**
+ * Update program publish status to not published
+ * @param {Object} args - The arguments provided by the query.
+ * @param {string} args._id - The _id used to find for program document.
+ * @returns {Object} The program document that have been unpublished.
+ * @throws {Error} If no program document are found or already unpublished.
+ */
 async function UnpublishProgram(parent, args) {
   try {
     const { _id } = args;
@@ -185,6 +197,12 @@ async function UnpublishProgram(parent, args) {
   }
 }
 
+/**
+ * Populate speciality_id field from speciality collection
+ * @param {Object} program
+ * @param {Object} context
+ * @returns {Object}
+ */
 async function speciality_id(program, args, context) {
   const { specialityLoader } = context.loaders;
   if (program.speciality_id) {
@@ -193,6 +211,12 @@ async function speciality_id(program, args, context) {
   }
 }
 
+/**
+ * Populate sector_id field from sectors collection
+ * @param {Object} program
+ * @param {Object} context
+ * @returns {Object}
+ */
 async function sector_id(program, args, context) {
   const { sectorLoader } = context.loaders;
   if (program.sector_id) {
@@ -201,6 +225,12 @@ async function sector_id(program, args, context) {
   }
 }
 
+/**
+ * Populate school_id field from schools collection
+ * @param {Object} program
+ * @param {Object} context
+ * @returns {Object}
+ */
 async function school_id(program, args, context) {
   const { schoolLoader } = context.loaders;
   if (program.school_id) {
@@ -209,6 +239,12 @@ async function school_id(program, args, context) {
   }
 }
 
+/**
+ * Populate scholar_season_id field from scholar_seasons collection
+ * @param {Object} program
+ * @param {Object} context
+ * @returns {Object}
+ */
 async function scholar_season_id(program, args, context) {
   const { scholarSeasonLoader } = context.loaders;
   if (program.scholar_season_id) {
@@ -217,6 +253,12 @@ async function scholar_season_id(program, args, context) {
   }
 }
 
+/**
+ * Populate level_id field from levels collection
+ * @param {Object} program
+ * @param {Object} context
+ * @returns {Object}
+ */
 async function level_id(program, args, context) {
   const { levelLoader } = context.loaders;
   if (program.level_id) {
@@ -225,6 +267,12 @@ async function level_id(program, args, context) {
   }
 }
 
+/**
+ * Populate campus_id field from campuses collection
+ * @param {Object} program
+ * @param {Object} context
+ * @returns {Object}
+ */
 async function campus_id(program, args, context) {
   const { campusLoader } = context.loaders;
   if (program.campus_id) {

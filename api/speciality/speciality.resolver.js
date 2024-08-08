@@ -70,7 +70,11 @@ async function CreateSpeciality(parent, args) {
   try {
     const createSpecialityInput = { ...args.speciality_input };
 
-    const specialityNameCheck = await Speciality.findOne({ name: createSpecialityInput.name }).collation({ locale: 'en', strength: 2 });
+    const specialityNameCheck = await Speciality.findOne({ name: createSpecialityInput.name, status: 'active' }).collation({
+      locale: 'en',
+      strength: 2,
+    });
+    console.log(specialityNameCheck);
     if (specialityNameCheck) {
       throw new Error(`Name '${createSpecialityInput.name}' Has Already Been Taken`);
     }
@@ -109,7 +113,11 @@ async function UpdateSpeciality(parent, args) {
     const updateSpecialityInput = { ...args.speciality_input };
 
     if (updateSpecialityInput.name) {
-      const specialityNameCheck = await Speciality.findOne({ name: updateSpecialityInput.name }).collation({ locale: 'en', strength: 2 });
+      const specialityNameCheck = await Speciality.findOne({ name: updateSpecialityInput.name, status: 'active' }).collation({
+        locale: 'en',
+        strength: 2,
+      });
+
       if (specialityNameCheck) {
         throw new Error(`Name '${updateSpecialityInput.name}' Has Already Been Taken`);
       }

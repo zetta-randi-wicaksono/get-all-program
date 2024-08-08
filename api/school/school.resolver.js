@@ -71,7 +71,10 @@ async function CreateSchool(parent, args) {
   try {
     const createSchoolInput = { ...args.school_input };
 
-    const schoolNameCheck = await School.findOne({ name: createSchoolInput.name }).collation({ locale: 'en', strength: 2 });
+    const schoolNameCheck = await School.findOne({ name: createSchoolInput.name, status: 'active' }).collation({
+      locale: 'en',
+      strength: 2,
+    });
     if (schoolNameCheck) {
       throw new Error(`Name '${createSchoolInput.name}' Has Already Been Taken`);
     }
@@ -110,7 +113,10 @@ async function UpdateSchool(parent, args) {
     const updateSchoolInput = { ...args.school_input };
 
     if (updateSchoolInput.name) {
-      const schoolNameCheck = await School.findOne({ name: updateSchoolInput.name }).collation({ locale: 'en', strength: 2 });
+      const schoolNameCheck = await School.findOne({ name: updateSchoolInput.name, status: 'active' }).collation({
+        locale: 'en',
+        strength: 2,
+      });
       if (schoolNameCheck) {
         throw new Error(`Name '${updateSchoolInput.name}' Has Already Been Taken`);
       }

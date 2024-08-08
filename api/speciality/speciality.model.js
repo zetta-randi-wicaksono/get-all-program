@@ -7,15 +7,13 @@ const mongoose = require('mongoose');
  */
 const specialitySchema = new mongoose.Schema(
   {
-    name: { type: String, required: true, unique: true, collation: { locale: 'en', strength: 2 } },
+    name: { type: String, required: true },
     status: { type: String, enum: ['active', 'deleted'], default: 'active', required: true },
   },
   {
     timestamps: true, // *************** Automatically adds createdAt and updatedAt fields.
   }
 );
-
-specialitySchema.index({ name: 1 }, { unique: true, collation: { locale: 'en', strength: 2 } });
 
 const Speciality = new mongoose.model('Speciality', specialitySchema);
 
