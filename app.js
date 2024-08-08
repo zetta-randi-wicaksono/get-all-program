@@ -3,7 +3,7 @@ const express = require('express');
 const { ApolloServer } = require('apollo-server-express');
 
 // *************** IMPORT MODULE ***************
-const conn = require('./models/connection');
+const connection = require('./models/connection');
 const graphqlConfig = require('./api');
 
 const app = express();
@@ -15,6 +15,6 @@ server.applyMiddleware({ app }); // *************** Apply ApolloServer to the Ex
 
 // *************** Starts the Express server
 app.listen(port, async () => {
-  console.log(await conn);
+  console.log(await connection);
   console.log(`GraphQL server is running on http://localhost:${port}/graphql`);
 });

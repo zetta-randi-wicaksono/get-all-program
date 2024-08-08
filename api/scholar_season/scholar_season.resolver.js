@@ -22,14 +22,14 @@ async function GetAllScholarSeasons(parent, args) {
   try {
     const { filter, sort, pagination } = args;
     const aggregateQuery = createAggregateQueryForGetAllScholarSeasons(filter, sort, pagination); // *************** Create aggregation query from arguments
-    const scholarSeasonsResult = await ScholarSeason.aggregate(aggregateQuery);
+    const getAllScholarSeasonsResult = await ScholarSeason.aggregate(aggregateQuery);
 
     // *************** Check scholar seasons collection length
-    if (!scholarSeasonsResult.length) {
+    if (!getAllScholarSeasonsResult.length) {
       throw new Error('Scholar Season Data is Empty');
     }
 
-    return scholarSeasonsResult;
+    return getAllScholarSeasonsResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -45,14 +45,14 @@ async function GetAllScholarSeasons(parent, args) {
 async function GetOneScholarSeason(parent, args) {
   try {
     const { _id } = args;
-    const scholarSeasonsResult = await ScholarSeason.findById(_id);
+    const getOneScholarSeasonsResult = await ScholarSeason.findById(_id);
 
     // *************** Validation throw error when scholar season data is null or scholar season status is deleted
-    if (!scholarSeasonsResult || scholarSeasonsResult.status === 'deleted') {
+    if (!getOneScholarSeasonsResult || getOneScholarSeasonsResult.status === 'deleted') {
       throw new Error('Scholar Season Data Not Found');
     }
 
-    return scholarSeasonsResult;
+    return getOneScholarSeasonsResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -76,12 +76,12 @@ async function CreateScholarSeason(parent, args) {
       strength: 2,
     });
     if (scholarSeasonNameCheck) {
-      throw new Error(`Name '${createScholarSeasonInput.name}' Has Already Been Taken`);
+      throw new Error(`Scholar Season Name '${createScholarSeasonInput.name}' Has Already Been Taken`);
     }
 
-    const scholarSeasonResult = new ScholarSeason(createScholarSeasonInput);
-    await scholarSeasonResult.save();
-    return scholarSeasonResult;
+    const createScholarSeasonResult = new ScholarSeason(createScholarSeasonInput);
+    await createScholarSeasonResult.save();
+    return createScholarSeasonResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -106,9 +106,9 @@ async function UpdateScholarSeason(parent, args) {
     }
 
     // *************** Validation throw error when scholar season data is connected to program collection
-    const connectedToProgramCheck = await Program.find({ scholar_season_id: mongoose.Types.ObjectId(_id) });
-    if (connectedToProgramCheck.length) {
-      throw new Error('Cannot Update. Scholar Season Id is Still Used in The Program');
+    const connectedToProgramCheck = await Program.findOne({ scholar_season_id: mongoose.Types.ObjectId(_id) });
+    if (connectedToProgramCheck) {
+      throw new Error(`Cannot Update. Scholar Season is Still Used in The Program '${connectedToProgramCheck.name}'`);
     }
 
     const updateScholarSeasonInput = { ...args.scholar_season_input };
@@ -120,15 +120,15 @@ async function UpdateScholarSeason(parent, args) {
         strength: 2,
       });
       if (scholarSeasonNameCheck && scholarSeasonNameCheck._id.toString() !== _id) {
-        throw new Error(`Name '${updateScholarSeasonInput.name}' Has Already Been Taken`);
+        throw new Error(`Scholar Season Name '${updateScholarSeasonInput.name}' Has Already Been Taken`);
       }
     }
 
-    const scholarSeasonResult = await ScholarSeason.findByIdAndUpdate(_id, updateScholarSeasonInput, {
+    const updateScholarSeasonResult = await ScholarSeason.findByIdAndUpdate(_id, updateScholarSeasonInput, {
       new: true,
       useFindAndModify: false,
     });
-    return scholarSeasonResult;
+    return updateScholarSeasonResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -148,18 +148,18 @@ async function DeleteScholarSeason(parent, args) {
 
     // *************** Check scholar season document if it exists and the status is active then the document can be deleted.
     if (scholarSeasonDataCheck && scholarSeasonDataCheck.status === 'active') {
-      const connectedToProgramCheck = await Program.find({ scholar_season_id: mongoose.Types.ObjectId(_id) });
+      const connectedToProgramCheck = await Program.findOne({ scholar_season_id: mongoose.Types.ObjectId(_id) });
 
       // *************** Validation throw error when scholar season data is connected to program collection
-      if (!connectedToProgramCheck.length) {
-        const scholarSeasonResult = await ScholarSeason.findByIdAndUpdate(
+      if (!connectedToProgramCheck) {
+        const deleteScholarSeasonResult = await ScholarSeason.findByIdAndUpdate(
           _id,
           { status: 'deleted' },
           { new: true, useFindAndModify: false }
         );
-        return scholarSeasonResult;
+        return deleteScholarSeasonResult;
       } else {
-        throw new Error('Cannot Delete. Scholar Season Id is Still Used in The Program');
+        throw new Error(`Cannot Delete. Scholar Season is Still Used in The Program '${connectedToProgramCheck.name}'`);
       }
     } else {
       throw new Error('Scholar Season Data Not Found');

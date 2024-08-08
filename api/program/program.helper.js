@@ -2,7 +2,6 @@
 const mongoose = require('mongoose');
 
 // *************** IMPORT MODULE ***************
-const Program = require('./program.model');
 const Speciality = require('../speciality/speciality.model');
 const Sector = require('../sector/sector.model');
 const Level = require('../level/level.model');
@@ -24,54 +23,54 @@ const ScholarSeason = require('../scholar_season/scholar_season.model');
 async function handleValidationForProgramInput(programInput) {
   if (programInput.speciality_id) {
     const specialityId = programInput.speciality_id;
-    const specialityIdDataCheck = await Speciality.findOne({ _id: specialityId, status: 'active' });
+    const specialityIdCheck = await Speciality.findOne({ _id: specialityId, status: 'active' });
 
-    if (!specialityIdDataCheck) {
+    if (!specialityIdCheck) {
       throw new Error(`ID '${specialityId}' Not Found in Speciality Data`);
     }
   }
 
   if (programInput.sector_id) {
     const sectorId = programInput.sector_id;
-    const sectorIdDataCheck = await Sector.findOne({ _id: sectorId, status: 'active' });
+    const sectorIdCheck = await Sector.findOne({ _id: sectorId, status: 'active' });
 
-    if (!sectorIdDataCheck) {
+    if (!sectorIdCheck) {
       throw new Error(`ID '${sectorId}' Not Found in Sector Data`);
     }
   }
 
   if (programInput.level_id) {
     const levelId = programInput.level_id;
-    const levelIdDataCheck = await Level.findOne({ _id: levelId, status: 'active' });
+    const levelIdCheck = await Level.findOne({ _id: levelId, status: 'active' });
 
-    if (!levelIdDataCheck) {
+    if (!levelIdCheck) {
       throw new Error(`ID '${levelId}' Not Found in Level Data`);
     }
   }
 
   if (programInput.campus_id) {
     const campusId = programInput.campus_id;
-    const campusIdDataCheck = await Campus.findOne({ _id: campusId, status: 'active' });
+    const campusIdCheck = await Campus.findOne({ _id: campusId, status: 'active' });
 
-    if (!campusIdDataCheck) {
+    if (!campusIdCheck) {
       throw new Error(`ID '${campusId}' Not Found in Campus Data`);
     }
   }
 
   if (programInput.school_id) {
     const schoolId = programInput.school_id;
-    const schoolIdDataCheck = await School.findOne({ _id: schoolId, status: 'active' });
+    const schoolIdCheck = await School.findOne({ _id: schoolId, status: 'active' });
 
-    if (!schoolIdDataCheck) {
+    if (!schoolIdCheck) {
       throw new Error(`ID '${schoolId}' Not Found in School Data`);
     }
   }
 
   if (programInput.scholar_season_id) {
     const scholarSeasonId = programInput.scholar_season_id;
-    const scholarSeasonIdDataCheck = await ScholarSeason.findOne({ _id: scholarSeasonId, status: 'active' });
+    const scholarSeasonIdCheck = await ScholarSeason.findOne({ _id: scholarSeasonId, status: 'active' });
 
-    if (!scholarSeasonIdDataCheck) {
+    if (!scholarSeasonIdCheck) {
       throw new Error(`ID '${scholarSeasonId}' Not Found in Scholar Season Data`);
     }
   }
@@ -83,11 +82,9 @@ async function handleValidationForProgramInput(programInput) {
  * @returns {Array} - The list of id with mongoose object id data type
  */
 function convertStringsToObjectIds(ids) {
-  for (const id in ids) {
-    console.log(ids);
-
-    if (typeof id !== 'string') {
-      throw new Error(`Id ${id} is not a string. Id must be a string`);
+  for (const id of ids) {
+    if (typeof id !== 'string' || id.length !== 24) {
+      throw new Error(`Id ${id} is invalid. Id must be a string of 24 characters`);
     }
   }
   const objectIds = ids.map(mongoose.Types.ObjectId);
@@ -97,12 +94,12 @@ function convertStringsToObjectIds(ids) {
 /**
  * Handlers filter criteria for the aggregation query.
  * @param {Object} filter - The filter creiteria.
- * @param {Array} filter.speciality_id - The id of speciality_id that will be filtered.
- * @param {Array} filter.sector_id - The id of sector_id that will be filtered.
- * @param {Array} filter.level_id - The id of level_id that will be filtered.
- * @param {Array} filter.campus_id - The id of campus_id that will be filtered.
- * @param {Array} filter.school_id - The id of school_id that will be filtered.
- * @param {Array} filter.scholar_season_id - The id of scholar_season_id that will be filtered.
+ * @param {Array} filter.speciality_id - The ids of speciality_id that will be filtered.
+ * @param {Array} filter.sector_id - The ids of sector_id that will be filtered.
+ * @param {Array} filter.level_id - The ids of level_id that will be filtered.
+ * @param {Array} filter.campus_id - The ids of campus_id that will be filtered.
+ * @param {Array} filter.school_id - The ids of school_id that will be filtered.
+ * @param {Array} filter.scholar_season_id - The ids of scholar_season_id that will be filtered.
  * @param {string} filter.program_publish_status - The status of published or not_published filter.
  * @param {Object} filter.createdAt - The date range in createdAt filter.
  * @param {string} filter.createdAt.from - The start date in createdAt filter.
@@ -110,37 +107,37 @@ function convertStringsToObjectIds(ids) {
  * @param {string} filter.name - The name filter.
  * @returns {Object} The match filter object.
  */
-async function handleFiltersForGetAllPrograms(filter) {
+function handleFiltersForGetAllPrograms(filter) {
   const matchFilter = { status: 'active' }; // *************** Pre filtering data to find data with active status.
   if (filter) {
     if (filter.speciality_id) {
-      const specialityIds = convertStringsToObjectIds(filter.speciality_id);
-      matchFilter.speciality_id = { $in: specialityIds };
+      const filterSpecialityIds = convertStringsToObjectIds(filter.speciality_id); // *************** Convert filter.speciality_id array of strings to array of mongoose object id
+      matchFilter.speciality_id = { $in: filterSpecialityIds };
     }
 
     if (filter.sector_id) {
-      const sectorIds = convertStringsToObjectIds(filter.sector_id);
-      matchFilter.sector_id = { $in: sectorIds };
+      const filterSectorIds = convertStringsToObjectIds(filter.sector_id); // *************** Convert filter.sector_id array of strings to array of mongoose object id
+      matchFilter.sector_id = { $in: filterSectorIds };
     }
 
     if (filter.level_id) {
-      const levelIds = convertStringsToObjectIds(filter.level_id);
-      matchFilter.level_id = { $in: levelIds };
+      const filterLevelIds = convertStringsToObjectIds(filter.level_id); // *************** Convert filter.level_id array of strings to array of mongoose object id
+      matchFilter.level_id = { $in: filterLevelIds };
     }
 
     if (filter.campus_id) {
-      const campusIds = convertStringsToObjectIds(filter.campus_id);
-      matchFilter.campus_id = { $in: campusIds };
+      const filterCampusIds = convertStringsToObjectIds(filter.campus_id); // *************** Convert filter.campus_id array of strings to array of mongoose object id
+      matchFilter.campus_id = { $in: filterCampusIds };
     }
 
     if (filter.school_id) {
-      const schoolIds = convertStringsToObjectIds(filter.school_id);
-      matchFilter.school_id = { $in: schoolIds };
+      const filterSchoolIds = convertStringsToObjectIds(filter.school_id); // *************** Convert filter.school_id array of strings to array of mongoose object id
+      matchFilter.school_id = { $in: filterSchoolIds };
     }
 
     if (filter.scholar_season_id) {
-      const scholarSeasonIds = convertStringsToObjectIds(filter.scholar_season_id);
-      matchFilter.scholar_season_id = { $in: scholarSeasonIds };
+      const filterScholarSeasonIds = convertStringsToObjectIds(filter.scholar_season_id); // *************** Convert filter.scholar_season_id array of strings to array of mongoose object id
+      matchFilter.scholar_season_id = { $in: filterScholarSeasonIds };
     }
 
     if (filter.program_publish_status) {
@@ -251,8 +248,8 @@ function handleSortingForGetAllPrograms(sort) {
 
     return sortPipeline;
   } else {
-    sortPipeline.push({ $sort: { createdAt: -1 } });
-    return sortPipeline; // *************** Default sorting by createdAt in descending order.
+    sortPipeline.push({ $sort: { createdAt: -1 } }); // *************** Default sorting by createdAt in descending order.
+    return sortPipeline;
   }
 }
 
@@ -292,8 +289,8 @@ function handlePaginationForGetAllPrograms(pagination, queryFilterMatch) {
  * @param {Object} pagination - The pagination criteria.
  * @returns {Array} The aggregate query pipeline.
  */
-async function createAggregateQueryForGetAllPrograms(filter, sort, pagination) {
-  const queryFilterMatch = await handleFiltersForGetAllPrograms(filter);
+function createAggregateQueryForGetAllPrograms(filter, sort, pagination) {
+  const queryFilterMatch = handleFiltersForGetAllPrograms(filter);
   const querySorting = handleSortingForGetAllPrograms(sort);
   const queryPagination = handlePaginationForGetAllPrograms(pagination, queryFilterMatch);
 

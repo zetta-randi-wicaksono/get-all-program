@@ -17,15 +17,15 @@ const { handleValidationForProgramInput, createAggregateQueryForGetAllPrograms }
 async function GetAllPrograms(parent, args) {
   try {
     const { filter, sort, pagination } = args;
-    const aggregateQuery = await createAggregateQueryForGetAllPrograms(filter, sort, pagination); // *************** Create aggregation query from arguments
-    const programsResult = await Program.aggregate(aggregateQuery);
+    const aggregateQuery = createAggregateQueryForGetAllPrograms(filter, sort, pagination); // *************** Create aggregation query from arguments
+    const getAllProgramsResult = await Program.aggregate(aggregateQuery);
 
     // *************** Check program collection length
-    if (!programsResult.length) {
+    if (!getAllProgramsResult.length) {
       throw new Error('Program Data is Empty');
     }
 
-    return programsResult;
+    return getAllProgramsResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -41,14 +41,14 @@ async function GetAllPrograms(parent, args) {
 async function GetOneProgram(parent, args) {
   try {
     const { _id } = args;
-    const programResult = await Program.findById(_id);
+    const getOneProgramResult = await Program.findById(_id);
 
     // *************** Validation throw error when program data is null or program status is deleted
-    if (!programResult || programResult.status === 'deleted') {
+    if (!getOneProgramResult || getOneProgramResult.status === 'deleted') {
       throw new Error('Program Data Not Found');
     }
 
-    return programResult;
+    return getOneProgramResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -69,14 +69,14 @@ async function CreateProgram(parent, args) {
     // *************** Fetch program data to validate the program name input
     const programNameCheck = await Program.findOne({ name: program_input.name, status: 'active' }).collation({ locale: 'en', strength: 2 });
     if (programNameCheck) {
-      throw new Error(`Name '${program_input.name}' Has Already Been Taken`);
+      throw new Error(`Program Name '${program_input.name}' Has Already Been Taken`);
     }
 
     await handleValidationForProgramInput(program_input);
 
-    const programResult = new Program(program_input);
-    await programResult.save();
-    return programResult;
+    const createProgramResult = new Program(program_input);
+    await createProgramResult.save();
+    return createProgramResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -102,7 +102,9 @@ async function UpdateProgram(parent, args) {
 
     // *************** Validation throw error when try to update program with program publish status is published
     if (programDataCheck.program_publish_status === 'published') {
-      throw new Error('Cannot Update Published Program. To Update You Need Unpublish The Program');
+      throw new Error(
+        `Program '${programDataCheck.name}' is published. Cannot Update Published Program. To Update You Need Unpublish The Program`
+      );
     }
 
     // *************** Validation throw error when program name is already taken in another document
@@ -112,14 +114,14 @@ async function UpdateProgram(parent, args) {
         strength: 2,
       });
       if (programNameCheck && programNameCheck._id.toString() !== _id) {
-        throw new Error(`Name '${program_input.name}' Has Already Been Taken`);
+        throw new Error(`Program Name '${program_input.name}' Has Already Been Taken`);
       }
     }
 
     await handleValidationForProgramInput(program_input);
 
-    const programResult = await Program.findByIdAndUpdate(_id, program_input, { new: true, useFindAndModify: false });
-    return programResult;
+    const updateProgramResult = await Program.findByIdAndUpdate(_id, program_input, { new: true, useFindAndModify: false });
+    return updateProgramResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -141,10 +143,12 @@ async function DeleteProgram(parent, args) {
     if (programDataCheck && programDataCheck.status === 'active') {
       // *************** Validation throw error when try to delete program with program publish status is published
       if (programDataCheck.program_publish_status === 'published') {
-        throw new Error('Cannot Delete Published Program. To Delete You Need Unpublish The Program');
+        throw new Error(
+          `Program '${programDataCheck.name}' is published. Cannot Delete Published Program. To Delete You Need Unpublish The Program`
+        );
       }
-      const programResult = await Program.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
-      return programResult;
+      const deleteProgramResult = await Program.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
+      return deleteProgramResult;
     } else {
       throw new Error('Program Data Not Found');
     }
@@ -172,15 +176,15 @@ async function PublishProgram(parent, args) {
 
     // *************** Validation throw error when program pubish status already published
     if (programDataCheck.program_publish_status === 'published') {
-      throw new Error('The Program Already Published. Cannot Publish The Published Program.');
+      throw new Error(`Program '${programDataCheck.name}' Already Published. Cannot Publish The Published Program.`);
     }
 
-    const programResult = await Program.findByIdAndUpdate(
+    const publishProgramResult = await Program.findByIdAndUpdate(
       _id,
       { program_publish_status: 'published' },
       { new: true, useFindAndModify: false }
     );
-    return programResult;
+    return publishProgramResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -205,15 +209,15 @@ async function UnpublishProgram(parent, args) {
 
     // *************** Validation throw error when program pubish status already not_published
     if (programDataCheck.program_publish_status === 'not_published') {
-      throw new Error('The Program Already UnPublished. Cannot Unpublish The Not Published Program.');
+      throw new Error(`Program ${programDataCheck.name} Already Unpublished. Cannot Unpublish The Not Published Program.`);
     }
 
-    const programResult = await Program.findByIdAndUpdate(
+    const unpublishProgramResult = await Program.findByIdAndUpdate(
       _id,
       { program_publish_status: 'not_published' },
       { new: true, useFindAndModify: false }
     );
-    return programResult;
+    return unpublishProgramResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -229,8 +233,8 @@ async function speciality_id(program, args, context) {
   const { specialityLoader } = context.loaders;
   if (program.speciality_id) {
     // *************** Load and return the speciality document that associated with the given speciality_id
-    const specialities = await specialityLoader.load(program.speciality_id);
-    return specialities;
+    const specialityDocument = await specialityLoader.load(program.speciality_id);
+    return specialityDocument;
   }
 }
 
@@ -244,8 +248,8 @@ async function sector_id(program, args, context) {
   const { sectorLoader } = context.loaders;
   // *************** Load and return the sector document that associated with the given speciality_id
   if (program.sector_id) {
-    const sectors = await sectorLoader.load(program.sector_id);
-    return sectors;
+    const sectorDocument = await sectorLoader.load(program.sector_id);
+    return sectorDocument;
   }
 }
 
@@ -259,8 +263,8 @@ async function school_id(program, args, context) {
   const { schoolLoader } = context.loaders;
   // *************** Load and return the school document that associated with the given speciality_id
   if (program.school_id) {
-    const schools = await schoolLoader.load(program.school_id);
-    return schools;
+    const schoolDocument = await schoolLoader.load(program.school_id);
+    return schoolDocument;
   }
 }
 
@@ -274,8 +278,8 @@ async function scholar_season_id(program, args, context) {
   const { scholarSeasonLoader } = context.loaders;
   // *************** Load and return the scholar season document that associated with the given speciality_ids
   if (program.scholar_season_id) {
-    const scholarSeasons = await scholarSeasonLoader.load(program.scholar_season_id);
-    return scholarSeasons;
+    const scholarSeasonDocument = await scholarSeasonLoader.load(program.scholar_season_id);
+    return scholarSeasonDocument;
   }
 }
 
@@ -289,8 +293,8 @@ async function level_id(program, args, context) {
   const { levelLoader } = context.loaders;
   // *************** Load and return the level document that associated with the given speciality_id
   if (program.level_id) {
-    const levels = await levelLoader.load(program.level_id);
-    return levels;
+    const levelDocument = await levelLoader.load(program.level_id);
+    return levelDocument;
   }
 }
 
@@ -304,8 +308,8 @@ async function campus_id(program, args, context) {
   const { campusLoader } = context.loaders;
   // *************** Load and return the campus document that associated with the given speciality_id
   if (program.campus_id) {
-    const campuses = await campusLoader.load(program.campus_id);
-    return campuses;
+    const campusDocument = await campusLoader.load(program.campus_id);
+    return campusDocument;
   }
 }
 

@@ -22,14 +22,14 @@ async function GetAllSpecialities(parent, args) {
   try {
     const { filter, sort, pagination } = args;
     const aggregateQuery = createAggregateQueryForGetAllSpecialities(filter, sort, pagination); // *************** Create aggregation query from arguments
-    const specialitiesResult = await Speciality.aggregate(aggregateQuery);
+    const getAllSpecialitiesResult = await Speciality.aggregate(aggregateQuery);
 
     // *************** Check specialities collection length
-    if (!specialitiesResult.length) {
+    if (!getAllSpecialitiesResult.length) {
       throw new Error('Specialities Data Not Found');
     }
 
-    return specialitiesResult;
+    return getAllSpecialitiesResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -45,14 +45,14 @@ async function GetAllSpecialities(parent, args) {
 async function GetOneSpeciality(parent, args) {
   try {
     const { _id } = args;
-    const specialityResult = await Speciality.findById(_id);
+    const getOneSpecialityResult = await Speciality.findById(_id);
 
     // *************** Validation throw error when speciality data is null or speciality status is deleted
-    if (!specialityResult || specialityResult.status === 'deleted') {
+    if (!getOneSpecialityResult || getOneSpecialityResult.status === 'deleted') {
       throw new Error('Speciality Data Not Found');
     }
 
-    return specialityResult;
+    return getOneSpecialityResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -76,12 +76,12 @@ async function CreateSpeciality(parent, args) {
       strength: 2,
     });
     if (specialityNameCheck) {
-      throw new Error(`Name '${createSpecialityInput.name}' Has Already Been Taken`);
+      throw new Error(`Speciality Name '${createSpecialityInput.name}' Has Already Been Taken`);
     }
 
-    const specialityResult = new Speciality(createSpecialityInput);
-    await specialityResult.save();
-    return specialityResult;
+    const createSpecialityResult = new Speciality(createSpecialityInput);
+    await createSpecialityResult.save();
+    return createSpecialityResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -106,9 +106,10 @@ async function UpdateSpeciality(parent, args) {
     }
 
     // *************** Validation throw error when speciality data is connected to program collection
-    const connectedToProgramCheck = await Program.find({ speciality_id: mongoose.Types.ObjectId(_id) });
-    if (connectedToProgramCheck.length) {
-      throw new Error('Cannot Update. Speciality Id is Still Used in The Program');
+    const connectedToProgramCheck = await Program.findOne({ speciality_id: mongoose.Types.ObjectId(_id) });
+
+    if (connectedToProgramCheck) {
+      throw new Error(`Cannot Update. Speciality is Still Used in The Program '${connectedToProgramCheck.name}'`);
     }
 
     const updateSpecialityInput = { ...args.speciality_input };
@@ -121,12 +122,12 @@ async function UpdateSpeciality(parent, args) {
       });
 
       if (specialityNameCheck && specialityNameCheck._id.toString() !== _id) {
-        throw new Error(`Name '${updateSpecialityInput.name}' Has Already Been Taken`);
+        throw new Error(`Speciality Name '${updateSpecialityInput.name}' Has Already Been Taken`);
       }
     }
 
-    const specialityResult = await Speciality.findByIdAndUpdate(_id, updateSpecialityInput, { new: true, useFindAndModify: false });
-    return specialityResult;
+    const updateSpecialityResult = await Speciality.findByIdAndUpdate(_id, updateSpecialityInput, { new: true, useFindAndModify: false });
+    return updateSpecialityResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -146,14 +147,18 @@ async function DeleteSpeciality(parent, args) {
 
     // *************** Check speciality document if it exists and the status is active then the document can be deleted.
     if (specialityDataCheck && specialityDataCheck.status === 'active') {
-      const connectedToProgramCheck = await Program.find({ speciality_id: mongoose.Types.ObjectId(_id) });
+      const connectedToProgramCheck = await Program.findOne({ speciality_id: mongoose.Types.ObjectId(_id) });
 
       // *************** Validation throw error when speciality data is connected to program collection
-      if (!connectedToProgramCheck.length) {
-        const specialityResult = await Speciality.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
-        return specialityResult;
+      if (!connectedToProgramCheck) {
+        const deleteSpecialityResult = await Speciality.findByIdAndUpdate(
+          _id,
+          { status: 'deleted' },
+          { new: true, useFindAndModify: false }
+        );
+        return deleteSpecialityResult;
       } else {
-        throw new Error('Cannot Delete. Speciality Id is Still Used in The Program');
+        throw new Error(`Cannot Delete. Speciality is Still Used in The Program '${connectedToProgramCheck.name}'`);
       }
     } else {
       throw new Error('Speciality Data Not Found');

@@ -22,14 +22,14 @@ async function GetAllSectors(parent, args) {
   try {
     const { filter, sort, pagination } = args;
     const aggregateQuery = createAggregateQueryForGetAllSectors(filter, sort, pagination); // *************** Create aggregation query from arguments
-    const sectorsResult = await Sector.aggregate(aggregateQuery);
+    const getAllSectorsResult = await Sector.aggregate(aggregateQuery);
 
     // *************** Check sectors collection length
-    if (!sectorsResult.length) {
+    if (!getAllSectorsResult.length) {
       throw new Error('Sectors Data Not Found');
     }
 
-    return sectorsResult;
+    return getAllSectorsResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -45,14 +45,14 @@ async function GetAllSectors(parent, args) {
 async function GetOneSector(parent, args) {
   try {
     const { _id } = args;
-    const sectorResult = await Sector.findById(_id);
+    const getOneSectorResult = await Sector.findById(_id);
 
     // *************** Validation throw error when sector data is null or sector status is deleted
-    if (!sectorResult || sectorResult.status === 'deleted') {
+    if (!getOneSectorResult || getOneSectorResult.status === 'deleted') {
       throw new Error('Sector Data Not Found');
     }
 
-    return sectorResult;
+    return getOneSectorResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -76,12 +76,12 @@ async function CreateSector(parent, args) {
       strength: 2,
     });
     if (sectorNameCheck) {
-      throw new Error(`Name '${createSectorInput.name}' Has Already Been Taken`);
+      throw new Error(`Sector Name '${createSectorInput.name}' Has Already Been Taken`);
     }
 
-    const sectorResult = new Sector(createSectorInput);
-    await sectorResult.save();
-    return sectorResult;
+    const createSectorResult = new Sector(createSectorInput);
+    await createSectorResult.save();
+    return createSectorResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -106,9 +106,9 @@ async function UpdateSector(parent, args) {
     }
 
     // *************** Validation throw error when sector data is connected to program collection
-    const connectedToProgramCheck = await Program.find({ sector_id: mongoose.Types.ObjectId(_id) });
-    if (connectedToProgramCheck.length) {
-      throw new Error('Cannot Update. Sector Id is Still Used in The Program');
+    const connectedToProgramCheck = await Program.findOne({ sector_id: mongoose.Types.ObjectId(_id) });
+    if (connectedToProgramCheck) {
+      throw new Error(`Cannot Update. Sector is Still Used in The Program '${connectedToProgramCheck.name}'`);
     }
 
     const updateSectorInput = { ...args.sector_input };
@@ -120,12 +120,12 @@ async function UpdateSector(parent, args) {
         strength: 2,
       });
       if (sectorNameCheck && sectorNameCheck._id.toString() !== _id) {
-        throw new Error(`Name '${updateSectorInput.name}' Has Already Been Taken`);
+        throw new Error(`Sector Name '${updateSectorInput.name}' Has Already Been Taken`);
       }
     }
 
-    const sectorResult = await Sector.findByIdAndUpdate(args._id, updateSectorInput, { new: true, useFindAndModify: false });
-    return sectorResult;
+    const updateSectorResult = await Sector.findByIdAndUpdate(args._id, updateSectorInput, { new: true, useFindAndModify: false });
+    return updateSectorResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -145,14 +145,14 @@ async function DeleteSector(parent, args) {
 
     // *************** Check sector document if it exists and the status is active then the document can be deleted.
     if (sectorDataCheck && sectorDataCheck.status === 'active') {
-      const connectedToProgramCheck = await Program.find({ sector_id: mongoose.Types.ObjectId(_id) });
+      const connectedToProgramCheck = await Program.findOne({ sector_id: mongoose.Types.ObjectId(_id) });
 
       // *************** Validation throw error when sector data is connected to program collection
-      if (!connectedToProgramCheck.length) {
-        const sectorResult = await Sector.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
-        return sectorResult;
+      if (!connectedToProgramCheck) {
+        const deleteSectorResult = await Sector.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
+        return deleteSectorResult;
       } else {
-        throw new Error('Cannot Delete. Sector Id is Still Used in The Program');
+        throw new Error(`Cannot Delete. Sector is Still Used in The Program '${connectedToProgramCheck.name}'`);
       }
     } else {
       throw new Error('Sector Data Not Found');

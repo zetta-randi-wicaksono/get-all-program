@@ -22,15 +22,14 @@ async function GetAllSchools(parent, args) {
   try {
     const { filter, sort, pagination } = args;
     const aggregateQuery = createAggregateQueryForGetAllSchools(filter, sort, pagination); // *************** Create aggregation query from arguments
-
-    const schoolsResult = await School.aggregate(aggregateQuery);
+    const getAllSchoolsResult = await School.aggregate(aggregateQuery);
 
     // *************** Check schools collection length
-    if (!schoolsResult.length) {
+    if (!getAllSchoolsResult.length) {
       throw new Error('Schools Data is Empty');
     }
 
-    return schoolsResult;
+    return getAllSchoolsResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -46,14 +45,14 @@ async function GetAllSchools(parent, args) {
 async function GetOneSchool(parent, args) {
   try {
     const { _id } = args;
-    const schoolResult = await School.findById(_id);
+    const getOneSchoolResult = await School.findById(_id);
 
     // *************** Validation throw error when school data is null or school status is deleted
-    if (!schoolResult || schoolResult.status === 'deleted') {
+    if (!getOneSchoolResult || getOneSchoolResult.status === 'deleted') {
       throw new Error('School Data Not Found');
     }
 
-    return schoolResult;
+    return getOneSchoolResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -77,12 +76,12 @@ async function CreateSchool(parent, args) {
       strength: 2,
     });
     if (schoolNameCheck) {
-      throw new Error(`Name '${createSchoolInput.name}' Has Already Been Taken`);
+      throw new Error(`School Name '${createSchoolInput.name}' Has Already Been Taken`);
     }
 
-    const schoolResult = new School(createSchoolInput);
-    await schoolResult.save();
-    return schoolResult;
+    const createSchoolResult = new School(createSchoolInput);
+    await createSchoolResult.save();
+    return createSchoolResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -107,9 +106,9 @@ async function UpdateSchool(parent, args) {
     }
 
     // *************** Validation throw error when school data is connected to program collection
-    const connectedToProgramCheck = await Program.find({ school_id: mongoose.Types.ObjectId(_id) });
-    if (connectedToProgramCheck.length) {
-      throw new Error('Cannot Update. School Id is Still Used in The Program');
+    const connectedToProgramCheck = await Program.findOne({ school_id: mongoose.Types.ObjectId(_id) });
+    if (connectedToProgramCheck) {
+      throw new Error(`Cannot Update. School is Still Used in The Program '${connectedToProgramCheck.name}'`);
     }
 
     const updateSchoolInput = { ...args.school_input };
@@ -121,12 +120,12 @@ async function UpdateSchool(parent, args) {
         strength: 2,
       });
       if (schoolNameCheck && schoolNameCheck._id.toString() !== _id) {
-        throw new Error(`Name '${updateSchoolInput.name}' Has Already Been Taken`);
+        throw new Error(`School Name '${updateSchoolInput.name}' Has Already Been Taken`);
       }
     }
 
-    const schoolResult = await School.findByIdAndUpdate(_id, updateSchoolInput, { new: true, useFindAndModify: false });
-    return schoolResult;
+    const updateSchoolResult = await School.findByIdAndUpdate(_id, updateSchoolInput, { new: true, useFindAndModify: false });
+    return updateSchoolResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -146,14 +145,14 @@ async function DeleteSchool(parent, args) {
 
     // *************** Check school document if it exists and the status is active then the document can be deleted.
     if (schoolDataCheck && schoolDataCheck.status === 'active') {
-      const connectedToProgramCheck = await Program.find({ school_id: mongoose.Types.ObjectId(_id) });
+      const connectedToProgramCheck = await Program.findOne({ school_id: mongoose.Types.ObjectId(_id) });
 
       // *************** Validation throw error when school data is connected to program collection
-      if (!connectedToProgramCheck.length) {
-        const schoolResult = await School.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
-        return schoolResult;
+      if (!connectedToProgramCheck) {
+        const deleteSchoolResult = await School.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
+        return deleteSchoolResult;
       } else {
-        throw new Error('Cannot Delete. Sector Id is Still Used in The Program');
+        throw new Error(`Cannot Delete. Sector is Still Used in The Program '${connectedToProgramCheck.name}'`);
       }
     } else {
       throw new Error('School Data Not Found');

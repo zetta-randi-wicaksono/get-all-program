@@ -22,14 +22,14 @@ async function GetAllLevels(parent, args) {
   try {
     const { filter, sort, pagination } = args;
     const aggregateQuery = createAggregateQueryForGetAllLevels(filter, sort, pagination); // *************** Create aggregation query from arguments
-    const levelsResult = await Level.aggregate(aggregateQuery);
+    const getAllLevelsResult = await Level.aggregate(aggregateQuery);
 
     // *************** Check levels collection length
-    if (!levelsResult.length) {
+    if (!getAllLevelsResult.length) {
       throw new Error('Levels Data Not Found');
     }
 
-    return levelsResult;
+    return getAllLevelsResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -45,14 +45,14 @@ async function GetAllLevels(parent, args) {
 async function GetOneLevel(parent, args) {
   try {
     const { _id } = args;
-    const levelResult = await Level.findById(_id);
+    const getOneLevelResult = await Level.findById(_id);
 
     // *************** Validation throw error when level data is null or level status is deleted
-    if (!levelResult || levelResult.status === 'deleted') {
+    if (!getOneLevelResult || getOneLevelResult.status === 'deleted') {
       throw new Error('Level Data Not Found');
     }
 
-    return levelResult;
+    return getOneLevelResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -73,12 +73,12 @@ async function CreateLevel(parent, args) {
     // *************** Fetch level data to validate the name input
     const levelNameCheck = await Level.findOne({ name: createLevelInput.name, status: 'active' }).collation({ locale: 'en', strength: 2 });
     if (levelNameCheck) {
-      throw new Error(`Name '${createLevelInput.name}' Has Already Been Taken`);
+      throw new Error(`Level Name '${createLevelInput.name}' Has Already Been Taken`);
     }
 
-    const levelResult = new Level(createLevelInput);
-    await levelResult.save();
-    return levelResult;
+    const createLevelResult = new Level(createLevelInput);
+    await createLevelResult.save();
+    return createLevelResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -103,9 +103,9 @@ async function UpdateLevel(parent, args) {
     }
 
     // *************** Validation throw error when level data is connected to program collection
-    const connectedToProgramCheck = await Program.find({ level_id: mongoose.Types.ObjectId(_id) });
-    if (connectedToProgramCheck.length) {
-      throw new Error('Cannot Update. Level Id is Still Used in The Program');
+    const connectedToProgramCheck = await Program.findOne({ level_id: mongoose.Types.ObjectId(_id) });
+    if (connectedToProgramCheck) {
+      throw new Error(`Cannot Update. Level is Still Used in The Program '${connectedToProgramCheck.name}'`);
     }
 
     const updateLevelInput = { ...args.level_input };
@@ -117,12 +117,12 @@ async function UpdateLevel(parent, args) {
         strength: 2,
       });
       if (levelNameCheck && levelNameCheck._id.toString() !== _id) {
-        throw new Error(`Name '${updateLevelInput.name}' Has Already Been Taken`);
+        throw new Error(`Level Name '${updateLevelInput.name}' Has Already Been Taken`);
       }
     }
 
-    const levelResult = await Level.findByIdAndUpdate(_id, updateLevelInput, { new: true, useFindAndModify: false });
-    return levelResult;
+    const updateLevelResult = await Level.findByIdAndUpdate(_id, updateLevelInput, { new: true, useFindAndModify: false });
+    return updateLevelResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -142,14 +142,14 @@ async function DeleteLevel(parent, args) {
 
     // *************** Check level document if it exists and the status is active then the document can be deleted.
     if (levelDataCheck && levelDataCheck.status === 'active') {
-      const connectedToProgramCheck = await Program.find({ level_id: mongoose.Types.ObjectId(_id) });
+      const connectedToProgramCheck = await Program.findOne({ level_id: mongoose.Types.ObjectId(_id) });
 
       // *************** Validation throw error when level data is connected to program collection
-      if (!connectedToProgramCheck.length) {
-        const levelResult = await Level.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
-        return levelResult;
+      if (!connectedToProgramCheck) {
+        const deleteLevelResult = await Level.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
+        return deleteLevelResult;
       } else {
-        throw new Error('Cannot Delete. Level Id is Still Used in The Program');
+        throw new Error(`Cannot Delete. Level is Still Used in The Program '${connectedToProgramCheck.name}'`);
       }
     } else {
       throw new Error('Level Data Not Found');

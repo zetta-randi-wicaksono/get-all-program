@@ -22,14 +22,14 @@ async function GetAllCampuses(parent, args) {
   try {
     const { filter, sort, pagination } = args;
     const aggregateQuery = createAggregateQueryForGetAllCampuses(filter, sort, pagination); // *************** Create aggregation query from arguments
-    const campusesResult = await Campus.aggregate(aggregateQuery);
+    const getAllCampusesResult = await Campus.aggregate(aggregateQuery);
 
     // *************** Check campuses collection length
-    if (!campusesResult.length) {
+    if (!getAllCampusesResult.length) {
       throw new Error('Campuses Data Not Found');
     }
 
-    return campusesResult;
+    return getAllCampusesResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -45,14 +45,14 @@ async function GetAllCampuses(parent, args) {
 async function GetOneCampus(parent, args) {
   try {
     const { _id } = args;
-    const campusResult = await Campus.findById(_id);
+    const getOneCampusResult = await Campus.findById(_id);
 
     // *************** Validation throw error when campus data is null or campus status is deleted
-    if (!campusResult || campusResult.status === 'deleted') {
+    if (!getOneCampusResult || getOneCampusResult.status === 'deleted') {
       throw new Error('Campus Data Not Found');
     }
 
-    return campusResult;
+    return getOneCampusResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -76,12 +76,12 @@ async function CreateCampus(parent, args) {
       strength: 2,
     });
     if (campusNameCheck) {
-      throw new Error(`Name '${createCampusInput.name}' Has Already Been Taken`);
+      throw new Error(`Campus Name '${createCampusInput.name}' Has Already Been Taken`);
     }
 
-    const campusResult = new Campus(createCampusInput);
-    await campusResult.save();
-    return campusResult;
+    const createCampusResult = new Campus(createCampusInput);
+    await createCampusResult.save();
+    return createCampusResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -106,9 +106,9 @@ async function UpdateCampus(parent, args) {
     }
 
     // *************** Validation throw error when campus data is connected to program collection
-    const connectedToProgramCheck = await Program.find({ campus_id: mongoose.Types.ObjectId(_id) });
-    if (connectedToProgramCheck.length) {
-      throw new Error('Cannot Update. Campus Id is Still Used in The Program');
+    const connectedToProgramCheck = await Program.findOne({ campus_id: mongoose.Types.ObjectId(_id) });
+    if (connectedToProgramCheck) {
+      throw new Error(`Cannot Update. Campus is Still Used in The Program '${connectedToProgramCheck.name}'`);
     }
 
     const updateCampusInput = { ...args.campus_input };
@@ -120,12 +120,12 @@ async function UpdateCampus(parent, args) {
         strength: 2,
       });
       if (campusNameCheck && campusNameCheck._id.toString() !== _id) {
-        throw new Error(`Name '${updateCampusInput.name}' Has Already Been Taken`);
+        throw new Error(`Campus Name '${updateCampusInput.name}' Has Already Been Taken`);
       }
     }
 
-    const campusResult = await Campus.findByIdAndUpdate(_id, updateCampusInput, { new: true, useFindAndModify: false });
-    return campusResult;
+    const updateCampusResult = await Campus.findByIdAndUpdate(_id, updateCampusInput, { new: true, useFindAndModify: false });
+    return updateCampusResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
   }
@@ -145,14 +145,14 @@ async function DeleteCampus(parent, args) {
 
     // *************** Check campus document if it exists and the status is active then the document can be deleted.
     if (campusDataCheck && campusDataCheck.status === 'active') {
-      const connectedToProgramCheck = await Program.find({ campus_id: mongoose.Types.ObjectId(_id) });
+      const connectedToProgramCheck = await Program.findOne({ campus_id: mongoose.Types.ObjectId(_id) });
 
       // *************** Validation throw error when campus data is connected to program collection
-      if (!connectedToProgramCheck.length) {
-        const campusResult = await Campus.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
-        return campusResult;
+      if (!connectedToProgramCheck) {
+        const deleteCampusResult = await Campus.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
+        return deleteCampusResult;
       } else {
-        throw new Error('Cannot Delete. Campus Id is Still Used in The Program');
+        throw new Error(`Cannot Delete. Campus is Still Used in The Program '${connectedToProgramCheck.name}'`);
       }
     } else {
       throw new Error('Campus Data Not Found');
