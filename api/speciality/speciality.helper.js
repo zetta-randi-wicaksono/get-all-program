@@ -13,10 +13,12 @@ function handleFiltersForGetAllSpecialities(filter) {
 
   if (filter) {
     if (filter.createdAt) {
+      // *************** Data type validation on createAt variables.
       if (typeof filter.createdAt.from !== 'string' || typeof filter.createdAt.to !== 'string') {
         throw new Error('Invalid createdAt filter format. Need string format');
       }
 
+      // *************** Convert createAt data type string to date
       const fromDate = new Date(filter.createdAt.from);
       const toDate = new Date(filter.createdAt.to);
 
@@ -45,7 +47,7 @@ function handleFiltersForGetAllSpecialities(filter) {
         throw new Error('Filter name cannot be an empty string.');
       }
 
-      // *************** Case-insensitive regex search.
+      // *************** Apply case-insensitive regex for name filtering.
       matchFilter.name = { $regex: filterName, $options: 'i' };
     }
   }
@@ -59,7 +61,7 @@ function handleFiltersForGetAllSpecialities(filter) {
  */
 function handleSortingForGetAllSpecialities(sort) {
   if (sort) {
-    // *************** Data type and value validation on sort prameters.
+    // *************** Value validation for sort prameters.
     for (const key in sort) {
       if (sort[key] !== -1 && sort[key] !== 1) {
         throw new Error('Invalid sort parameter format. Must be 1 or -1');
@@ -93,9 +95,7 @@ function handlePaginationForGetAllSpecialities(pagination, queryFilterMatch) {
     }
 
     paginationPipeline.push(
-      // *************** Skip the number of documents according to the number of page.
       { $skip: page * limit },
-      // *************** Limit the number of documents.
       { $limit: limit },
       // *************** Count the number of documents in the collection.
       { $lookup: { from: 'specialities', pipeline: [{ $match: queryFilterMatch }, { $count: 'value' }], as: 'total_document' } },

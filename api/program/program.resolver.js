@@ -284,8 +284,8 @@ async function speciality_id(program, args, context) {
  */
 async function sector_id(program, args, context) {
   const { sectorLoader } = context.loaders;
-  // *************** Load and return the sector document that associated with the given sector_id
   if (program.sector_id) {
+    // *************** Load and return the sector document that associated with the given sector_id
     const sectorDocument = await sectorLoader.load(program.sector_id);
     return sectorDocument;
   }
@@ -299,8 +299,8 @@ async function sector_id(program, args, context) {
  */
 async function school_id(program, args, context) {
   const { schoolLoader } = context.loaders;
-  // *************** Load and return the school document that associated with the given school_id
   if (program.school_id) {
+    // *************** Load and return the school document that associated with the given school_id
     const schoolDocument = await schoolLoader.load(program.school_id);
     return schoolDocument;
   }
@@ -314,8 +314,8 @@ async function school_id(program, args, context) {
  */
 async function scholar_season_id(program, args, context) {
   const { scholarSeasonLoader } = context.loaders;
-  // *************** Load and return the scholar season document that associated with the given scholar_season_id
   if (program.scholar_season_id) {
+    // *************** Load and return the scholar season document that associated with the given scholar_season_id
     const scholarSeasonDocument = await scholarSeasonLoader.load(program.scholar_season_id);
     return scholarSeasonDocument;
   }
@@ -329,8 +329,8 @@ async function scholar_season_id(program, args, context) {
  */
 async function level_id(program, args, context) {
   const { levelLoader } = context.loaders;
-  // *************** Load and return the level document that associated with the given level_id
   if (program.level_id) {
+    // *************** Load and return the level document that associated with the given level_id
     const levelDocument = await levelLoader.load(program.level_id);
     return levelDocument;
   }
@@ -344,8 +344,8 @@ async function level_id(program, args, context) {
  */
 async function campus_id(program, args, context) {
   const { campusLoader } = context.loaders;
-  // *************** Load and return the campus document that associated with the given campus_id
   if (program.campus_id) {
+    // *************** Load and return the campus document that associated with the given campus_id
     const campusDocument = await campusLoader.load(program.campus_id);
     return campusDocument;
   }

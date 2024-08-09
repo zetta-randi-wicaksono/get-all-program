@@ -23,6 +23,7 @@ const ScholarSeason = require('../scholar_season/scholar_season.model');
 async function handleValidationForProgramInput(programInput) {
   const programInputName = {};
 
+  // *************** Trim space and validate data type and length all input ids from programInput.
   for (const keyName in programInput) {
     const validateId = programInput[keyName].trim();
 
@@ -33,6 +34,7 @@ async function handleValidationForProgramInput(programInput) {
     programInput[keyName] = validateId;
   }
 
+  // *************** Find and validate program input scholar_season_id in scholar seasons collection
   if (programInput.scholar_season_id) {
     const scholarSeasonId = programInput.scholar_season_id;
     const scholarSeasonIdCheck = await ScholarSeason.findOne({ _id: scholarSeasonId, status: 'active' });
@@ -43,6 +45,7 @@ async function handleValidationForProgramInput(programInput) {
     programInputName.scholarSeason = scholarSeasonIdCheck.name;
   }
 
+  // *************** Find and validate program input school_id in schools collection
   if (programInput.school_id) {
     const schoolId = programInput.school_id;
     const schoolIdCheck = await School.findOne({ _id: schoolId, status: 'active' });
@@ -53,6 +56,7 @@ async function handleValidationForProgramInput(programInput) {
     programInputName.school = schoolIdCheck.name;
   }
 
+  // *************** Find and validate program input campus_id in campuses collection
   if (programInput.campus_id) {
     const campusId = programInput.campus_id;
     const campusIdCheck = await Campus.findOne({ _id: campusId, status: 'active' });
@@ -63,6 +67,7 @@ async function handleValidationForProgramInput(programInput) {
     programInputName.campus = campusIdCheck.name;
   }
 
+  // *************** Find and validate program input level_id in levels collection
   if (programInput.level_id) {
     const levelId = programInput.level_id;
     const levelIdCheck = await Level.findOne({ _id: levelId, status: 'active' });
@@ -73,6 +78,7 @@ async function handleValidationForProgramInput(programInput) {
     programInputName.level = levelIdCheck.name;
   }
 
+  // *************** Find and validate program input sector_id in sectors collection
   if (programInput.sector_id) {
     const sectorId = programInput.sector_id;
     const sectorIdCheck = await Sector.findOne({ _id: sectorId, status: 'active' });
@@ -83,6 +89,7 @@ async function handleValidationForProgramInput(programInput) {
     programInputName.sector = sectorIdCheck.name;
   }
 
+  // *************** Find and validate program input speciality_id in specialities collection
   if (programInput.speciality_id) {
     const specialityId = programInput.speciality_id;
     const specialityIdCheck = await Speciality.findOne({ _id: specialityId, status: 'active' });
@@ -93,6 +100,7 @@ async function handleValidationForProgramInput(programInput) {
     programInputName.speciality = specialityIdCheck.name;
   }
 
+  // *************** Merge name from program input to generate name for program
   programInput.name = ''.concat(
     `<${programInputName.scholarSeason}> <${programInputName.school.slice(0, 3)}${programInputName.campus.slice(0, 3)}> <${
       programInputName.level
@@ -187,10 +195,12 @@ function handleFiltersForGetAllPrograms(filter) {
     }
 
     if (filter.createdAt) {
+      // *************** Data type validation on createAt variables.
       if (typeof filter.createdAt.from !== 'string' || typeof filter.createdAt.to !== 'string') {
         throw new Error('Invalid createdAt filter format. Need string format');
       }
 
+      // *************** Convert createAt data type string to date
       const fromDate = new Date(filter.createdAt.from);
       const toDate = new Date(filter.createdAt.to);
 
@@ -219,7 +229,7 @@ function handleFiltersForGetAllPrograms(filter) {
         throw new Error('Filter name cannot be an empty string.');
       }
 
-      // *************** Case-insensitive regex search.
+      // *************** Apply case-insensitive regex for name filtering.
       matchFilter.name = { $regex: filterName, $options: 'i' };
     }
   }
@@ -243,7 +253,7 @@ function handleSortingForGetAllPrograms(sort) {
   sortPipeline = [];
 
   if (sort) {
-    // *************** Data type and value validation on sort prameters.
+    // *************** Value validation for sort prameters.
     for (const key in sort) {
       if (sort[key] !== -1 && sort[key] !== 1) {
         throw new Error('Invalid sort parameter format. Must be 1 or -1');
@@ -254,6 +264,7 @@ function handleSortingForGetAllPrograms(sort) {
       sortPipeline.push({ $sort: sort });
     }
 
+    // *************** Make stage to join program with speciality field and sort with speciality field
     if (sort.speciality_id) {
       sortPipeline.push(
         { $lookup: { from: 'specialities', localField: 'speciality_id', foreignField: '_id', as: 'speciality' } },
@@ -261,6 +272,7 @@ function handleSortingForGetAllPrograms(sort) {
       );
     }
 
+    // *************** Make stage to join program with sector field and sort with sector field
     if (sort.sector_id) {
       sortPipeline.push(
         { $lookup: { from: 'sectors', localField: 'sector_id', foreignField: '_id', as: 'sector' } },
@@ -268,6 +280,7 @@ function handleSortingForGetAllPrograms(sort) {
       );
     }
 
+    // *************** Make stage to join program with level field and sort with level field
     if (sort.level_id) {
       sortPipeline.push(
         { $lookup: { from: 'levels', localField: 'level_id', foreignField: '_id', as: 'level' } },
@@ -275,6 +288,7 @@ function handleSortingForGetAllPrograms(sort) {
       );
     }
 
+    // *************** Make stage to join program with campus field and sort with campus field
     if (sort.campus_id) {
       sortPipeline.push(
         { $lookup: { from: 'campus', localField: 'campus_id', foreignField: '_id', as: 'campus' } },
@@ -282,6 +296,7 @@ function handleSortingForGetAllPrograms(sort) {
       );
     }
 
+    // *************** Make stage to join program with school field and sort with school field
     if (sort.school_id) {
       sortPipeline.push(
         { $lookup: { from: 'schools', localField: 'school_id', foreignField: '_id', as: 'school' } },
@@ -289,6 +304,7 @@ function handleSortingForGetAllPrograms(sort) {
       );
     }
 
+    // *************** Make stage to join program with scholar season field and sort with scholar season field
     if (sort.scholar_season_id) {
       sortPipeline.push(
         { $lookup: { from: 'scholar_seasons', localField: 'scholar_season_id', foreignField: '_id', as: 'scholar_season' } },
@@ -298,7 +314,7 @@ function handleSortingForGetAllPrograms(sort) {
 
     return sortPipeline;
   } else {
-    // *************** Default sorting by createdAt in descending order.
+    // *************** Stage for default sorting by createdAt in descending order.
     sortPipeline.push({ $sort: { createdAt: -1 } });
     return sortPipeline;
   }
@@ -324,9 +340,7 @@ function handlePaginationForGetAllPrograms(pagination, queryFilterMatch) {
     }
 
     paginationPipeline.push(
-      // *************** Skip the number of documents according to the number of page.
       { $skip: page * limit },
-      // *************** Limit the number of documents.
       { $limit: limit },
       // *************** Count the number of documents in the collection.
       { $lookup: { from: 'programs', pipeline: [{ $match: queryFilterMatch }, { $count: 'value' }], as: 'total_document' } },
