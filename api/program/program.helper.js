@@ -19,6 +19,7 @@ const ScholarSeason = require('../scholar_season/scholar_season.model');
  * @param {string} programInput.campus_id - The input campus_id that will be validate in campus collection
  * @param {string} programInput.school_id - The input school_id that will be validate in schools collection
  * @param {string} programInput.scholar_season_id - The input scholar_season_id that will be validate in scholar_seasons collection
+ * @returns {Object} - The object of validated progam input and generated program name
  */
 async function handleValidationForProgramInput(programInput) {
   const programInputName = {};
@@ -101,11 +102,10 @@ async function handleValidationForProgramInput(programInput) {
   }
 
   // *************** Merge name from program input to generate name for program
-  programInput.name = ''.concat(
-    `<${programInputName.scholarSeason}> <${programInputName.school.slice(0, 3)}${programInputName.campus.slice(0, 3)}> <${
-      programInputName.level
-    }> <${programInputName.sector}-${programInputName.speciality}>`
-  );
+  programInput.name = `<${programInputName.scholarSeason}> <${programInputName.school.slice(0, 3)}${programInputName.campus.slice(
+    0,
+    3
+  )}> <${programInputName.level}> <${programInputName.sector}-${programInputName.speciality}>`;
 
   return programInput;
 }

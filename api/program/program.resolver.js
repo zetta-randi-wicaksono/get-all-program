@@ -12,7 +12,6 @@ const { handleValidationForProgramInput, createAggregateQueryForGetAllPrograms }
  * @param {Object} args.sort - The sort criteria.
  * @param {Object} args.pagination - The pagination criteria.
  * @returns {Array} The list of program.
- * @throws {Error} If no programs are found.
  */
 async function GetAllPrograms(parent, args) {
   try {
@@ -38,7 +37,6 @@ async function GetAllPrograms(parent, args) {
  * @param {Object} args - The arguments provided by the query.
  * @param {string} args._id - The _id used to search for program document.
  * @returns {Object} The program document.
- * @throws {Error} If no program document are found.
  */
 async function GetOneProgram(parent, args) {
   try {
@@ -69,7 +67,6 @@ async function GetOneProgram(parent, args) {
  * @param {Object} args - The arguments provided by the query.
  * @param {Object} args.program_input - The program input data that will be entered into the document
  * @returns {Object} The program document that have been created
- * @throws {Error} If the name is already in use or already in programs collection.
  */
 async function CreateProgram(parent, args) {
   try {
@@ -102,7 +99,6 @@ async function CreateProgram(parent, args) {
  * @param {string} args._id - The _id used to find for program document.
  * @param {Object} args.program_input - The program input data that will be updated into the document.
  * @returns {Object} The program document that have been updated.
- * @throws {Error} If no program document are found.
  */
 async function UpdateProgram(parent, args) {
   try {
@@ -153,7 +149,6 @@ async function UpdateProgram(parent, args) {
  * @param {Object} args - The arguments provided by the query.
  * @param {string} args._id - The _id used to find for program document.
  * @returns {Object} The program document that have been deleted.
- * @throws {Error} If no program document are found.
  */
 async function DeleteProgram(parent, args) {
   try {
@@ -191,7 +186,6 @@ async function DeleteProgram(parent, args) {
  * @param {Object} args - The arguments provided by the query.
  * @param {string} args._id - The _id used to find for program document.
  * @returns {Object} The program document that have been published.
- * @throws {Error} If no program document are found or already published.
  */
 async function PublishProgram(parent, args) {
   try {
@@ -231,7 +225,6 @@ async function PublishProgram(parent, args) {
  * @param {Object} args - The arguments provided by the query.
  * @param {string} args._id - The _id used to find for program document.
  * @returns {Object} The program document that have been unpublished.
- * @throws {Error} If no program document are found or already unpublished.
  */
 async function UnpublishProgram(parent, args) {
   try {

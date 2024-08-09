@@ -16,7 +16,6 @@ const { createAggregateQueryForGetAllSectors } = require('./sector.helper');
  * @param {Object} args.sort - The sort criteria.
  * @param {Object} args.pagination - The pagination criteria.
  * @returns {Array} The list of sector.
- * @throws {Error} If no sectors are found.
  */
 async function GetAllSectors(parent, args) {
   try {
@@ -42,7 +41,6 @@ async function GetAllSectors(parent, args) {
  * @param {Object} args - The arguments provided by the query.
  * @param {string} args._id - The _id used to search for sector document.
  * @returns {Object} The sector document.
- * @throws {Error} If no sector document are found.
  */
 async function GetOneSector(parent, args) {
   try {
@@ -73,7 +71,6 @@ async function GetOneSector(parent, args) {
  * @param {Object} args - The arguments provided by the query.
  * @param {Object} args.sector_input - The sector input data that will be entered into the document
  * @returns {Object} The sector document that have been created
- * @throws {Error} If the name is already in use or already in sectors collection.
  */
 async function CreateSector(parent, args) {
   try {
@@ -110,7 +107,6 @@ async function CreateSector(parent, args) {
  * @param {string} args._id - The _id used to find for sector document
  * @param {Object} args.sector_input - The sector input data that will be updated into the document
  * @returns {Object} The sector document that have been updated
- * @throws {Error} If no sector document are found.
  */
 async function UpdateSector(parent, args) {
   try {
@@ -169,7 +165,6 @@ async function UpdateSector(parent, args) {
  * @param {Object} args - The arguments provided by the query.
  * @param {string} args._id - The _id used to find for sector document.
  * @returns {Object} The sector document that have been deleted.
- * @throws {Error} If no sector document are found.
  */
 async function DeleteSector(parent, args) {
   try {

@@ -16,7 +16,6 @@ const { createAggregateQueryForGetAllLevels } = require('./level.helper');
  * @param {Object} args.sort - The sort criteria.
  * @param {Object} args.pagination - The pagination criteria.
  * @returns {Array} The list of levels.
- * @throws {Error} If no levels are found.
  */
 async function GetAllLevels(parent, args) {
   try {
@@ -42,7 +41,6 @@ async function GetAllLevels(parent, args) {
  * @param {Object} args - The arguments provided by the query.
  * @param {string} args._id - The _id used to search for level document.
  * @returns {Object} The level document.
- * @throws {Error} If no level document are found.
  */
 async function GetOneLevel(parent, args) {
   try {
@@ -73,7 +71,6 @@ async function GetOneLevel(parent, args) {
  * @param {Object} args - The arguments provided by the query.
  * @param {Object} args.level_input - The level input data that will be entered into the document.
  * @returns {Object} The level document that have been created.
- * @throws {Error} If the name is already in use or already in levels collection.
  */
 async function CreateLevel(parent, args) {
   try {
@@ -110,7 +107,6 @@ async function CreateLevel(parent, args) {
  * @param {string} args._id - The _id used to find for level document.
  * @param {Object} args.level_input - The level input data that will be updated into the document.
  * @returns {Object} The level document that have been updated.
- * @throws {Error} If no level document are found.
  */
 async function UpdateLevel(parent, args) {
   try {
@@ -169,7 +165,6 @@ async function UpdateLevel(parent, args) {
  * @param {Object} args - The arguments provided by the query.
  * @param {string} args._id - The _id used to find for level document.
  * @returns {Object} The level document that have been deleted.
- * @throws {Error} If no level document are found.
  */
 async function DeleteLevel(parent, args) {
   try {

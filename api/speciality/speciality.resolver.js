@@ -16,7 +16,6 @@ const { createAggregateQueryForGetAllSpecialities } = require('./speciality.help
  * @param {Object} args.sort - The sort criteria.
  * @param {Object} args.pagination - The pagination criteria.
  * @returns {Array} The list of specialities.
- * @throws {Error} If no specialities are found.
  */
 async function GetAllSpecialities(parent, args) {
   try {
@@ -42,7 +41,6 @@ async function GetAllSpecialities(parent, args) {
  * @param {Object} args - The arguments provided by the query.
  * @param {string} args._id - The _id used to search for speciality document
  * @returns {Object} The speciality document
- * @throws {Error} If no speciality document are found.
  */
 async function GetOneSpeciality(parent, args) {
   try {
@@ -73,7 +71,6 @@ async function GetOneSpeciality(parent, args) {
  * @param {Object} args - The arguments provided by the query.
  * @param {Object} args.speciality_input - The speciality input data that will be entered into the document
  * @returns {Object} The speciality document that have been created
- * @throws {Error} If the name is already in use or already in specialities collection.
  */
 async function CreateSpeciality(parent, args) {
   try {
@@ -113,7 +110,6 @@ async function CreateSpeciality(parent, args) {
  * @param {string} args._id - The _id used to find for speciality document.
  * @param {Object} args.speciality_input - The speciality input data that will be updated into the document.
  * @returns {Object} The speciality document that have been updated
- * @throws {Error} If no speciality document are found.
  */
 async function UpdateSpeciality(parent, args) {
   try {
@@ -180,7 +176,6 @@ async function UpdateSpeciality(parent, args) {
  * @param {Object} args - The arguments provided by the query.
  * @param {string} args._id - The _id used to search for speciality document.
  * @returns {Object} The speciality document that have been deleted
- * @throws {Error} If no speciality document are found.
  */
 async function DeleteSpeciality(parent, args) {
   try {

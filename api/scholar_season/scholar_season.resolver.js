@@ -16,7 +16,6 @@ const { createAggregateQueryForGetAllScholarSeasons } = require('./scholar_seaso
  * @param {Object} args.sort - The sort criteria.
  * @param {Object} args.pagination - The pagination criteria.
  * @returns {Array} The list of scholar seasons.
- * @throws {Error} If no scholar seasons are found.
  */
 async function GetAllScholarSeasons(parent, args) {
   try {
@@ -42,7 +41,6 @@ async function GetAllScholarSeasons(parent, args) {
  * @param {Object} args  - The arguments provided by the query.
  * @param {string} args._id - The _id used to search for scholar season document.
  * @returns {Object} The scholar season document.
- * @throws {Error} If no scholar season document are found.
  */
 async function GetOneScholarSeason(parent, args) {
   try {
@@ -73,7 +71,6 @@ async function GetOneScholarSeason(parent, args) {
  * @param {Object} args - The arguments provided by the query.
  * @param {Object} args.scholar_season_input - The scholar season input data that will be entered into the document
  * @returns {Object} The scholar season document that have been created
- * @throws {Error} If the name is already in use or already in scholar seasons collection.
  */
 async function CreateScholarSeason(parent, args) {
   try {
@@ -113,7 +110,6 @@ async function CreateScholarSeason(parent, args) {
  * @param {string} args._id - The _id used to find for scholar season document.
  * @param {Object} args.scholar_season_input - The scholar season input data that will be updated into the document.
  * @returns {Object} The scholar season document that have been updated.
- * @throws {Error} If no scholar season document are found.
  */
 async function UpdateScholarSeason(parent, args) {
   try {
@@ -180,7 +176,6 @@ async function UpdateScholarSeason(parent, args) {
  * @param {Object} args - The arguments provided by the query.
  * @param {string} args._id - The _id used to find for scholar season document.
  * @returns {Object} The scholar season document that have been deleted.
- * @throws {Error} If no scholar season document are found.
  */
 async function DeleteScholarSeason(parent, args) {
   try {

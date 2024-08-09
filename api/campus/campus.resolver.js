@@ -16,7 +16,6 @@ const { createAggregateQueryForGetAllCampuses } = require('./campus.helper');
  * @param {Object} args.sort - The sort criteria.
  * @param {Object} args.pagination - The pagination criteria.
  * @returns {Array} The list of campuses.
- * @throws {Error} If no campuses are found.
  */
 async function GetAllCampuses(parent, args) {
   try {
@@ -42,7 +41,6 @@ async function GetAllCampuses(parent, args) {
  * @param {Object} args - The arguments provided by the query.
  * @param {string} args._id - The _id used to search for campus document.
  * @returns {Object} The campus document.
- * @throws {Error} If no campus document are found.
  */
 async function GetOneCampus(parent, args) {
   try {
@@ -73,7 +71,6 @@ async function GetOneCampus(parent, args) {
  * @param {Object} args - The arguments provided by the query.
  * @param {Object} args.campus_input - The campus input data that will be entered into the document
  * @returns {Object} The campus document that have been created
- * @throws {Error} If the name is already in use or already in campuses collection.
  */
 async function CreateCampus(parent, args) {
   try {
@@ -110,7 +107,6 @@ async function CreateCampus(parent, args) {
  * @param {string} args._id - The _id used to find for campus document.
  * @param {Object} args.campus_input - The campus input data that will be updated into the document.
  * @returns {Object} The campus document that have been updated.
- * @throws {Error} If no campus document are found.
  */
 async function UpdateCampus(parent, args) {
   try {
@@ -169,7 +165,6 @@ async function UpdateCampus(parent, args) {
  * @param {Object} args - The arguments provided by the query.
  * @param {string} args._id - The _id used to find for campus document.
  * @returns {Object} The campus document that have been deleted.
- * @throws {Error} If no campus document are found.
  */
 async function DeleteCampus(parent, args) {
   try {

@@ -16,7 +16,6 @@ const { createAggregateQueryForGetAllSchools } = require('./school.helper');
  * @param {Object} args.sort - The sort criteria.
  * @param {Object} args.pagination - The pagination criteria.
  * @returns {Array} The list of schools.
- * @throws {Error} If no schools are found.
  */
 async function GetAllSchools(parent, args) {
   try {
@@ -42,7 +41,6 @@ async function GetAllSchools(parent, args) {
  * @param {Object} args  - The arguments provided by the query.
  * @param {string} args._id - The _id used to search for school document.
  * @returns {Object} The school document.
- * @throws {Error} If no school document are found.
  */
 async function GetOneSchool(parent, args) {
   try {
@@ -73,7 +71,6 @@ async function GetOneSchool(parent, args) {
  * @param {Object} args - The arguments provided by the query.
  * @param {Object} args.school_input - The school input data that will be entered into the document
  * @returns {Object} The school document that have been created
- * @throws {Error} If the name is already in use or already in schools collection.
  */
 async function CreateSchool(parent, args) {
   try {
@@ -110,7 +107,6 @@ async function CreateSchool(parent, args) {
  * @param {string} args._id - The _id used to find for school document.
  * @param {Object} args.school_input - The school input data that will be updated into the document.
  * @returns {Object} The school document that have been updated.
- * @throws {Error} If no school document are found.
  */
 async function UpdateSchool(parent, args) {
   try {
@@ -169,7 +165,6 @@ async function UpdateSchool(parent, args) {
  * @param {Object} args - The arguments provided by the query.
  * @param {string} args._id - The _id used to find for school document.
  * @returns {Object} The school document that have been deleted.
- * @throws {Error} If no school document are found.
  */
 async function DeleteSchool(parent, args) {
   try {
