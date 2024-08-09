@@ -211,7 +211,7 @@ function handleFiltersForGetAllPrograms(filter) {
 
       // *************** Value validation on fromDate and toDate variables.
       if (toDate < fromDate) {
-        throw new Error('Invalid date range. To date must be after from date');
+        throw new Error(`Invalid date range. 'To Date' must be after 'From Date'`);
       }
 
       // *************** Include the end date in the range.
