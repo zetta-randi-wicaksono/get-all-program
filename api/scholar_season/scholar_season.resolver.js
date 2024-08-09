@@ -47,6 +47,7 @@ async function GetAllScholarSeasons(parent, args) {
 async function GetOneScholarSeason(parent, args) {
   try {
     const { _id } = args;
+    // *************** Trim id input to removes whitespace from both sides of a string.
     const scholarSeasonId = _id.trim();
 
     if (typeof scholarSeasonId !== 'string' || scholarSeasonId.length !== 24) {
@@ -77,6 +78,7 @@ async function GetOneScholarSeason(parent, args) {
 async function CreateScholarSeason(parent, args) {
   try {
     const createScholarSeasonInput = { ...args.scholar_season_input };
+    // *************** Trim name input to removes whitespace from both sides of a string.
     const scholarSeasonNameInput = createScholarSeasonInput.name.trim();
 
     if (typeof scholarSeasonNameInput !== 'string') {
@@ -116,6 +118,7 @@ async function CreateScholarSeason(parent, args) {
 async function UpdateScholarSeason(parent, args) {
   try {
     const { _id } = args;
+    // *************** Trim id input to removes whitespace from both sides of a string.
     const scholarSeasonId = _id.trim();
 
     if (typeof scholarSeasonId !== 'string' || scholarSeasonId.length !== 24) {
@@ -133,35 +136,35 @@ async function UpdateScholarSeason(parent, args) {
     const connectedToProgramCheck = await Program.findOne({ scholar_season_id: mongoose.Types.ObjectId(scholarSeasonId) });
 
     if (connectedToProgramCheck) {
-      throw new Error(`Cannot Update. Scholar Season is Still Used in The Program '${connectedToProgramCheck.name}'`);
+      throw new Error(
+        `Cannot Update. Scholar Season '${scholarSeasonDataCheck.name}' is Still Used in The Program '${connectedToProgramCheck.name}'`
+      );
     }
 
     const updateScholarSeasonInput = { ...args.scholar_season_input };
 
-    // *************** Validation throw error when scholar season name is already taken in another document
-    if (updateScholarSeasonInput.name) {
-      const scholarSeasonNameInput = updateScholarSeasonInput.name.trim();
+    // *************** Trim name input to removes whitespace from both sides of a string.
+    const scholarSeasonNameInput = updateScholarSeasonInput.name.trim();
 
-      if (typeof scholarSeasonNameInput !== 'string') {
-        throw new Error(`Name ${scholarSeasonNameInput} is invalid. Name must be a string`);
-      }
-
-      if (scholarSeasonNameInput === '') {
-        throw new Error('Input name cannot be an empty string.');
-      }
-
-      const scholarSeasonNameCheck = await ScholarSeason.findOne({ name: scholarSeasonNameInput, status: 'active' }).collation({
-        locale: 'en',
-        strength: 2,
-      });
-
-      if (scholarSeasonNameCheck && scholarSeasonNameCheck._id.toString() !== scholarSeasonId) {
-        throw new Error(`Scholar Season Name '${scholarSeasonNameInput}' Has Already Been Taken`);
-      }
-
-      updateScholarSeasonInput.name = scholarSeasonNameInput;
+    if (typeof scholarSeasonNameInput !== 'string') {
+      throw new Error(`Name ${scholarSeasonNameInput} is invalid. Name must be a string`);
     }
 
+    if (scholarSeasonNameInput === '') {
+      throw new Error('Input name cannot be an empty string.');
+    }
+
+    const scholarSeasonNameCheck = await ScholarSeason.findOne({ name: scholarSeasonNameInput, status: 'active' }).collation({
+      locale: 'en',
+      strength: 2,
+    });
+
+    // *************** Validation throw error when scholar season name is already taken in another document
+    if (scholarSeasonNameCheck && scholarSeasonNameCheck._id.toString() !== scholarSeasonId) {
+      throw new Error(`Scholar Season Name '${scholarSeasonNameInput}' Has Already Been Taken`);
+    }
+
+    updateScholarSeasonInput.name = scholarSeasonNameInput;
     const updateScholarSeasonResult = await ScholarSeason.findByIdAndUpdate(scholarSeasonId, updateScholarSeasonInput, {
       new: true,
       useFindAndModify: false,
@@ -182,6 +185,7 @@ async function UpdateScholarSeason(parent, args) {
 async function DeleteScholarSeason(parent, args) {
   try {
     const { _id } = args;
+    // *************** Trim id input to removes whitespace from both sides of a string.
     const scholarSeasonId = _id.trim();
 
     if (typeof scholarSeasonId !== 'string' || scholarSeasonId.length !== 24) {
@@ -203,7 +207,9 @@ async function DeleteScholarSeason(parent, args) {
         );
         return deleteScholarSeasonResult;
       } else {
-        throw new Error(`Cannot Delete. Scholar Season is Still Used in The Program '${connectedToProgramCheck.name}'`);
+        throw new Error(
+          `Cannot Delete. Scholar Season '${scholarSeasonDataCheck.name}' is Still Used in The Program '${connectedToProgramCheck.name}'`
+        );
       }
     } else {
       throw new Error('Scholar Season Data Not Found');

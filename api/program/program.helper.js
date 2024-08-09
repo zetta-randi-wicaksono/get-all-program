@@ -220,7 +220,9 @@ function handleFiltersForGetAllPrograms(filter) {
     }
 
     if (filter.name !== undefined) {
+      // *************** Trim name input to removes whitespace from both sides of a string.
       const filterName = filter.name.trim();
+
       if (typeof filterName !== 'string') {
         throw new Error('Filter name must be a string.');
       }

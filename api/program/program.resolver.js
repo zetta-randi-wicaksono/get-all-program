@@ -43,6 +43,7 @@ async function GetAllPrograms(parent, args) {
 async function GetOneProgram(parent, args) {
   try {
     const { _id } = args;
+    // *************** Trim id input to removes whitespace from both sides of a string.
     const programId = _id.trim();
 
     if (typeof programId !== 'string' || programId.length !== 24) {
@@ -106,6 +107,7 @@ async function CreateProgram(parent, args) {
 async function UpdateProgram(parent, args) {
   try {
     const { _id, program_input } = args;
+    // *************** Trim id input to removes whitespace from both sides of a string.
     const programId = _id.trim();
 
     if (typeof programId !== 'string' || programId.length !== 24) {
@@ -156,6 +158,7 @@ async function UpdateProgram(parent, args) {
 async function DeleteProgram(parent, args) {
   try {
     const { _id } = args;
+    // *************** Trim id input to removes whitespace from both sides of a string.
     const programId = _id.trim();
 
     if (typeof programId !== 'string' || programId.length !== 24) {
@@ -193,6 +196,7 @@ async function DeleteProgram(parent, args) {
 async function PublishProgram(parent, args) {
   try {
     const { _id } = args;
+    // *************** Trim id input to removes whitespace from both sides of a string.
     const programId = _id.trim();
 
     if (typeof programId !== 'string' || programId.length !== 24) {
@@ -232,6 +236,7 @@ async function PublishProgram(parent, args) {
 async function UnpublishProgram(parent, args) {
   try {
     const { _id } = args;
+    // *************** Trim id input to removes whitespace from both sides of a string.
     const programId = _id.trim();
 
     if (typeof programId !== 'string' || programId.length !== 24) {

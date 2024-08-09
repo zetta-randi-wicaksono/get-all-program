@@ -47,6 +47,7 @@ async function GetAllLevels(parent, args) {
 async function GetOneLevel(parent, args) {
   try {
     const { _id } = args;
+    // *************** Trim id input to removes whitespace from both sides of a string.
     const levelId = _id.trim();
 
     if (typeof levelId !== 'string' || levelId.length !== 24) {
@@ -77,6 +78,7 @@ async function GetOneLevel(parent, args) {
 async function CreateLevel(parent, args) {
   try {
     const createLevelInput = { ...args.level_input };
+    // *************** Trim name input to removes whitespace from both sides of a string.
     const levelNameInput = createLevelInput.name.trim();
 
     if (typeof levelNameInput !== 'string') {
@@ -113,6 +115,7 @@ async function CreateLevel(parent, args) {
 async function UpdateLevel(parent, args) {
   try {
     const { _id } = args;
+    // *************** Trim id input to removes whitespace from both sides of a string.
     const levelId = _id.trim();
 
     if (typeof levelId !== 'string' || levelId.length !== 24) {
@@ -130,32 +133,30 @@ async function UpdateLevel(parent, args) {
     const connectedToProgramCheck = await Program.findOne({ level_id: mongoose.Types.ObjectId(levelId) });
 
     if (connectedToProgramCheck) {
-      throw new Error(`Cannot Update. Level is Still Used in The Program '${connectedToProgramCheck.name}'`);
+      throw new Error(`Cannot Update. Level '${levelDataCheck.name}' is Still Used in The Program '${connectedToProgramCheck.name}'`);
     }
 
     const updateLevelInput = { ...args.level_input };
 
-    // *************** Validation throw error when level name is already taken in another document
-    if (updateLevelInput.name) {
-      const levelNameInput = updateLevelInput.name.trim();
+    // *************** Trim name input to removes whitespace from both sides of a string.
+    const levelNameInput = updateLevelInput.name.trim();
 
-      if (typeof levelNameInput !== 'string') {
-        throw new Error(`Name ${levelNameInput} is invalid. Name must be a string`);
-      }
-
-      if (levelNameInput === '') {
-        throw new Error('Input name cannot be an empty string.');
-      }
-
-      const levelNameCheck = await Level.findOne({ name: levelNameInput, status: 'active' }).collation({ locale: 'en', strength: 2 });
-
-      if (levelNameCheck && levelNameCheck._id.toString() !== levelId) {
-        throw new Error(`Level Name '${levelNameInput}' Has Already Been Taken`);
-      }
-
-      updateLevelInput.name = levelNameInput;
+    if (typeof levelNameInput !== 'string') {
+      throw new Error(`Name ${levelNameInput} is invalid. Name must be a string`);
     }
 
+    if (levelNameInput === '') {
+      throw new Error('Input name cannot be an empty string.');
+    }
+
+    const levelNameCheck = await Level.findOne({ name: levelNameInput, status: 'active' }).collation({ locale: 'en', strength: 2 });
+
+    // *************** Validation throw error when level name is already taken in another document
+    if (levelNameCheck && levelNameCheck._id.toString() !== levelId) {
+      throw new Error(`Level Name '${levelNameInput}' Has Already Been Taken`);
+    }
+
+    updateLevelInput.name = levelNameInput;
     const updateLevelResult = await Level.findByIdAndUpdate(levelId, updateLevelInput, { new: true, useFindAndModify: false });
     return updateLevelResult;
   } catch (error) {
@@ -173,6 +174,7 @@ async function UpdateLevel(parent, args) {
 async function DeleteLevel(parent, args) {
   try {
     const { _id } = args;
+    // *************** Trim id input to removes whitespace from both sides of a string.
     const levelId = _id.trim();
 
     if (typeof levelId !== 'string' || levelId.length !== 24) {
@@ -190,7 +192,7 @@ async function DeleteLevel(parent, args) {
         const deleteLevelResult = await Level.findByIdAndUpdate(levelId, { status: 'deleted' }, { new: true, useFindAndModify: false });
         return deleteLevelResult;
       } else {
-        throw new Error(`Cannot Delete. Level is Still Used in The Program '${connectedToProgramCheck.name}'`);
+        throw new Error(`Cannot Delete. Level '${levelDataCheck.name}' is Still Used in The Program '${connectedToProgramCheck.name}'`);
       }
     } else {
       throw new Error('Level Data Not Found');

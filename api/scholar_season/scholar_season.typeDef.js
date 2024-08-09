@@ -12,7 +12,7 @@ const typeDefs = gql`
   }
 
   input ScholarSeasonInput {
-    name: String
+    name: String!
   }
 
   input ScholarSeasonFilterInput {

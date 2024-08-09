@@ -47,6 +47,7 @@ async function GetAllCampuses(parent, args) {
 async function GetOneCampus(parent, args) {
   try {
     const { _id } = args;
+    // *************** Trim id input to removes whitespace from both sides of a string.
     const campusId = _id.trim();
 
     if (typeof campusId !== 'string' || campusId.length !== 24) {
@@ -77,6 +78,7 @@ async function GetOneCampus(parent, args) {
 async function CreateCampus(parent, args) {
   try {
     const createCampusInput = { ...args.campus_input };
+    // *************** Trim name input to removes whitespace from both sides of a string.
     const campusNameInput = createCampusInput.name.trim();
 
     if (typeof campusNameInput !== 'string') {
@@ -113,6 +115,7 @@ async function CreateCampus(parent, args) {
 async function UpdateCampus(parent, args) {
   try {
     const { _id } = args;
+    // *************** Trim id input to removes whitespace from both sides of a string.
     const campusId = _id.trim();
 
     if (typeof campusId !== 'string' || campusId.length !== 24) {
@@ -130,32 +133,30 @@ async function UpdateCampus(parent, args) {
     const connectedToProgramCheck = await Program.findOne({ campus_id: mongoose.Types.ObjectId(campusId) });
 
     if (connectedToProgramCheck) {
-      throw new Error(`Cannot Update. Campus is Still Used in The Program '${connectedToProgramCheck.name}'`);
+      throw new Error(`Cannot Update. Campus '${campusDataCheck.name}' is Still Used in The Program '${connectedToProgramCheck.name}'`);
     }
 
     const updateCampusInput = { ...args.campus_input };
 
-    // *************** Validation throw error when campus name is already taken in another document
-    if (updateCampusInput.name) {
-      const campusNameInput = updateCampusInput.name.trim();
+    // *************** Trim name input to removes whitespace from both sides of a string.
+    const campusNameInput = updateCampusInput.name.trim();
 
-      if (typeof campusNameInput !== 'string') {
-        throw new Error(`Name ${campusNameInput} is invalid. Name must be a string`);
-      }
-
-      if (campusNameInput === '') {
-        throw new Error('Input name cannot be an empty string.');
-      }
-
-      const campusNameCheck = await Campus.findOne({ name: campusNameInput, status: 'active' }).collation({ locale: 'en', strength: 2 });
-
-      if (campusNameCheck && campusNameCheck._id.toString() !== campusId) {
-        throw new Error(`Campus Name '${campusNameInput}' Has Already Been Taken`);
-      }
-
-      updateCampusInput.name = campusNameInput;
+    if (typeof campusNameInput !== 'string') {
+      throw new Error(`Name ${campusNameInput} is invalid. Name must be a string`);
     }
 
+    if (campusNameInput === '') {
+      throw new Error('Input name cannot be an empty string.');
+    }
+
+    const campusNameCheck = await Campus.findOne({ name: campusNameInput, status: 'active' }).collation({ locale: 'en', strength: 2 });
+
+    // *************** Validation throw error when campus name is already taken in another document
+    if (campusNameCheck && campusNameCheck._id.toString() !== campusId) {
+      throw new Error(`Campus Name '${campusNameInput}' Has Already Been Taken`);
+    }
+
+    updateCampusInput.name = campusNameInput;
     const updateCampusResult = await Campus.findByIdAndUpdate(campusId, updateCampusInput, { new: true, useFindAndModify: false });
     return updateCampusResult;
   } catch (error) {
@@ -173,6 +174,7 @@ async function UpdateCampus(parent, args) {
 async function DeleteCampus(parent, args) {
   try {
     const { _id } = args;
+    // *************** Trim id input to removes whitespace from both sides of a string.
     const campusId = _id.trim();
 
     if (typeof campusId !== 'string' || campusId.length !== 24) {
@@ -190,7 +192,7 @@ async function DeleteCampus(parent, args) {
         const deleteCampusResult = await Campus.findByIdAndUpdate(campusId, { status: 'deleted' }, { new: true, useFindAndModify: false });
         return deleteCampusResult;
       } else {
-        throw new Error(`Cannot Delete. Campus is Still Used in The Program '${connectedToProgramCheck.name}'`);
+        throw new Error(`Cannot Delete. Campus '${campusDataCheck.name}' is Still Used in The Program '${connectedToProgramCheck.name}'`);
       }
     } else {
       throw new Error('Campus Data Not Found');

@@ -47,6 +47,7 @@ async function GetAllSectors(parent, args) {
 async function GetOneSector(parent, args) {
   try {
     const { _id } = args;
+    // *************** Trim id input to removes whitespace from both sides of a string.
     const sectorId = _id.trim();
 
     if (typeof sectorId !== 'string' || sectorId.length !== 24) {
@@ -77,6 +78,7 @@ async function GetOneSector(parent, args) {
 async function CreateSector(parent, args) {
   try {
     const createSectorInput = { ...args.sector_input };
+    // *************** Trim name input to removes whitespace from both sides of a string.
     const sectorNameInput = createSectorInput.name.trim();
 
     if (typeof sectorNameInput !== 'string') {
@@ -113,6 +115,7 @@ async function CreateSector(parent, args) {
 async function UpdateSector(parent, args) {
   try {
     const { _id } = args;
+    // *************** Trim id input to removes whitespace from both sides of a string.
     const sectorId = _id.trim();
 
     if (typeof sectorId !== 'string' || sectorId.length !== 24) {
@@ -130,32 +133,30 @@ async function UpdateSector(parent, args) {
     const connectedToProgramCheck = await Program.findOne({ sector_id: mongoose.Types.ObjectId(sectorId) });
 
     if (connectedToProgramCheck) {
-      throw new Error(`Cannot Update. Sector is Still Used in The Program '${connectedToProgramCheck.name}'`);
+      throw new Error(`Cannot Update. Sector '${sectorDataCheck.name}' is Still Used in The Program '${connectedToProgramCheck.name}'`);
     }
 
     const updateSectorInput = { ...args.sector_input };
 
-    // *************** Validation throw error when sector name is already taken in another document
-    if (updateSectorInput.name) {
-      const sectorNameInput = updateSectorInput.name.trim();
+    // *************** Trim name input to removes whitespace from both sides of a string.
+    const sectorNameInput = updateSectorInput.name.trim();
 
-      if (typeof sectorNameInput !== 'string') {
-        throw new Error(`Name ${sectorNameInput} is invalid. Name must be a string`);
-      }
-
-      if (sectorNameInput === '') {
-        throw new Error('Input name cannot be an empty string.');
-      }
-
-      const sectorNameCheck = await Sector.findOne({ name: sectorNameInput, status: 'active' }).collation({ locale: 'en', strength: 2 });
-
-      if (sectorNameCheck && sectorNameCheck._id.toString() !== sectorId) {
-        throw new Error(`Sector Name '${sectorNameInput}' Has Already Been Taken`);
-      }
-
-      updateSectorInput.name = sectorNameInput;
+    if (typeof sectorNameInput !== 'string') {
+      throw new Error(`Name ${sectorNameInput} is invalid. Name must be a string`);
     }
 
+    if (sectorNameInput === '') {
+      throw new Error('Input name cannot be an empty string.');
+    }
+
+    const sectorNameCheck = await Sector.findOne({ name: sectorNameInput, status: 'active' }).collation({ locale: 'en', strength: 2 });
+
+    // *************** Validation throw error when sector name is already taken in another document
+    if (sectorNameCheck && sectorNameCheck._id.toString() !== sectorId) {
+      throw new Error(`Sector Name '${sectorNameInput}' Has Already Been Taken`);
+    }
+
+    updateSectorInput.name = sectorNameInput;
     const updateSectorResult = await Sector.findByIdAndUpdate(sectorId, updateSectorInput, { new: true, useFindAndModify: false });
     return updateSectorResult;
   } catch (error) {
@@ -173,6 +174,7 @@ async function UpdateSector(parent, args) {
 async function DeleteSector(parent, args) {
   try {
     const { _id } = args;
+    // *************** Trim id input to removes whitespace from both sides of a string.
     const sectorId = _id.trim();
 
     if (typeof sectorId !== 'string' || sectorId.length !== 24) {
@@ -190,7 +192,7 @@ async function DeleteSector(parent, args) {
         const deleteSectorResult = await Sector.findByIdAndUpdate(sectorId, { status: 'deleted' }, { new: true, useFindAndModify: false });
         return deleteSectorResult;
       } else {
-        throw new Error(`Cannot Delete. Sector is Still Used in The Program '${connectedToProgramCheck.name}'`);
+        throw new Error(`Cannot Delete. Sector '${sectorDataCheck.name}' is Still Used in The Program '${connectedToProgramCheck.name}'`);
       }
     } else {
       throw new Error('Sector Data Not Found');

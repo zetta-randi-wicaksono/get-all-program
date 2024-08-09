@@ -47,6 +47,7 @@ async function GetAllSchools(parent, args) {
 async function GetOneSchool(parent, args) {
   try {
     const { _id } = args;
+    // *************** Trim id input to removes whitespace from both sides of a string.
     const schoolId = _id.trim();
 
     if (typeof schoolId !== 'string' || schoolId.length !== 24) {
@@ -77,6 +78,7 @@ async function GetOneSchool(parent, args) {
 async function CreateSchool(parent, args) {
   try {
     const createSchoolInput = { ...args.school_input };
+    // *************** Trim name input to removes whitespace from both sides of a string.
     const schoolNameInput = createSchoolInput.name.trim();
 
     if (typeof schoolNameInput !== 'string') {
@@ -113,6 +115,7 @@ async function CreateSchool(parent, args) {
 async function UpdateSchool(parent, args) {
   try {
     const { _id } = args;
+    // *************** Trim id input to removes whitespace from both sides of a string.
     const schoolId = _id.trim();
 
     if (typeof schoolId !== 'string' || schoolId.length !== 24) {
@@ -130,32 +133,30 @@ async function UpdateSchool(parent, args) {
     const connectedToProgramCheck = await Program.findOne({ school_id: mongoose.Types.ObjectId(schoolId) });
 
     if (connectedToProgramCheck) {
-      throw new Error(`Cannot Update. School is Still Used in The Program '${connectedToProgramCheck.name}'`);
+      throw new Error(`Cannot Update. School '${schoolDataCheck.name}' is Still Used in The Program '${connectedToProgramCheck.name}'`);
     }
 
     const updateSchoolInput = { ...args.school_input };
 
-    // *************** Validation throw error when school name is already taken in another document
-    if (updateSchoolInput.name) {
-      const schoolNameInput = updateSchoolInput.name.trim();
+    // *************** Trim name input to removes whitespace from both sides of a string.
+    const schoolNameInput = updateSchoolInput.name.trim();
 
-      if (typeof schoolNameInput !== 'string') {
-        throw new Error(`Name ${schoolNameInput} is invalid. Name must be a string`);
-      }
-
-      if (schoolNameInput === '') {
-        throw new Error('Input name cannot be an empty string.');
-      }
-
-      const schoolNameCheck = await School.findOne({ name: schoolNameInput, status: 'active' }).collation({ locale: 'en', strength: 2 });
-
-      if (schoolNameCheck && schoolNameCheck._id.toString() !== schoolId) {
-        throw new Error(`School Name '${schoolNameInput}' Has Already Been Taken`);
-      }
-
-      updateSchoolInput.name = schoolNameInput;
+    if (typeof schoolNameInput !== 'string') {
+      throw new Error(`Name ${schoolNameInput} is invalid. Name must be a string`);
     }
 
+    if (schoolNameInput === '') {
+      throw new Error('Input name cannot be an empty string.');
+    }
+
+    const schoolNameCheck = await School.findOne({ name: schoolNameInput, status: 'active' }).collation({ locale: 'en', strength: 2 });
+
+    // *************** Validation throw error when school name is already taken in another document
+    if (schoolNameCheck && schoolNameCheck._id.toString() !== schoolId) {
+      throw new Error(`School Name '${schoolNameInput}' Has Already Been Taken`);
+    }
+
+    updateSchoolInput.name = schoolNameInput;
     const updateSchoolResult = await School.findByIdAndUpdate(schoolId, updateSchoolInput, { new: true, useFindAndModify: false });
     return updateSchoolResult;
   } catch (error) {
@@ -173,6 +174,7 @@ async function UpdateSchool(parent, args) {
 async function DeleteSchool(parent, args) {
   try {
     const { _id } = args;
+    // *************** Trim id input to removes whitespace from both sides of a string.
     const schoolId = _id.trim();
 
     if (typeof schoolId !== 'string' || schoolId.length !== 24) {
@@ -190,7 +192,7 @@ async function DeleteSchool(parent, args) {
         const deleteSchoolResult = await School.findByIdAndUpdate(schoolId, { status: 'deleted' }, { new: true, useFindAndModify: false });
         return deleteSchoolResult;
       } else {
-        throw new Error(`Cannot Delete. School is Still Used in The Program '${connectedToProgramCheck.name}'`);
+        throw new Error(`Cannot Delete. School '${schoolDataCheck.name}' is Still Used in The Program '${connectedToProgramCheck.name}'`);
       }
     } else {
       throw new Error('School Data Not Found');

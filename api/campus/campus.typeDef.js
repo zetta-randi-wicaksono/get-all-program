@@ -12,7 +12,7 @@ const typeDefs = gql`
   }
 
   input CampusInput {
-    name: String
+    name: String!
   }
 
   input CampusFilterInput {

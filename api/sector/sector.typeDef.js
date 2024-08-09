@@ -12,7 +12,7 @@ const typeDefs = gql`
   }
 
   input SectorInput {
-    name: String
+    name: String!
   }
 
   input SectorFilterInput {

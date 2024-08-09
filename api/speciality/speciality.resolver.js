@@ -47,6 +47,7 @@ async function GetAllSpecialities(parent, args) {
 async function GetOneSpeciality(parent, args) {
   try {
     const { _id } = args;
+    // *************** Trim id input to removes whitespace from both sides of a string.
     const specialityId = _id.trim();
 
     if (typeof specialityId !== 'string' || specialityId.length !== 24) {
@@ -77,6 +78,7 @@ async function GetOneSpeciality(parent, args) {
 async function CreateSpeciality(parent, args) {
   try {
     const createSpecialityInput = { ...args.speciality_input };
+    // *************** Trim name input to removes whitespace from both sides of a string.
     const specialityNameInput = createSpecialityInput.name.trim();
 
     if (typeof specialityNameInput !== 'string') {
@@ -116,6 +118,7 @@ async function CreateSpeciality(parent, args) {
 async function UpdateSpeciality(parent, args) {
   try {
     const { _id } = args;
+    // *************** Trim id input to removes whitespace from both sides of a string.
     const specialityId = _id.trim();
 
     if (typeof specialityId !== 'string' || specialityId.length !== 24) {
@@ -133,35 +136,35 @@ async function UpdateSpeciality(parent, args) {
     const connectedToProgramCheck = await Program.findOne({ speciality_id: mongoose.Types.ObjectId(specialityId) });
 
     if (connectedToProgramCheck) {
-      throw new Error(`Cannot Update. Speciality is Still Used in The Program '${connectedToProgramCheck.name}'`);
+      throw new Error(
+        `Cannot Update. Speciality '${specialityDataCheck.name}' is Still Used in The Program '${connectedToProgramCheck.name}'`
+      );
     }
 
     const updateSpecialityInput = { ...args.speciality_input };
 
-    // *************** Validation throw error when speciality name is already taken in another document
-    if (updateSpecialityInput.name) {
-      const specialityNameInput = updateSpecialityInput.name.trim();
+    // *************** Trim name input to removes whitespace from both sides of a string.
+    const specialityNameInput = updateSpecialityInput.name.trim();
 
-      if (typeof specialityNameInput !== 'string') {
-        throw new Error(`Name ${specialityNameInput} is invalid. Name must be a string`);
-      }
-
-      if (specialityNameInput === '') {
-        throw new Error('Input name cannot be an empty string.');
-      }
-
-      const specialityNameCheck = await Speciality.findOne({ name: specialityNameInput, status: 'active' }).collation({
-        locale: 'en',
-        strength: 2,
-      });
-
-      if (specialityNameCheck && specialityNameCheck._id.toString() !== specialityId) {
-        throw new Error(`Speciality Name '${specialityNameInput}' Has Already Been Taken`);
-      }
-
-      updateSpecialityInput.name = specialityNameInput;
+    if (typeof specialityNameInput !== 'string') {
+      throw new Error(`Name ${specialityNameInput} is invalid. Name must be a string`);
     }
 
+    if (specialityNameInput === '') {
+      throw new Error('Input name cannot be an empty string.');
+    }
+
+    const specialityNameCheck = await Speciality.findOne({ name: specialityNameInput, status: 'active' }).collation({
+      locale: 'en',
+      strength: 2,
+    });
+
+    // *************** Validation throw error when speciality name is already taken in another document
+    if (specialityNameCheck && specialityNameCheck._id.toString() !== specialityId) {
+      throw new Error(`Speciality Name '${specialityNameInput}' Has Already Been Taken`);
+    }
+
+    updateSpecialityInput.name = specialityNameInput;
     const updateSpecialityResult = await Speciality.findByIdAndUpdate(specialityId, updateSpecialityInput, {
       new: true,
       useFindAndModify: false,
@@ -182,6 +185,7 @@ async function UpdateSpeciality(parent, args) {
 async function DeleteSpeciality(parent, args) {
   try {
     const { _id } = args;
+    // *************** Trim id input to removes whitespace from both sides of a string.
     const specialityId = _id.trim();
 
     if (typeof specialityId !== 'string' || specialityId.length !== 24) {
@@ -203,7 +207,9 @@ async function DeleteSpeciality(parent, args) {
         );
         return deleteSpecialityResult;
       } else {
-        throw new Error(`Cannot Delete. Speciality is Still Used in The Program '${connectedToProgramCheck.name}'`);
+        throw new Error(
+          `Cannot Delete. Speciality '${specialityDataCheck.name}' is Still Used in The Program '${connectedToProgramCheck.name}'`
+        );
       }
     } else {
       throw new Error('Speciality Data Not Found');

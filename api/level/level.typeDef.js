@@ -12,7 +12,7 @@ const typeDefs = gql`
   }
 
   input LevelInput {
-    name: String
+    name: String!
   }
 
   input LevelFilterInput {
