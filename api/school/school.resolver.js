@@ -21,7 +21,9 @@ const { createAggregateQueryForGetAllSchools } = require('./school.helper');
 async function GetAllSchools(parent, args) {
   try {
     const { filter, sort, pagination } = args;
-    const aggregateQuery = createAggregateQueryForGetAllSchools(filter, sort, pagination); // *************** Create aggregation query from arguments
+
+    // *************** Create aggregation query from arguments
+    const aggregateQuery = createAggregateQueryForGetAllSchools(filter, sort, pagination);
     const getAllSchoolsResult = await School.aggregate(aggregateQuery);
 
     // *************** Check schools collection length
@@ -45,7 +47,13 @@ async function GetAllSchools(parent, args) {
 async function GetOneSchool(parent, args) {
   try {
     const { _id } = args;
-    const getOneSchoolResult = await School.findById(_id);
+    const schoolId = _id.trim();
+
+    if (typeof schoolId !== 'string' || schoolId.length !== 24) {
+      throw new Error(`Id ${schoolId} is invalid. Id must be a string of 24 characters`);
+    }
+
+    const getOneSchoolResult = await School.findById(schoolId);
 
     // *************** Validation throw error when school data is null or school status is deleted
     if (!getOneSchoolResult || getOneSchoolResult.status === 'deleted') {
@@ -69,14 +77,21 @@ async function GetOneSchool(parent, args) {
 async function CreateSchool(parent, args) {
   try {
     const createSchoolInput = { ...args.school_input };
+    const schoolNameInput = createSchoolInput.name.trim();
+
+    if (typeof schoolNameInput !== 'string') {
+      throw new Error(`Name ${schoolNameInput} is invalid. Name must be a string`);
+    }
+
+    if (schoolNameInput === '') {
+      throw new Error('Input name cannot be an empty string.');
+    }
 
     // *************** Fetch school data to validate the name input
-    const schoolNameCheck = await School.findOne({ name: createSchoolInput.name, status: 'active' }).collation({
-      locale: 'en',
-      strength: 2,
-    });
+    const schoolNameCheck = await School.findOne({ name: schoolNameInput, status: 'active' }).collation({ locale: 'en', strength: 2 });
+
     if (schoolNameCheck) {
-      throw new Error(`School Name '${createSchoolInput.name}' Has Already Been Taken`);
+      throw new Error(`School Name '${schoolNameInput}' Has Already Been Taken`);
     }
 
     const createSchoolResult = new School(createSchoolInput);
@@ -98,7 +113,13 @@ async function CreateSchool(parent, args) {
 async function UpdateSchool(parent, args) {
   try {
     const { _id } = args;
-    const schoolDataCheck = await School.findById(_id);
+    const schoolId = _id.trim();
+
+    if (typeof schoolId !== 'string' || schoolId.length !== 24) {
+      throw new Error(`Id ${schoolId} is invalid. Id must be a string of 24 characters`);
+    }
+
+    const schoolDataCheck = await School.findById(schoolId);
 
     // *************** Validation throw error when school data is null or school status is deleted
     if (!schoolDataCheck || schoolDataCheck.status === 'deleted') {
@@ -106,7 +127,8 @@ async function UpdateSchool(parent, args) {
     }
 
     // *************** Validation throw error when school data is connected to program collection
-    const connectedToProgramCheck = await Program.findOne({ school_id: mongoose.Types.ObjectId(_id) });
+    const connectedToProgramCheck = await Program.findOne({ school_id: mongoose.Types.ObjectId(schoolId) });
+
     if (connectedToProgramCheck) {
       throw new Error(`Cannot Update. School is Still Used in The Program '${connectedToProgramCheck.name}'`);
     }
@@ -115,16 +137,26 @@ async function UpdateSchool(parent, args) {
 
     // *************** Validation throw error when school name is already taken in another document
     if (updateSchoolInput.name) {
-      const schoolNameCheck = await School.findOne({ name: updateSchoolInput.name, status: 'active' }).collation({
-        locale: 'en',
-        strength: 2,
-      });
-      if (schoolNameCheck && schoolNameCheck._id.toString() !== _id) {
-        throw new Error(`School Name '${updateSchoolInput.name}' Has Already Been Taken`);
+      const schoolNameInput = updateSchoolInput.name.trim();
+
+      if (typeof schoolNameInput !== 'string') {
+        throw new Error(`Name ${schoolNameInput} is invalid. Name must be a string`);
       }
+
+      if (schoolNameInput === '') {
+        throw new Error('Input name cannot be an empty string.');
+      }
+
+      const schoolNameCheck = await School.findOne({ name: schoolNameInput, status: 'active' }).collation({ locale: 'en', strength: 2 });
+
+      if (schoolNameCheck && schoolNameCheck._id.toString() !== schoolId) {
+        throw new Error(`School Name '${schoolNameInput}' Has Already Been Taken`);
+      }
+
+      updateSchoolInput.name = schoolNameInput;
     }
 
-    const updateSchoolResult = await School.findByIdAndUpdate(_id, updateSchoolInput, { new: true, useFindAndModify: false });
+    const updateSchoolResult = await School.findByIdAndUpdate(schoolId, updateSchoolInput, { new: true, useFindAndModify: false });
     return updateSchoolResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
@@ -141,18 +173,24 @@ async function UpdateSchool(parent, args) {
 async function DeleteSchool(parent, args) {
   try {
     const { _id } = args;
-    const schoolDataCheck = await School.findById(_id);
+    const schoolId = _id.trim();
+
+    if (typeof schoolId !== 'string' || schoolId.length !== 24) {
+      throw new Error(`Id ${schoolId} is invalid. Id must be a string of 24 characters`);
+    }
+
+    const schoolDataCheck = await School.findById(schoolId);
 
     // *************** Check school document if it exists and the status is active then the document can be deleted.
     if (schoolDataCheck && schoolDataCheck.status === 'active') {
-      const connectedToProgramCheck = await Program.findOne({ school_id: mongoose.Types.ObjectId(_id) });
+      const connectedToProgramCheck = await Program.findOne({ school_id: mongoose.Types.ObjectId(schoolId) });
 
       // *************** Validation throw error when school data is connected to program collection
       if (!connectedToProgramCheck) {
-        const deleteSchoolResult = await School.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
+        const deleteSchoolResult = await School.findByIdAndUpdate(schoolId, { status: 'deleted' }, { new: true, useFindAndModify: false });
         return deleteSchoolResult;
       } else {
-        throw new Error(`Cannot Delete. Sector is Still Used in The Program '${connectedToProgramCheck.name}'`);
+        throw new Error(`Cannot Delete. School is Still Used in The Program '${connectedToProgramCheck.name}'`);
       }
     } else {
       throw new Error('School Data Not Found');

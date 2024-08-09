@@ -21,7 +21,9 @@ const { createAggregateQueryForGetAllCampuses } = require('./campus.helper');
 async function GetAllCampuses(parent, args) {
   try {
     const { filter, sort, pagination } = args;
-    const aggregateQuery = createAggregateQueryForGetAllCampuses(filter, sort, pagination); // *************** Create aggregation query from arguments
+
+    // *************** Create aggregation query from arguments
+    const aggregateQuery = createAggregateQueryForGetAllCampuses(filter, sort, pagination);
     const getAllCampusesResult = await Campus.aggregate(aggregateQuery);
 
     // *************** Check campuses collection length
@@ -45,7 +47,13 @@ async function GetAllCampuses(parent, args) {
 async function GetOneCampus(parent, args) {
   try {
     const { _id } = args;
-    const getOneCampusResult = await Campus.findById(_id);
+    const campusId = _id.trim();
+
+    if (typeof campusId !== 'string' || campusId.length !== 24) {
+      throw new Error(`Id ${campusId} is invalid. Id must be a string of 24 characters`);
+    }
+
+    const getOneCampusResult = await Campus.findById(campusId);
 
     // *************** Validation throw error when campus data is null or campus status is deleted
     if (!getOneCampusResult || getOneCampusResult.status === 'deleted') {
@@ -69,14 +77,21 @@ async function GetOneCampus(parent, args) {
 async function CreateCampus(parent, args) {
   try {
     const createCampusInput = { ...args.campus_input };
+    const campusNameInput = createCampusInput.name.trim();
+
+    if (typeof campusNameInput !== 'string') {
+      throw new Error(`Name ${campusNameInput} is invalid. Name must be a string`);
+    }
+
+    if (campusNameInput === '') {
+      throw new Error('Input name cannot be an empty string.');
+    }
 
     // *************** Fetch campus data to validate the name input
-    const campusNameCheck = await Campus.findOne({ name: createCampusInput.name, status: 'active' }).collation({
-      locale: 'en',
-      strength: 2,
-    });
+    const campusNameCheck = await Campus.findOne({ name: campusNameInput, status: 'active' }).collation({ locale: 'en', strength: 2 });
+
     if (campusNameCheck) {
-      throw new Error(`Campus Name '${createCampusInput.name}' Has Already Been Taken`);
+      throw new Error(`Campus Name '${campusNameInput}' Has Already Been Taken`);
     }
 
     const createCampusResult = new Campus(createCampusInput);
@@ -98,7 +113,13 @@ async function CreateCampus(parent, args) {
 async function UpdateCampus(parent, args) {
   try {
     const { _id } = args;
-    const campusDataCheck = await Campus.findById(_id);
+    const campusId = _id.trim();
+
+    if (typeof campusId !== 'string' || campusId.length !== 24) {
+      throw new Error(`Id ${campusId} is invalid. Id must be a string of 24 characters`);
+    }
+
+    const campusDataCheck = await Campus.findById(campusId);
 
     // *************** Validation throw error when campus data is null or campus status is deleted
     if (!campusDataCheck || campusDataCheck.status === 'deleted') {
@@ -106,7 +127,8 @@ async function UpdateCampus(parent, args) {
     }
 
     // *************** Validation throw error when campus data is connected to program collection
-    const connectedToProgramCheck = await Program.findOne({ campus_id: mongoose.Types.ObjectId(_id) });
+    const connectedToProgramCheck = await Program.findOne({ campus_id: mongoose.Types.ObjectId(campusId) });
+
     if (connectedToProgramCheck) {
       throw new Error(`Cannot Update. Campus is Still Used in The Program '${connectedToProgramCheck.name}'`);
     }
@@ -115,16 +137,26 @@ async function UpdateCampus(parent, args) {
 
     // *************** Validation throw error when campus name is already taken in another document
     if (updateCampusInput.name) {
-      const campusNameCheck = await Campus.findOne({ name: updateCampusInput.name, status: 'active' }).collation({
-        locale: 'en',
-        strength: 2,
-      });
-      if (campusNameCheck && campusNameCheck._id.toString() !== _id) {
-        throw new Error(`Campus Name '${updateCampusInput.name}' Has Already Been Taken`);
+      const campusNameInput = updateCampusInput.name.trim();
+
+      if (typeof campusNameInput !== 'string') {
+        throw new Error(`Name ${campusNameInput} is invalid. Name must be a string`);
       }
+
+      if (campusNameInput === '') {
+        throw new Error('Input name cannot be an empty string.');
+      }
+
+      const campusNameCheck = await Campus.findOne({ name: campusNameInput, status: 'active' }).collation({ locale: 'en', strength: 2 });
+
+      if (campusNameCheck && campusNameCheck._id.toString() !== campusId) {
+        throw new Error(`Campus Name '${campusNameInput}' Has Already Been Taken`);
+      }
+
+      updateCampusInput.name = campusNameInput;
     }
 
-    const updateCampusResult = await Campus.findByIdAndUpdate(_id, updateCampusInput, { new: true, useFindAndModify: false });
+    const updateCampusResult = await Campus.findByIdAndUpdate(campusId, updateCampusInput, { new: true, useFindAndModify: false });
     return updateCampusResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
@@ -141,15 +173,21 @@ async function UpdateCampus(parent, args) {
 async function DeleteCampus(parent, args) {
   try {
     const { _id } = args;
-    const campusDataCheck = await Campus.findById(_id);
+    const campusId = _id.trim();
+
+    if (typeof campusId !== 'string' || campusId.length !== 24) {
+      throw new Error(`Id ${campusId} is invalid. Id must be a string of 24 characters`);
+    }
+
+    const campusDataCheck = await Campus.findById(campusId);
 
     // *************** Check campus document if it exists and the status is active then the document can be deleted.
     if (campusDataCheck && campusDataCheck.status === 'active') {
-      const connectedToProgramCheck = await Program.findOne({ campus_id: mongoose.Types.ObjectId(_id) });
+      const connectedToProgramCheck = await Program.findOne({ campus_id: mongoose.Types.ObjectId(campusId) });
 
       // *************** Validation throw error when campus data is connected to program collection
       if (!connectedToProgramCheck) {
-        const deleteCampusResult = await Campus.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
+        const deleteCampusResult = await Campus.findByIdAndUpdate(campusId, { status: 'deleted' }, { new: true, useFindAndModify: false });
         return deleteCampusResult;
       } else {
         throw new Error(`Cannot Delete. Campus is Still Used in The Program '${connectedToProgramCheck.name}'`);

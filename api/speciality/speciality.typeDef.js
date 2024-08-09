@@ -29,7 +29,7 @@ const typeDefs = gql`
   }
 
   input SpecialityInput {
-    name: String
+    name: String!
   }
 
   input SpecialityFilterInput {

@@ -21,7 +21,9 @@ const { createAggregateQueryForGetAllSectors } = require('./sector.helper');
 async function GetAllSectors(parent, args) {
   try {
     const { filter, sort, pagination } = args;
-    const aggregateQuery = createAggregateQueryForGetAllSectors(filter, sort, pagination); // *************** Create aggregation query from arguments
+
+    // *************** Create aggregation query from arguments
+    const aggregateQuery = createAggregateQueryForGetAllSectors(filter, sort, pagination);
     const getAllSectorsResult = await Sector.aggregate(aggregateQuery);
 
     // *************** Check sectors collection length
@@ -45,7 +47,13 @@ async function GetAllSectors(parent, args) {
 async function GetOneSector(parent, args) {
   try {
     const { _id } = args;
-    const getOneSectorResult = await Sector.findById(_id);
+    const sectorId = _id.trim();
+
+    if (typeof sectorId !== 'string' || sectorId.length !== 24) {
+      throw new Error(`Id ${sectorId} is invalid. Id must be a string of 24 characters`);
+    }
+
+    const getOneSectorResult = await Sector.findById(sectorId);
 
     // *************** Validation throw error when sector data is null or sector status is deleted
     if (!getOneSectorResult || getOneSectorResult.status === 'deleted') {
@@ -69,14 +77,21 @@ async function GetOneSector(parent, args) {
 async function CreateSector(parent, args) {
   try {
     const createSectorInput = { ...args.sector_input };
+    const sectorNameInput = createSectorInput.name.trim();
 
-    // *************** Fetch sectpr data to validate the name input
-    const sectorNameCheck = await Sector.findOne({ name: createSectorInput.name, status: 'active' }).collation({
-      locale: 'en',
-      strength: 2,
-    });
+    if (typeof sectorNameInput !== 'string') {
+      throw new Error(`Name ${sectorNameInput} is invalid. Name must be a string`);
+    }
+
+    if (sectorNameInput === '') {
+      throw new Error('Input name cannot be an empty string.');
+    }
+
+    // *************** Fetch sector data to validate the name input
+    const sectorNameCheck = await Sector.findOne({ name: sectorNameInput, status: 'active' }).collation({ locale: 'en', strength: 2 });
+
     if (sectorNameCheck) {
-      throw new Error(`Sector Name '${createSectorInput.name}' Has Already Been Taken`);
+      throw new Error(`Sector Name '${sectorNameInput}' Has Already Been Taken`);
     }
 
     const createSectorResult = new Sector(createSectorInput);
@@ -98,7 +113,13 @@ async function CreateSector(parent, args) {
 async function UpdateSector(parent, args) {
   try {
     const { _id } = args;
-    const sectorDataCheck = await Sector.findById(_id);
+    const sectorId = _id.trim();
+
+    if (typeof sectorId !== 'string' || sectorId.length !== 24) {
+      throw new Error(`Id ${sectorId} is invalid. Id must be a string of 24 characters`);
+    }
+
+    const sectorDataCheck = await Sector.findById(sectorId);
 
     // *************** Validation throw error when sector data is null or sector status is deleted
     if (!sectorDataCheck || sectorDataCheck.status === 'deleted') {
@@ -106,7 +127,8 @@ async function UpdateSector(parent, args) {
     }
 
     // *************** Validation throw error when sector data is connected to program collection
-    const connectedToProgramCheck = await Program.findOne({ sector_id: mongoose.Types.ObjectId(_id) });
+    const connectedToProgramCheck = await Program.findOne({ sector_id: mongoose.Types.ObjectId(sectorId) });
+
     if (connectedToProgramCheck) {
       throw new Error(`Cannot Update. Sector is Still Used in The Program '${connectedToProgramCheck.name}'`);
     }
@@ -115,16 +137,26 @@ async function UpdateSector(parent, args) {
 
     // *************** Validation throw error when sector name is already taken in another document
     if (updateSectorInput.name) {
-      const sectorNameCheck = await Sector.findOne({ name: updateSectorInput.name, status: 'active' }).collation({
-        locale: 'en',
-        strength: 2,
-      });
-      if (sectorNameCheck && sectorNameCheck._id.toString() !== _id) {
-        throw new Error(`Sector Name '${updateSectorInput.name}' Has Already Been Taken`);
+      const sectorNameInput = updateSectorInput.name.trim();
+
+      if (typeof sectorNameInput !== 'string') {
+        throw new Error(`Name ${sectorNameInput} is invalid. Name must be a string`);
       }
+
+      if (sectorNameInput === '') {
+        throw new Error('Input name cannot be an empty string.');
+      }
+
+      const sectorNameCheck = await Sector.findOne({ name: sectorNameInput, status: 'active' }).collation({ locale: 'en', strength: 2 });
+
+      if (sectorNameCheck && sectorNameCheck._id.toString() !== sectorId) {
+        throw new Error(`Sector Name '${sectorNameInput}' Has Already Been Taken`);
+      }
+
+      updateSectorInput.name = sectorNameInput;
     }
 
-    const updateSectorResult = await Sector.findByIdAndUpdate(args._id, updateSectorInput, { new: true, useFindAndModify: false });
+    const updateSectorResult = await Sector.findByIdAndUpdate(sectorId, updateSectorInput, { new: true, useFindAndModify: false });
     return updateSectorResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
@@ -141,15 +173,21 @@ async function UpdateSector(parent, args) {
 async function DeleteSector(parent, args) {
   try {
     const { _id } = args;
-    const sectorDataCheck = await Sector.findById(_id);
+    const sectorId = _id.trim();
+
+    if (typeof sectorId !== 'string' || sectorId.length !== 24) {
+      throw new Error(`Id ${sectorId} is invalid. Id must be a string of 24 characters`);
+    }
+
+    const sectorDataCheck = await Sector.findById(sectorId);
 
     // *************** Check sector document if it exists and the status is active then the document can be deleted.
     if (sectorDataCheck && sectorDataCheck.status === 'active') {
-      const connectedToProgramCheck = await Program.findOne({ sector_id: mongoose.Types.ObjectId(_id) });
+      const connectedToProgramCheck = await Program.findOne({ sector_id: mongoose.Types.ObjectId(sectorId) });
 
       // *************** Validation throw error when sector data is connected to program collection
       if (!connectedToProgramCheck) {
-        const deleteSectorResult = await Sector.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
+        const deleteSectorResult = await Sector.findByIdAndUpdate(sectorId, { status: 'deleted' }, { new: true, useFindAndModify: false });
         return deleteSectorResult;
       } else {
         throw new Error(`Cannot Delete. Sector is Still Used in The Program '${connectedToProgramCheck.name}'`);

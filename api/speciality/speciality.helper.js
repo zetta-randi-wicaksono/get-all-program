@@ -8,10 +8,15 @@
  * @returns {Object} The match filter object.
  */
 function handleFiltersForGetAllSpecialities(filter) {
-  const matchFilter = { status: 'active' }; // *************** Pre filtering data to find data with active status.
+  // *************** Pre filtering data to find data with active status.
+  const matchFilter = { status: 'active' };
 
   if (filter) {
     if (filter.createdAt) {
+      if (typeof filter.createdAt.from !== 'string' || typeof filter.createdAt.to !== 'string') {
+        throw new Error('Invalid createdAt filter format. Need string format');
+      }
+
       const fromDate = new Date(filter.createdAt.from);
       const toDate = new Date(filter.createdAt.to);
 
@@ -25,16 +30,23 @@ function handleFiltersForGetAllSpecialities(filter) {
         throw new Error('Invalid date range. To date must be after from date');
       }
 
-      toDate.setDate(toDate.getDate() + 1); // *************** Include the end date in the range.
+      // *************** Include the end date in the range.
+      toDate.setDate(toDate.getDate() + 1);
       matchFilter.createdAt = { $gte: fromDate, $lte: toDate };
     }
-    if (filter.name) {
-      // *************** Data type validation on filter.name variables.
-      if (typeof filter.name !== 'string') {
-        throw new Error('Invalid name filter format');
+
+    if (filter.name !== undefined) {
+      const filterName = filter.name.trim();
+      if (typeof filterName !== 'string') {
+        throw new Error('Filter name must be a string.');
       }
 
-      matchFilter.name = { $regex: filter.name, $options: 'i' }; // *************** Case-insensitive regex search.
+      if (filterName === '') {
+        throw new Error('Filter name cannot be an empty string.');
+      }
+
+      // *************** Case-insensitive regex search.
+      matchFilter.name = { $regex: filterName, $options: 'i' };
     }
   }
   return matchFilter;
@@ -56,7 +68,8 @@ function handleSortingForGetAllSpecialities(sort) {
 
     return sort;
   } else {
-    return { createdAt: -1 }; // *************** Default sorting by createdAt in descending order.
+    // *************** Default sorting by createdAt in descending order.
+    return { createdAt: -1 };
   }
 }
 
@@ -70,6 +83,7 @@ function handleSortingForGetAllSpecialities(sort) {
  */
 function handlePaginationForGetAllSpecialities(pagination, queryFilterMatch) {
   const paginationPipeline = [];
+
   if (pagination) {
     const { page, limit } = pagination;
 
@@ -79,10 +93,14 @@ function handlePaginationForGetAllSpecialities(pagination, queryFilterMatch) {
     }
 
     paginationPipeline.push(
-      { $skip: page * limit }, // *************** Skip the number of documents according to the number of page.
-      { $limit: limit }, // *************** Limit the number of documents.
-      { $lookup: { from: 'specialities', pipeline: [{ $match: queryFilterMatch }, { $count: 'value' }], as: 'total_document' } }, // *************** Count the number of documents in the collection.
-      { $addFields: { count_document: { $arrayElemAt: ['$total_document.value', 0] } } } // *************** Added a new field to store the total of documents
+      // *************** Skip the number of documents according to the number of page.
+      { $skip: page * limit },
+      // *************** Limit the number of documents.
+      { $limit: limit },
+      // *************** Count the number of documents in the collection.
+      { $lookup: { from: 'specialities', pipeline: [{ $match: queryFilterMatch }, { $count: 'value' }], as: 'total_document' } },
+      // *************** Added a new field to store the total of documents
+      { $addFields: { count_document: { $arrayElemAt: ['$total_document.value', 0] } } }
     );
   }
   return paginationPipeline;

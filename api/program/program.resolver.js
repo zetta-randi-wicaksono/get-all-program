@@ -17,7 +17,9 @@ const { handleValidationForProgramInput, createAggregateQueryForGetAllPrograms }
 async function GetAllPrograms(parent, args) {
   try {
     const { filter, sort, pagination } = args;
-    const aggregateQuery = createAggregateQueryForGetAllPrograms(filter, sort, pagination); // *************** Create aggregation query from arguments
+
+    // *************** Create aggregation query from arguments
+    const aggregateQuery = createAggregateQueryForGetAllPrograms(filter, sort, pagination);
     const getAllProgramsResult = await Program.aggregate(aggregateQuery);
 
     // *************** Check program collection length
@@ -41,7 +43,13 @@ async function GetAllPrograms(parent, args) {
 async function GetOneProgram(parent, args) {
   try {
     const { _id } = args;
-    const getOneProgramResult = await Program.findById(_id);
+    const programId = _id.trim();
+
+    if (typeof programId !== 'string' || programId.length !== 24) {
+      throw new Error(`Id ${programId} is invalid. Id must be a string of 24 characters`);
+    }
+
+    const getOneProgramResult = await Program.findById(programId);
 
     // *************** Validation throw error when program data is null or program status is deleted
     if (!getOneProgramResult || getOneProgramResult.status === 'deleted') {
@@ -66,15 +74,20 @@ async function CreateProgram(parent, args) {
   try {
     const { program_input } = args;
 
+    // *************** Validate all parameters for program input
+    const validatedProgramInput = await handleValidationForProgramInput(program_input);
+
     // *************** Fetch program data to validate the program name input
-    const programNameCheck = await Program.findOne({ name: program_input.name, status: 'active' }).collation({ locale: 'en', strength: 2 });
+    const programNameCheck = await Program.findOne({ name: validatedProgramInput.name, status: 'active' }).collation({
+      locale: 'en',
+      strength: 2,
+    });
+
     if (programNameCheck) {
-      throw new Error(`Program Name '${program_input.name}' Has Already Been Taken`);
+      throw new Error(`Program With Name '${validatedProgramInput.name}' Already Exist`);
     }
 
-    await handleValidationForProgramInput(program_input);
-
-    const createProgramResult = new Program(program_input);
+    const createProgramResult = new Program(validatedProgramInput);
     await createProgramResult.save();
     return createProgramResult;
   } catch (error) {
@@ -93,7 +106,13 @@ async function CreateProgram(parent, args) {
 async function UpdateProgram(parent, args) {
   try {
     const { _id, program_input } = args;
-    const programDataCheck = await Program.findById(_id);
+    const programId = _id.trim();
+
+    if (typeof programId !== 'string' || programId.length !== 24) {
+      throw new Error(`Id ${programId} is invalid. Id must be a string of 24 characters`);
+    }
+
+    const programDataCheck = await Program.findById(programId);
 
     // *************** Validation throw error when program data is null or program status is deleted
     if (!programDataCheck || programDataCheck.status === 'deleted') {
@@ -107,20 +126,20 @@ async function UpdateProgram(parent, args) {
       );
     }
 
-    // *************** Validation throw error when program name is already taken in another document
-    if (program_input.name) {
-      const programNameCheck = await Program.findOne({ name: program_input.name, status: 'active' }).collation({
-        locale: 'en',
-        strength: 2,
-      });
-      if (programNameCheck && programNameCheck._id.toString() !== _id) {
-        throw new Error(`Program Name '${program_input.name}' Has Already Been Taken`);
-      }
+    // *************** Validate all parameters for program input
+    const validatedProgramInput = await handleValidationForProgramInput(program_input);
+
+    // *************** Fetch program data to validate the program name input
+    const programNameCheck = await Program.findOne({ name: validatedProgramInput.name, status: 'active' }).collation({
+      locale: 'en',
+      strength: 2,
+    });
+
+    if (programNameCheck && programNameCheck._id.toString() !== programId) {
+      throw new Error(`Program With Name '${validatedProgramInput.name}' Already Exist`);
     }
 
-    await handleValidationForProgramInput(program_input);
-
-    const updateProgramResult = await Program.findByIdAndUpdate(_id, program_input, { new: true, useFindAndModify: false });
+    const updateProgramResult = await Program.findByIdAndUpdate(programId, validatedProgramInput, { new: true, useFindAndModify: false });
     return updateProgramResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
@@ -137,7 +156,13 @@ async function UpdateProgram(parent, args) {
 async function DeleteProgram(parent, args) {
   try {
     const { _id } = args;
-    const programDataCheck = await Program.findById(_id);
+    const programId = _id.trim();
+
+    if (typeof programId !== 'string' || programId.length !== 24) {
+      throw new Error(`Id ${programId} is invalid. Id must be a string of 24 characters`);
+    }
+
+    const programDataCheck = await Program.findById(programId);
 
     // *************** Check program document if it exists and the status is active then the document can be deleted.
     if (programDataCheck && programDataCheck.status === 'active') {
@@ -147,7 +172,8 @@ async function DeleteProgram(parent, args) {
           `Program '${programDataCheck.name}' is published. Cannot Delete Published Program. To Delete You Need Unpublish The Program`
         );
       }
-      const deleteProgramResult = await Program.findByIdAndUpdate(_id, { status: 'deleted' }, { new: true, useFindAndModify: false });
+
+      const deleteProgramResult = await Program.findByIdAndUpdate(programId, { status: 'deleted' }, { new: true, useFindAndModify: false });
       return deleteProgramResult;
     } else {
       throw new Error('Program Data Not Found');
@@ -167,7 +193,13 @@ async function DeleteProgram(parent, args) {
 async function PublishProgram(parent, args) {
   try {
     const { _id } = args;
-    const programDataCheck = await Program.findById(_id);
+    const programId = _id.trim();
+
+    if (typeof programId !== 'string' || programId.length !== 24) {
+      throw new Error(`Id ${programId} is invalid. Id must be a string of 24 characters`);
+    }
+
+    const programDataCheck = await Program.findById(programId);
 
     // *************** Validation throw error when program data is null or program status is deleted
     if (!programDataCheck || programDataCheck.status === 'deleted') {
@@ -180,7 +212,7 @@ async function PublishProgram(parent, args) {
     }
 
     const publishProgramResult = await Program.findByIdAndUpdate(
-      _id,
+      programId,
       { program_publish_status: 'published' },
       { new: true, useFindAndModify: false }
     );
@@ -200,7 +232,13 @@ async function PublishProgram(parent, args) {
 async function UnpublishProgram(parent, args) {
   try {
     const { _id } = args;
-    const programDataCheck = await Program.findById(_id);
+    const programId = _id.trim();
+
+    if (typeof programId !== 'string' || programId.length !== 24) {
+      throw new Error(`Id ${programId} is invalid. Id must be a string of 24 characters`);
+    }
+
+    const programDataCheck = await Program.findById(programId);
 
     // *************** Validation throw error when program data is null or program status is deleted
     if (!programDataCheck || programDataCheck.status === 'deleted') {
@@ -213,7 +251,7 @@ async function UnpublishProgram(parent, args) {
     }
 
     const unpublishProgramResult = await Program.findByIdAndUpdate(
-      _id,
+      programId,
       { program_publish_status: 'not_published' },
       { new: true, useFindAndModify: false }
     );
@@ -246,7 +284,7 @@ async function speciality_id(program, args, context) {
  */
 async function sector_id(program, args, context) {
   const { sectorLoader } = context.loaders;
-  // *************** Load and return the sector document that associated with the given speciality_id
+  // *************** Load and return the sector document that associated with the given sector_id
   if (program.sector_id) {
     const sectorDocument = await sectorLoader.load(program.sector_id);
     return sectorDocument;
@@ -261,7 +299,7 @@ async function sector_id(program, args, context) {
  */
 async function school_id(program, args, context) {
   const { schoolLoader } = context.loaders;
-  // *************** Load and return the school document that associated with the given speciality_id
+  // *************** Load and return the school document that associated with the given school_id
   if (program.school_id) {
     const schoolDocument = await schoolLoader.load(program.school_id);
     return schoolDocument;
@@ -269,14 +307,14 @@ async function school_id(program, args, context) {
 }
 
 /**
- * Fetch and populate scholar_season_id field from school collection
+ * Fetch and populate scholar_season_id field from scholar_seasons collection
  * @param {Object} program - The program object that contains the scholar_season_id.
  * @param {Object} context - The context object containing loaders, including scholarSeasonLoader.
  * @returns {Object} - The scholar season object associated with the program's scholar_season_id, or null if not found.
  */
 async function scholar_season_id(program, args, context) {
   const { scholarSeasonLoader } = context.loaders;
-  // *************** Load and return the scholar season document that associated with the given speciality_ids
+  // *************** Load and return the scholar season document that associated with the given scholar_season_id
   if (program.scholar_season_id) {
     const scholarSeasonDocument = await scholarSeasonLoader.load(program.scholar_season_id);
     return scholarSeasonDocument;
@@ -291,7 +329,7 @@ async function scholar_season_id(program, args, context) {
  */
 async function level_id(program, args, context) {
   const { levelLoader } = context.loaders;
-  // *************** Load and return the level document that associated with the given speciality_id
+  // *************** Load and return the level document that associated with the given level_id
   if (program.level_id) {
     const levelDocument = await levelLoader.load(program.level_id);
     return levelDocument;
@@ -306,7 +344,7 @@ async function level_id(program, args, context) {
  */
 async function campus_id(program, args, context) {
   const { campusLoader } = context.loaders;
-  // *************** Load and return the campus document that associated with the given speciality_id
+  // *************** Load and return the campus document that associated with the given campus_id
   if (program.campus_id) {
     const campusDocument = await campusLoader.load(program.campus_id);
     return campusDocument;

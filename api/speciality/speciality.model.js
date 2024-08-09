@@ -11,7 +11,8 @@ const specialitySchema = new mongoose.Schema(
     status: { type: String, enum: ['active', 'deleted'], default: 'active', required: true },
   },
   {
-    timestamps: true, // *************** Automatically adds createdAt and updatedAt fields.
+    // *************** Automatically adds createdAt and updatedAt fields.
+    timestamps: true,
   }
 );
 

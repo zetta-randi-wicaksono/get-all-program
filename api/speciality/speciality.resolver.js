@@ -21,7 +21,9 @@ const { createAggregateQueryForGetAllSpecialities } = require('./speciality.help
 async function GetAllSpecialities(parent, args) {
   try {
     const { filter, sort, pagination } = args;
-    const aggregateQuery = createAggregateQueryForGetAllSpecialities(filter, sort, pagination); // *************** Create aggregation query from arguments
+
+    // *************** Create aggregation query from arguments
+    const aggregateQuery = createAggregateQueryForGetAllSpecialities(filter, sort, pagination);
     const getAllSpecialitiesResult = await Speciality.aggregate(aggregateQuery);
 
     // *************** Check specialities collection length
@@ -45,7 +47,13 @@ async function GetAllSpecialities(parent, args) {
 async function GetOneSpeciality(parent, args) {
   try {
     const { _id } = args;
-    const getOneSpecialityResult = await Speciality.findById(_id);
+    const specialityId = _id.trim();
+
+    if (typeof specialityId !== 'string' || specialityId.length !== 24) {
+      throw new Error(`Id ${specialityId} is invalid. Id must be a string of 24 characters`);
+    }
+
+    const getOneSpecialityResult = await Speciality.findById(specialityId);
 
     // *************** Validation throw error when speciality data is null or speciality status is deleted
     if (!getOneSpecialityResult || getOneSpecialityResult.status === 'deleted') {
@@ -69,14 +77,24 @@ async function GetOneSpeciality(parent, args) {
 async function CreateSpeciality(parent, args) {
   try {
     const createSpecialityInput = { ...args.speciality_input };
+    const specialityNameInput = createSpecialityInput.name.trim();
+
+    if (typeof specialityNameInput !== 'string') {
+      throw new Error(`Name ${specialityNameInput} is invalid. Name must be a string`);
+    }
+
+    if (specialityNameInput === '') {
+      throw new Error('Input name cannot be an empty string.');
+    }
 
     // *************** Fetch speciality data to validate the name input
-    const specialityNameCheck = await Speciality.findOne({ name: createSpecialityInput.name, status: 'active' }).collation({
+    const specialityNameCheck = await Speciality.findOne({ name: specialityNameInput, status: 'active' }).collation({
       locale: 'en',
       strength: 2,
     });
+
     if (specialityNameCheck) {
-      throw new Error(`Speciality Name '${createSpecialityInput.name}' Has Already Been Taken`);
+      throw new Error(`Speciality Name '${specialityNameInput}' Has Already Been Taken`);
     }
 
     const createSpecialityResult = new Speciality(createSpecialityInput);
@@ -98,7 +116,13 @@ async function CreateSpeciality(parent, args) {
 async function UpdateSpeciality(parent, args) {
   try {
     const { _id } = args;
-    const specialityDataCheck = await Speciality.findById(_id);
+    const specialityId = _id.trim();
+
+    if (typeof specialityId !== 'string' || specialityId.length !== 24) {
+      throw new Error(`Id ${specialityId} is invalid. Id must be a string of 24 characters`);
+    }
+
+    const specialityDataCheck = await Speciality.findById(mongoose.Types.ObjectId(specialityId));
 
     // *************** Validation throw error when speciality data is null or speciality status is deleted
     if (!specialityDataCheck || specialityDataCheck.status === 'deleted') {
@@ -106,7 +130,7 @@ async function UpdateSpeciality(parent, args) {
     }
 
     // *************** Validation throw error when speciality data is connected to program collection
-    const connectedToProgramCheck = await Program.findOne({ speciality_id: mongoose.Types.ObjectId(_id) });
+    const connectedToProgramCheck = await Program.findOne({ speciality_id: mongoose.Types.ObjectId(specialityId) });
 
     if (connectedToProgramCheck) {
       throw new Error(`Cannot Update. Speciality is Still Used in The Program '${connectedToProgramCheck.name}'`);
@@ -116,17 +140,32 @@ async function UpdateSpeciality(parent, args) {
 
     // *************** Validation throw error when speciality name is already taken in another document
     if (updateSpecialityInput.name) {
-      const specialityNameCheck = await Speciality.findOne({ name: updateSpecialityInput.name, status: 'active' }).collation({
+      const specialityNameInput = updateSpecialityInput.name.trim();
+
+      if (typeof specialityNameInput !== 'string') {
+        throw new Error(`Name ${specialityNameInput} is invalid. Name must be a string`);
+      }
+
+      if (specialityNameInput === '') {
+        throw new Error('Input name cannot be an empty string.');
+      }
+
+      const specialityNameCheck = await Speciality.findOne({ name: specialityNameInput, status: 'active' }).collation({
         locale: 'en',
         strength: 2,
       });
 
-      if (specialityNameCheck && specialityNameCheck._id.toString() !== _id) {
-        throw new Error(`Speciality Name '${updateSpecialityInput.name}' Has Already Been Taken`);
+      if (specialityNameCheck && specialityNameCheck._id.toString() !== specialityId) {
+        throw new Error(`Speciality Name '${specialityNameInput}' Has Already Been Taken`);
       }
+
+      updateSpecialityInput.name = specialityNameInput;
     }
 
-    const updateSpecialityResult = await Speciality.findByIdAndUpdate(_id, updateSpecialityInput, { new: true, useFindAndModify: false });
+    const updateSpecialityResult = await Speciality.findByIdAndUpdate(specialityId, updateSpecialityInput, {
+      new: true,
+      useFindAndModify: false,
+    });
     return updateSpecialityResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
@@ -143,16 +182,22 @@ async function UpdateSpeciality(parent, args) {
 async function DeleteSpeciality(parent, args) {
   try {
     const { _id } = args;
-    const specialityDataCheck = await Speciality.findById(_id);
+    const specialityId = _id.trim();
+
+    if (typeof specialityId !== 'string' || specialityId.length !== 24) {
+      throw new Error(`Id ${specialityId} is invalid. Id must be a string of 24 characters`);
+    }
+
+    const specialityDataCheck = await Speciality.findById(specialityId);
 
     // *************** Check speciality document if it exists and the status is active then the document can be deleted.
     if (specialityDataCheck && specialityDataCheck.status === 'active') {
-      const connectedToProgramCheck = await Program.findOne({ speciality_id: mongoose.Types.ObjectId(_id) });
+      const connectedToProgramCheck = await Program.findOne({ speciality_id: mongoose.Types.ObjectId(specialityId) });
 
       // *************** Validation throw error when speciality data is connected to program collection
       if (!connectedToProgramCheck) {
         const deleteSpecialityResult = await Speciality.findByIdAndUpdate(
-          _id,
+          specialityId,
           { status: 'deleted' },
           { new: true, useFindAndModify: false }
         );

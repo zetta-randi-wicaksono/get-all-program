@@ -9,9 +9,11 @@ const graphqlConfig = require('./api');
 const app = express();
 const port = 3000;
 
-const server = new ApolloServer(graphqlConfig); // *************** Initializes ApolloServer with GraphQL configuration
+// *************** Initializes ApolloServer with GraphQL configuration
+const server = new ApolloServer(graphqlConfig);
 
-server.applyMiddleware({ app }); // *************** Apply ApolloServer to the Express app.
+// *************** Apply ApolloServer to the Express app.
+server.applyMiddleware({ app });
 
 // *************** Starts the Express server
 app.listen(port, async () => {

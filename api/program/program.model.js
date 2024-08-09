@@ -18,7 +18,8 @@ const programSchema = new mongoose.Schema(
     scholar_season_id: { type: mongoose.Types.ObjectId, ref: 'Scholar_season' },
   },
   {
-    timestamps: true, // *************** Automatically adds createdAt and updatedAt fields.
+    // *************** Automatically adds createdAt and updatedAt fields.
+    timestamps: true,
   }
 );
 

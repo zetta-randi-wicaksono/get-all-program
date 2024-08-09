@@ -24,13 +24,12 @@ const typeDefs = gql`
   }
 
   input ProgramInput {
-    name: String
-    speciality_id: ID
-    sector_id: ID
-    level_id: ID
-    campus_id: ID
-    school_id: ID
-    scholar_season_id: ID
+    speciality_id: ID!
+    sector_id: ID!
+    level_id: ID!
+    campus_id: ID!
+    school_id: ID!
+    scholar_season_id: ID!
   }
 
   input ProgramFilterInput {

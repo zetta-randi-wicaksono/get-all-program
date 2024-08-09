@@ -21,7 +21,9 @@ const { createAggregateQueryForGetAllScholarSeasons } = require('./scholar_seaso
 async function GetAllScholarSeasons(parent, args) {
   try {
     const { filter, sort, pagination } = args;
-    const aggregateQuery = createAggregateQueryForGetAllScholarSeasons(filter, sort, pagination); // *************** Create aggregation query from arguments
+
+    // *************** Create aggregation query from arguments
+    const aggregateQuery = createAggregateQueryForGetAllScholarSeasons(filter, sort, pagination);
     const getAllScholarSeasonsResult = await ScholarSeason.aggregate(aggregateQuery);
 
     // *************** Check scholar seasons collection length
@@ -45,7 +47,13 @@ async function GetAllScholarSeasons(parent, args) {
 async function GetOneScholarSeason(parent, args) {
   try {
     const { _id } = args;
-    const getOneScholarSeasonsResult = await ScholarSeason.findById(_id);
+    const scholarSeasonId = _id.trim();
+
+    if (typeof scholarSeasonId !== 'string' || scholarSeasonId.length !== 24) {
+      throw new Error(`Id ${scholarSeasonId} is invalid. Id must be a string of 24 characters`);
+    }
+
+    const getOneScholarSeasonsResult = await ScholarSeason.findById(scholarSeasonId);
 
     // *************** Validation throw error when scholar season data is null or scholar season status is deleted
     if (!getOneScholarSeasonsResult || getOneScholarSeasonsResult.status === 'deleted') {
@@ -69,14 +77,24 @@ async function GetOneScholarSeason(parent, args) {
 async function CreateScholarSeason(parent, args) {
   try {
     const createScholarSeasonInput = { ...args.scholar_season_input };
+    const scholarSeasonNameInput = createScholarSeasonInput.name.trim();
+
+    if (typeof scholarSeasonNameInput !== 'string') {
+      throw new Error(`Name ${scholarSeasonNameInput} is invalid. Name must be a string`);
+    }
+
+    if (scholarSeasonNameInput === '') {
+      throw new Error('Input name cannot be an empty string.');
+    }
 
     // *************** Fetch scholar season data to validate the name input
-    const scholarSeasonNameCheck = await ScholarSeason.findOne({ name: createScholarSeasonInput.name, status: 'active' }).collation({
+    const scholarSeasonNameCheck = await ScholarSeason.findOne({ name: scholarSeasonNameInput, status: 'active' }).collation({
       locale: 'en',
       strength: 2,
     });
+
     if (scholarSeasonNameCheck) {
-      throw new Error(`Scholar Season Name '${createScholarSeasonInput.name}' Has Already Been Taken`);
+      throw new Error(`Scholar Season Name '${scholarSeasonNameInput}' Has Already Been Taken`);
     }
 
     const createScholarSeasonResult = new ScholarSeason(createScholarSeasonInput);
@@ -98,7 +116,13 @@ async function CreateScholarSeason(parent, args) {
 async function UpdateScholarSeason(parent, args) {
   try {
     const { _id } = args;
-    const scholarSeasonDataCheck = await ScholarSeason.findById(_id);
+    const scholarSeasonId = _id.trim();
+
+    if (typeof scholarSeasonId !== 'string' || scholarSeasonId.length !== 24) {
+      throw new Error(`Id ${scholarSeasonId} is invalid. Id must be a string of 24 characters`);
+    }
+
+    const scholarSeasonDataCheck = await ScholarSeason.findById(scholarSeasonId);
 
     // *************** Validation throw error when scholar season data is null or scholar season status is deleted
     if (!scholarSeasonDataCheck || scholarSeasonDataCheck.status === 'deleted') {
@@ -106,7 +130,8 @@ async function UpdateScholarSeason(parent, args) {
     }
 
     // *************** Validation throw error when scholar season data is connected to program collection
-    const connectedToProgramCheck = await Program.findOne({ scholar_season_id: mongoose.Types.ObjectId(_id) });
+    const connectedToProgramCheck = await Program.findOne({ scholar_season_id: mongoose.Types.ObjectId(scholarSeasonId) });
+
     if (connectedToProgramCheck) {
       throw new Error(`Cannot Update. Scholar Season is Still Used in The Program '${connectedToProgramCheck.name}'`);
     }
@@ -115,16 +140,29 @@ async function UpdateScholarSeason(parent, args) {
 
     // *************** Validation throw error when scholar season name is already taken in another document
     if (updateScholarSeasonInput.name) {
-      const scholarSeasonNameCheck = await ScholarSeason.findOne({ name: updateScholarSeasonInput.name, status: 'active' }).collation({
+      const scholarSeasonNameInput = updateScholarSeasonInput.name.trim();
+
+      if (typeof scholarSeasonNameInput !== 'string') {
+        throw new Error(`Name ${scholarSeasonNameInput} is invalid. Name must be a string`);
+      }
+
+      if (scholarSeasonNameInput === '') {
+        throw new Error('Input name cannot be an empty string.');
+      }
+
+      const scholarSeasonNameCheck = await ScholarSeason.findOne({ name: scholarSeasonNameInput, status: 'active' }).collation({
         locale: 'en',
         strength: 2,
       });
-      if (scholarSeasonNameCheck && scholarSeasonNameCheck._id.toString() !== _id) {
-        throw new Error(`Scholar Season Name '${updateScholarSeasonInput.name}' Has Already Been Taken`);
+
+      if (scholarSeasonNameCheck && scholarSeasonNameCheck._id.toString() !== scholarSeasonId) {
+        throw new Error(`Scholar Season Name '${scholarSeasonNameInput}' Has Already Been Taken`);
       }
+
+      updateScholarSeasonInput.name = scholarSeasonNameInput;
     }
 
-    const updateScholarSeasonResult = await ScholarSeason.findByIdAndUpdate(_id, updateScholarSeasonInput, {
+    const updateScholarSeasonResult = await ScholarSeason.findByIdAndUpdate(scholarSeasonId, updateScholarSeasonInput, {
       new: true,
       useFindAndModify: false,
     });
@@ -144,16 +182,22 @@ async function UpdateScholarSeason(parent, args) {
 async function DeleteScholarSeason(parent, args) {
   try {
     const { _id } = args;
-    const scholarSeasonDataCheck = await ScholarSeason.findById(_id);
+    const scholarSeasonId = _id.trim();
+
+    if (typeof scholarSeasonId !== 'string' || scholarSeasonId.length !== 24) {
+      throw new Error(`Id ${scholarSeasonId} is invalid. Id must be a string of 24 characters`);
+    }
+
+    const scholarSeasonDataCheck = await ScholarSeason.findById(scholarSeasonId);
 
     // *************** Check scholar season document if it exists and the status is active then the document can be deleted.
     if (scholarSeasonDataCheck && scholarSeasonDataCheck.status === 'active') {
-      const connectedToProgramCheck = await Program.findOne({ scholar_season_id: mongoose.Types.ObjectId(_id) });
+      const connectedToProgramCheck = await Program.findOne({ scholar_season_id: mongoose.Types.ObjectId(scholarSeasonId) });
 
       // *************** Validation throw error when scholar season data is connected to program collection
       if (!connectedToProgramCheck) {
         const deleteScholarSeasonResult = await ScholarSeason.findByIdAndUpdate(
-          _id,
+          scholarSeasonId,
           { status: 'deleted' },
           { new: true, useFindAndModify: false }
         );

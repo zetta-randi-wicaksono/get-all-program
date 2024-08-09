@@ -10,8 +10,13 @@ const Speciality = require('./speciality.model');
  * @returns {Object} - Array of speciality documents corresponding to the given ids.
  */
 const batchSpecialities = async (specialityIds) => {
-  const specialities = await Speciality.find({ _id: { $in: specialityIds } }); // *************** Fetch all specialities that match the given ids
-  return specialityIds.map((specialityId) => specialities.find((speciality) => speciality._id.toString() === specialityId.toString())); // *************** Map the ids to the corresponding speciality documents
+  // *************** Fetch all specialities that match the given ids
+  const specialities = await Speciality.find({ _id: { $in: specialityIds } });
+  // *************** Map the ids to the corresponding speciality documents
+  const mappedSpecialities = specialityIds.map((specialityId) =>
+    specialities.find((speciality) => speciality._id.toString() === specialityId.toString())
+  );
+  return mappedSpecialities;
 };
 
 // *************** Create a DataLoader instance for speciality data
