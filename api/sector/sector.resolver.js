@@ -16,6 +16,7 @@ const { createAggregateQueryForGetAllSectors } = require('./sector.helper');
  * @param {Object} args.sort - The sort criteria.
  * @param {Object} args.pagination - The pagination criteria.
  * @returns {Array} The list of sector.
+
  */
 async function GetAllSectors(parent, args) {
   try {
@@ -93,6 +94,7 @@ async function CreateSector(parent, args) {
       throw new Error(`Sector Name '${sectorNameInput}' Has Already Been Taken`);
     }
 
+    createSectorInput.name = sectorNameInput;
     const createSectorResult = new Sector(createSectorInput);
     await createSectorResult.save();
     return createSectorResult;

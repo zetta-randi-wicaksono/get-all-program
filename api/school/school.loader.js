@@ -10,11 +10,15 @@ const School = require('./school.model');
  * @returns {Object} - Array of school documents corresponding to the given ids.
  */
 const batchSchools = async (schoolIds) => {
-  // *************** Fetch all schools that match the given ids
-  const schools = await School.find({ _id: { $in: schoolIds } });
-  // *************** Map the ids to the corresponding school documents
-  const mappedSchools = schoolIds.map((schoolId) => schools.find((school) => school._id.toString() === schoolId.toString()));
-  return mappedSchools;
+  try {
+    // *************** Fetch all schools that match the given ids
+    const schools = await School.find({ _id: { $in: schoolIds } });
+    // *************** Map the ids to the corresponding school documents
+    const mappedSchools = schoolIds.map((schoolId) => schools.find((school) => school._id.toString() === schoolId.toString()));
+    return mappedSchools;
+  } catch (error) {
+    throw new Error(`An error occurred: ${error.message}`);
+  }
 };
 
 // *************** Create a DataLoader instance for school data

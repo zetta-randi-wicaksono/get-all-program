@@ -10,11 +10,15 @@ const Sector = require('./sector.model');
  * @returns {Object} - Array of sector documents corresponding to the given ids.
  */
 const batchSectors = async (sectorIds) => {
-  // *************** Fetch all sectors that match the given ids
-  const sectors = await Sector.find({ _id: { $in: sectorIds } });
-  // *************** Map the ids to the corresponding sector documents
-  const mappedSectors = sectorIds.map((sectorId) => sectors.find((sector) => sector._id.toString() === sectorId.toString()));
-  return mappedSectors;
+  try {
+    // *************** Fetch all sectors that match the given ids
+    const sectors = await Sector.find({ _id: { $in: sectorIds } });
+    // *************** Map the ids to the corresponding sector documents
+    const mappedSectors = sectorIds.map((sectorId) => sectors.find((sector) => sector._id.toString() === sectorId.toString()));
+    return mappedSectors;
+  } catch (error) {
+    throw new Error(`An error occurred: ${error.message}`);
+  }
 };
 
 // *************** Create a DataLoader instance for sector data

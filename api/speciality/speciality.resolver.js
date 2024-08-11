@@ -96,6 +96,7 @@ async function CreateSpeciality(parent, args) {
       throw new Error(`Speciality Name '${specialityNameInput}' Has Already Been Taken`);
     }
 
+    createSpecialityInput.name = specialityNameInput;
     const createSpecialityResult = new Speciality(createSpecialityInput);
     await createSpecialityResult.save();
     return createSpecialityResult;

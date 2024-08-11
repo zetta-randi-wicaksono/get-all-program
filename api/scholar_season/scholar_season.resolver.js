@@ -96,6 +96,7 @@ async function CreateScholarSeason(parent, args) {
       throw new Error(`Scholar Season Name '${scholarSeasonNameInput}' Has Already Been Taken`);
     }
 
+    createScholarSeasonInput.name = scholarSeasonNameInput;
     const createScholarSeasonResult = new ScholarSeason(createScholarSeasonInput);
     await createScholarSeasonResult.save();
     return createScholarSeasonResult;

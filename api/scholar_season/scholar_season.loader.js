@@ -10,13 +10,17 @@ const ScholarSeason = require('./scholar_season.model');
  * @returns {Object} - Array of scholar season documents corresponding to the given ids.
  */
 const batchScholarSeasons = async (scholarSeasonIds) => {
-  // *************** Fetch all scholar season that match the given ids
-  const scholarSeasons = await ScholarSeason.find({ _id: { $in: scholarSeasonIds } });
-  // *************** Map the ids to the corresponding scholar season documents
-  const mappedScholarSeasons = scholarSeasonIds.map((scholarSeasonId) =>
-    scholarSeasons.find((scholarSeason) => scholarSeason._id.toString() === scholarSeasonId.toString())
-  );
-  return mappedScholarSeasons;
+  try {
+    // *************** Fetch all scholar season that match the given ids
+    const scholarSeasons = await ScholarSeason.find({ _id: { $in: scholarSeasonIds } });
+    // *************** Map the ids to the corresponding scholar season documents
+    const mappedScholarSeasons = scholarSeasonIds.map((scholarSeasonId) =>
+      scholarSeasons.find((scholarSeason) => scholarSeason._id.toString() === scholarSeasonId.toString())
+    );
+    return mappedScholarSeasons;
+  } catch (error) {
+    throw new Error(`An error occurred: ${error.message}`);
+  }
 };
 
 // *************** Create a DataLoader instance for scholar season data

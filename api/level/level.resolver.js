@@ -93,6 +93,7 @@ async function CreateLevel(parent, args) {
       throw new Error(`Level Name '${levelNameInput}' Has Already Been Taken`);
     }
 
+    createLevelInput.name = levelNameInput;
     const createLevelResult = new Level(createLevelInput);
     await createLevelResult.save();
     return createLevelResult;

@@ -10,11 +10,15 @@ const Level = require('./level.model');
  * @returns {Object} - Array of level documents corresponding to the given ids.
  */
 const batchLevels = async (levelIds) => {
-  // *************** Fetch all level that match the given ids
-  const levels = await Level.find({ _id: { $in: levelIds } });
-  // *************** Map the ids to the corresponding level documents
-  const mappedLevels = levelIds.map((levelId) => levels.find((level) => level._id.toString() === levelId.toString()));
-  return mappedLevels;
+  try {
+    // *************** Fetch all level that match the given ids
+    const levels = await Level.find({ _id: { $in: levelIds } });
+    // *************** Map the ids to the corresponding level documents
+    const mappedLevels = levelIds.map((levelId) => levels.find((level) => level._id.toString() === levelId.toString()));
+    return mappedLevels;
+  } catch (error) {
+    throw new Error(`An error occurred: ${error.message}`);
+  }
 };
 
 // *************** Create a DataLoader instance for level data

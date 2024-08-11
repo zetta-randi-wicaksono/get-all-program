@@ -93,6 +93,7 @@ async function CreateSchool(parent, args) {
       throw new Error(`School Name '${schoolNameInput}' Has Already Been Taken`);
     }
 
+    createSchoolInput.name = schoolNameInput;
     const createSchoolResult = new School(createSchoolInput);
     await createSchoolResult.save();
     return createSchoolResult;

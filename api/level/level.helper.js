@@ -8,52 +8,56 @@
  * @returns {Object} The match filter object.
  */
 function handleFiltersForGetAllLevels(filter) {
-  // *************** Pre filtering data to find data with active status.
-  const matchFilter = { status: 'active' };
+  try {
+    // *************** Pre filtering data to find data with active status.
+    const matchFilter = { status: 'active' };
 
-  if (filter) {
-    if (filter.createdAt) {
-      // *************** Data type validation on createAt variables.
-      if (typeof filter.createdAt.from !== 'string' || typeof filter.createdAt.to !== 'string') {
-        throw new Error('Invalid createdAt filter format. Need string format');
+    if (filter) {
+      if (filter.createdAt) {
+        // *************** Data type validation on createAt variables.
+        if (typeof filter.createdAt.from !== 'string' || typeof filter.createdAt.to !== 'string') {
+          throw new Error('Invalid createdAt filter format. Need string format');
+        }
+
+        // *************** Convert createAt data type string to date
+        const fromDate = new Date(filter.createdAt.from);
+        const toDate = new Date(filter.createdAt.to);
+
+        // *************** Data type validation on fromDate and toDate variables.
+        if (isNaN(fromDate) || isNaN(toDate)) {
+          throw new Error('Invalid date format in createdAt filter');
+        }
+
+        // *************** Value validation on fromDate and toDate variables.
+        if (toDate < fromDate) {
+          throw new Error(`Invalid date range. 'To Date' must be after 'From Date'`);
+        }
+
+        // *************** Include the end date in the range.
+        toDate.setDate(toDate.getDate() + 1);
+        matchFilter.createdAt = { $gte: new Date(fromDate), $lte: new Date(toDate) };
       }
 
-      // *************** Convert createAt data type string to date
-      const fromDate = new Date(filter.createdAt.from);
-      const toDate = new Date(filter.createdAt.to);
+      if (filter.name !== undefined) {
+        if (typeof filter.name !== 'string') {
+          throw new Error('Filter name must be a string.');
+        }
 
-      // *************** Data type validation on fromDate and toDate variables.
-      if (isNaN(fromDate) || isNaN(toDate)) {
-        throw new Error('Invalid date format in createdAt filter');
+        // *************** Trim name input to removes whitespace from both sides of a string.
+        const filterName = filter.name.trim();
+
+        if (filterName === '') {
+          throw new Error('Filter name cannot be an empty string.');
+        }
+
+        // *************** Apply case-insensitive regex for name filtering.
+        matchFilter.name = { $regex: filterName, $options: 'i' };
       }
-
-      // *************** Value validation on fromDate and toDate variables.
-      if (toDate < fromDate) {
-        throw new Error(`Invalid date range. 'To Date' must be after 'From Date'`);
-      }
-
-      // *************** Include the end date in the range.
-      toDate.setDate(toDate.getDate() + 1);
-      matchFilter.createdAt = { $gte: new Date(fromDate), $lte: new Date(toDate) };
     }
-
-    if (filter.name !== undefined) {
-      // *************** Trim name input to removes whitespace from both sides of a string.
-      const filterName = filter.name.trim();
-
-      if (typeof filterName !== 'string') {
-        throw new Error('Filter name must be a string.');
-      }
-
-      if (filterName === '') {
-        throw new Error('Filter name cannot be an empty string.');
-      }
-
-      // *************** Apply case-insensitive regex for name filtering.
-      matchFilter.name = { $regex: filterName, $options: 'i' };
-    }
+    return matchFilter;
+  } catch (error) {
+    throw new Error(`An error occurred: ${error.message}`);
   }
-  return matchFilter;
 }
 
 /**
@@ -62,18 +66,22 @@ function handleFiltersForGetAllLevels(filter) {
  * @returns {Object} The sort object.
  */
 function handleSortingForGetAllLevels(sort) {
-  if (sort) {
-    // *************** Value validation for sort prameters.
-    for (const key in sort) {
-      if (sort[key] !== -1 && sort[key] !== 1) {
-        throw new Error('Invalid sort parameter format. Must be 1 or -1');
+  try {
+    if (sort) {
+      // *************** Value validation for sort prameters.
+      for (const key in sort) {
+        if (sort[key] !== -1 && sort[key] !== 1) {
+          throw new Error('Invalid sort parameter format. Must be 1 or -1');
+        }
       }
-    }
 
-    return sort;
-  } else {
-    // *************** Default sorting by createdAt in descending order.
-    return { createdAt: -1 };
+      return sort;
+    } else {
+      // *************** Default sorting by createdAt in descending order.
+      return { createdAt: -1 };
+    }
+  } catch (error) {
+    throw new Error(`An error occurred: ${error.message}`);
   }
 }
 
@@ -86,26 +94,30 @@ function handleSortingForGetAllLevels(sort) {
  * @returns {Array} The pagination pipeline stages.
  */
 function handlePaginationForGetAllLevels(pagination, queryFilterMatch) {
-  paginationPipeline = [];
+  try {
+    paginationPipeline = [];
 
-  if (pagination) {
-    const { page, limit } = pagination;
+    if (pagination) {
+      const { page, limit } = pagination;
 
-    // *************** Data type and value validation on pagination parameters.
-    if (typeof page !== 'number' || page < 0 || typeof limit !== 'number' || limit <= 0) {
-      throw new Error('Invalid pagination parameters');
+      // *************** Data type and value validation on pagination parameters.
+      if (typeof page !== 'number' || page < 0 || typeof limit !== 'number' || limit <= 0) {
+        throw new Error('Invalid pagination parameters');
+      }
+
+      paginationPipeline.push(
+        { $skip: page * limit },
+        { $limit: limit },
+        // *************** Count the number of documents in the collection.
+        { $lookup: { from: 'levels', pipeline: [{ $match: queryFilterMatch }, { $count: 'value' }], as: 'total_document' } },
+        // *************** Added a new field to store the total of documents
+        { $addFields: { count_document: { $arrayElemAt: ['$total_document.value', 0] } } }
+      );
     }
-
-    paginationPipeline.push(
-      { $skip: page * limit },
-      { $limit: limit },
-      // *************** Count the number of documents in the collection.
-      { $lookup: { from: 'levels', pipeline: [{ $match: queryFilterMatch }, { $count: 'value' }], as: 'total_document' } },
-      // *************** Added a new field to store the total of documents
-      { $addFields: { count_document: { $arrayElemAt: ['$total_document.value', 0] } } }
-    );
+    return paginationPipeline;
+  } catch (error) {
+    throw new Error(`An error occurred: ${error.message}`);
   }
-  return paginationPipeline;
 }
 
 /**
@@ -116,12 +128,16 @@ function handlePaginationForGetAllLevels(pagination, queryFilterMatch) {
  * @returns {Array} The aggregate query pipeline
  */
 function createAggregateQueryForGetAllLevels(filter, sort, pagination) {
-  const queryFilterMatch = handleFiltersForGetAllLevels(filter);
-  const querySorting = handleSortingForGetAllLevels(sort);
-  const queryPagination = handlePaginationForGetAllLevels(pagination, queryFilterMatch);
+  try {
+    const queryFilterMatch = handleFiltersForGetAllLevels(filter);
+    const querySorting = handleSortingForGetAllLevels(sort);
+    const queryPagination = handlePaginationForGetAllLevels(pagination, queryFilterMatch);
 
-  const aggregateQuery = [{ $match: queryFilterMatch }, { $sort: querySorting }, ...queryPagination];
-  return aggregateQuery;
+    const aggregateQuery = [{ $match: queryFilterMatch }, { $sort: querySorting }, ...queryPagination];
+    return aggregateQuery;
+  } catch (error) {
+    throw new Error(`An error occurred: ${error.message}`);
+  }
 }
 
 // *************** EXPORT MODULE ***************
