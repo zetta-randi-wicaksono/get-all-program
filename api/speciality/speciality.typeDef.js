@@ -15,8 +15,8 @@ const typeDefs = gql`
   }
 
   input FilterCreateAtInput {
-    from: Date
-    to: Date
+    start: Date
+    end: Date
   }
 
   type Speciality {
