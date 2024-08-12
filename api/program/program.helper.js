@@ -1,6 +1,9 @@
 // *************** IMPORT CORE ***************
 const mongoose = require('mongoose');
 
+// *************** IMPORT LIBRARY ***************
+const moment = require('moment');
+
 // *************** IMPORT MODULE ***************
 const Speciality = require('../speciality/speciality.model');
 const Sector = require('../sector/sector.model');
@@ -21,16 +24,17 @@ const ScholarSeason = require('../scholar_season/scholar_season.model');
  * @param {string} programInput.scholar_season_id - The input scholar_season_id that will be validate in scholar_seasons collection
  * @returns {Object} - The object of validated progam input and generated program name
  */
-async function handleValidationForProgramInput(programInput) {
+async function HandleValidationForProgramInput(programInput) {
   try {
     const programInputName = {};
 
-    // *************** Trim space and validate data type and length all input ids from programInput.
+    // *************** Trim space and validate data type all input ids from programInput.
     for (const keyName in programInput) {
       const validateId = programInput[keyName].trim();
 
-      if (typeof validateId !== 'string' || validateId.length !== 24) {
-        throw new Error(`Id ${validateId} in '${keyName}' input is invalid. Id must be a string of 24 characters`);
+      const idValidation = mongoose.Types.ObjectId.isValid(validateId);
+      if (!idValidation) {
+        throw new Error(`Id ${validateId} is invalid. Id must be a string of 24 characters`);
       }
 
       programInput[keyName] = validateId;
@@ -119,14 +123,15 @@ async function handleValidationForProgramInput(programInput) {
  * @param {Array} ids - The list of id with string data type
  * @returns {Array} - The list of id with mongoose object id data type
  */
-function convertStringsToObjectIds(ids) {
+function ConvertStringsToObjectIds(ids) {
   try {
     if (ids === null) {
       throw new Error(`Id ${ids} is invalid. Id must be a string of 24 characters`);
     }
 
     for (const id of ids) {
-      if (typeof id !== 'string' || id.length !== 24) {
+      const idValidation = mongoose.Types.ObjectId.isValid(id);
+      if (!idValidation) {
         throw new Error(`Id ${id} is invalid. Id must be a string of 24 characters`);
       }
     }
@@ -149,12 +154,12 @@ function convertStringsToObjectIds(ids) {
  * @param {Array} filter.scholar_season_id - The ids of scholar_season_id that will be filtered.
  * @param {string} filter.program_publish_status - The status of published or not_published filter.
  * @param {Object} filter.createdAt - The date range in createdAt filter.
- * @param {string} filter.createdAt.from - The start date in createdAt filter.
- * @param {string} filter.createdAt.to - The end date in createdAt filter.
+ * @param {string} filter.createdAt.start - The start date in createdAt filter.
+ * @param {string} filter.createdAt.end - The end date in createdAt filter.
  * @param {string} filter.name - The name filter.
  * @returns {Object} The match filter object.
  */
-function handleFiltersForGetAllPrograms(filter) {
+function HandleFiltersForGetAllPrograms(filter) {
   try {
     // *************** Pre filtering data to find data with active status.
     const matchFilter = { status: 'active' };
@@ -162,37 +167,37 @@ function handleFiltersForGetAllPrograms(filter) {
     if (filter) {
       if (filter.speciality_id !== undefined) {
         // *************** Convert filter.speciality_id array of strings to array of mongoose object id
-        const filterSpecialityIds = convertStringsToObjectIds(filter.speciality_id);
+        const filterSpecialityIds = ConvertStringsToObjectIds(filter.speciality_id);
         matchFilter.speciality_id = { $in: filterSpecialityIds };
       }
 
       if (filter.sector_id !== undefined) {
         // *************** Convert filter.sector_id array of strings to array of mongoose object id
-        const filterSectorIds = convertStringsToObjectIds(filter.sector_id);
+        const filterSectorIds = ConvertStringsToObjectIds(filter.sector_id);
         matchFilter.sector_id = { $in: filterSectorIds };
       }
 
       if (filter.level_id !== undefined) {
         // *************** Convert filter.level_id array of strings to array of mongoose object id
-        const filterLevelIds = convertStringsToObjectIds(filter.level_id);
+        const filterLevelIds = ConvertStringsToObjectIds(filter.level_id);
         matchFilter.level_id = { $in: filterLevelIds };
       }
 
       if (filter.campus_id !== undefined) {
         // *************** Convert filter.campus_id array of strings to array of mongoose object id
-        const filterCampusIds = convertStringsToObjectIds(filter.campus_id);
+        const filterCampusIds = ConvertStringsToObjectIds(filter.campus_id);
         matchFilter.campus_id = { $in: filterCampusIds };
       }
 
       if (filter.school_id !== undefined) {
         // *************** Convert filter.school_id array of strings to array of mongoose object id
-        const filterSchoolIds = convertStringsToObjectIds(filter.school_id);
+        const filterSchoolIds = ConvertStringsToObjectIds(filter.school_id);
         matchFilter.school_id = { $in: filterSchoolIds };
       }
 
       if (filter.scholar_season_id !== undefined) {
         // *************** Convert filter.scholar_season_id array of strings to array of mongoose object id
-        const filterScholarSeasonIds = convertStringsToObjectIds(filter.scholar_season_id);
+        const filterScholarSeasonIds = ConvertStringsToObjectIds(filter.scholar_season_id);
         matchFilter.scholar_season_id = { $in: filterScholarSeasonIds };
       }
 
@@ -205,27 +210,26 @@ function handleFiltersForGetAllPrograms(filter) {
 
       if (filter.createdAt) {
         // *************** Data type validation on createAt variables.
-        if (typeof filter.createdAt.from !== 'string' || typeof filter.createdAt.to !== 'string') {
+        if (typeof filter.createdAt.start !== 'string' || typeof filter.createdAt.end !== 'string') {
           throw new Error('Invalid createdAt filter format. Need string format');
         }
 
         // *************** Convert createAt data type string to date
-        const fromDate = new Date(filter.createdAt.from);
-        const toDate = new Date(filter.createdAt.to);
+        const startDate = moment(filter.createdAt.start, 'YYYY-MM-DD').startOf('day').toDate();
+        const endDate = moment(filter.createdAt.end, 'YYYY-MM-DD').endOf('day').toDate();
 
-        // *************** Data type validation on fromDate and toDate variables.
-        if (isNaN(fromDate) || isNaN(toDate)) {
+        // *************** Data type validation on startDate and endDate variables.
+        if (isNaN(startDate) || isNaN(endDate)) {
           throw new Error('Invalid date format in createdAt filter');
         }
 
-        // *************** Value validation on fromDate and toDate variables.
-        if (toDate < fromDate) {
-          throw new Error(`Invalid date range. 'To Date' must be after 'From Date'`);
+        // *************** Value validation on startDate and endDate variables.
+        if (endDate < startDate) {
+          throw new Error(`Invalid date range. 'End Date' must be after 'Start Date'`);
         }
 
         // *************** Include the end date in the range.
-        toDate.setDate(toDate.getDate() + 1);
-        matchFilter.createdAt = { $gte: new Date(fromDate), $lte: new Date(toDate) };
+        matchFilter.createdAt = { $gte: startDate, $lte: endDate };
       }
 
       if (filter.name !== undefined) {
@@ -263,7 +267,7 @@ function handleFiltersForGetAllPrograms(filter) {
  * @param {Object} sort.scholar_season_id - The scholar season name cretieria.
  * @returns {Array} The sort pipeline.
  */
-function handleSortingForGetAllPrograms(sort) {
+function HandleSortingForGetAllPrograms(sort) {
   try {
     sortPipeline = [];
 
@@ -346,7 +350,7 @@ function handleSortingForGetAllPrograms(sort) {
  * @param {string} collection - The name of collection to count the total documents.
  * @returns {Array} The pagination pipeline stages.
  */
-function handlePaginationForGetAllPrograms(pagination, queryFilterMatch) {
+function HandlePaginationForGetAllPrograms(pagination, queryFilterMatch) {
   try {
     paginationPipeline = [];
 
@@ -380,11 +384,11 @@ function handlePaginationForGetAllPrograms(pagination, queryFilterMatch) {
  * @param {Object} pagination - The pagination criteria.
  * @returns {Array} The aggregate query pipeline.
  */
-function createAggregateQueryForGetAllPrograms(filter, sort, pagination) {
+function CreateAggregateQueryForGetAllPrograms(filter, sort, pagination) {
   try {
-    const queryFilterMatch = handleFiltersForGetAllPrograms(filter);
-    const querySorting = handleSortingForGetAllPrograms(sort);
-    const queryPagination = handlePaginationForGetAllPrograms(pagination, queryFilterMatch);
+    const queryFilterMatch = HandleFiltersForGetAllPrograms(filter);
+    const querySorting = HandleSortingForGetAllPrograms(sort);
+    const queryPagination = HandlePaginationForGetAllPrograms(pagination, queryFilterMatch);
 
     const aggregateQuery = [{ $match: queryFilterMatch }, ...querySorting, ...queryPagination];
     return aggregateQuery;
@@ -394,4 +398,4 @@ function createAggregateQueryForGetAllPrograms(filter, sort, pagination) {
 }
 
 // *************** EXPORT MODULE ***************
-module.exports = { handleValidationForProgramInput, createAggregateQueryForGetAllPrograms };
+module.exports = { HandleValidationForProgramInput, CreateAggregateQueryForGetAllPrograms };

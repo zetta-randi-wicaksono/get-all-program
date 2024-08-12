@@ -6,7 +6,7 @@ const Campus = require('./campus.model');
 const Program = require('../program/program.model');
 
 // *************** IMPORT HELPER FUNCTION ***************
-const { createAggregateQueryForGetAllCampuses } = require('./campus.helper');
+const { CreateAggregateQueryForGetAllCampuses } = require('./campus.helper');
 
 // *************** QUERY ***************
 /**
@@ -22,13 +22,8 @@ async function GetAllCampuses(parent, args) {
     const { filter, sort, pagination } = args;
 
     // *************** Create aggregation query from arguments
-    const aggregateQuery = createAggregateQueryForGetAllCampuses(filter, sort, pagination);
+    const aggregateQuery = CreateAggregateQueryForGetAllCampuses(filter, sort, pagination);
     const getAllCampusesResult = await Campus.aggregate(aggregateQuery);
-
-    // *************** Check campuses collection length
-    if (!getAllCampusesResult.length) {
-      throw new Error('Campuses Data Not Found');
-    }
 
     return getAllCampusesResult;
   } catch (error) {
@@ -48,7 +43,8 @@ async function GetOneCampus(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const campusId = _id.trim();
 
-    if (typeof campusId !== 'string' || campusId.length !== 24) {
+    const campusIdValidation = mongoose.Types.ObjectId.isValid(campusId);
+    if (!campusIdValidation) {
       throw new Error(`Id ${campusId} is invalid. Id must be a string of 24 characters`);
     }
 
@@ -94,8 +90,7 @@ async function CreateCampus(parent, args) {
     }
 
     createCampusInput.name = campusNameInput;
-    const createCampusResult = new Campus(createCampusInput);
-    await createCampusResult.save();
+    const createCampusResult = await Campus.create(createCampusInput);
     return createCampusResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
@@ -115,7 +110,8 @@ async function UpdateCampus(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const campusId = _id.trim();
 
-    if (typeof campusId !== 'string' || campusId.length !== 24) {
+    const campusIdValidation = mongoose.Types.ObjectId.isValid(campusId);
+    if (!campusIdValidation) {
       throw new Error(`Id ${campusId} is invalid. Id must be a string of 24 characters`);
     }
 
@@ -127,7 +123,7 @@ async function UpdateCampus(parent, args) {
     }
 
     // *************** Validation throw error when campus data is connected to program collection
-    const connectedToProgramCheck = await Program.findOne({ campus_id: mongoose.Types.ObjectId(campusId) });
+    const connectedToProgramCheck = await Program.findOne({ campus_id: mongoose.Types.ObjectId(campusId), status: 'active' });
 
     if (connectedToProgramCheck) {
       throw new Error(`Cannot Update. Campus '${campusDataCheck.name}' is Still Used in The Program '${connectedToProgramCheck.name}'`);
@@ -146,10 +142,13 @@ async function UpdateCampus(parent, args) {
       throw new Error('Input name cannot be an empty string.');
     }
 
-    const campusNameCheck = await Campus.findOne({ name: campusNameInput, status: 'active' }).collation({ locale: 'en', strength: 2 });
+    const campusNameCheck = await Campus.findOne({ name: campusNameInput, status: 'active', _id: { $ne: campusId } }).collation({
+      locale: 'en',
+      strength: 2,
+    });
 
     // *************** Validation throw error when campus name is already taken in another document
-    if (campusNameCheck && campusNameCheck._id.toString() !== campusId) {
+    if (campusNameCheck) {
       throw new Error(`Campus Name '${campusNameInput}' Has Already Been Taken`);
     }
 
@@ -173,7 +172,8 @@ async function DeleteCampus(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const campusId = _id.trim();
 
-    if (typeof campusId !== 'string' || campusId.length !== 24) {
+    const campusIdValidation = mongoose.Types.ObjectId.isValid(campusId);
+    if (!campusIdValidation) {
       throw new Error(`Id ${campusId} is invalid. Id must be a string of 24 characters`);
     }
 
@@ -181,7 +181,7 @@ async function DeleteCampus(parent, args) {
 
     // *************** Check campus document if it exists and the status is active then the document can be deleted.
     if (campusDataCheck && campusDataCheck.status === 'active') {
-      const connectedToProgramCheck = await Program.findOne({ campus_id: mongoose.Types.ObjectId(campusId) });
+      const connectedToProgramCheck = await Program.findOne({ campus_id: mongoose.Types.ObjectId(campusId), status: 'active' });
 
       // *************** Validation throw error when campus data is connected to program collection
       if (!connectedToProgramCheck) {

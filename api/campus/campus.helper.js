@@ -1,13 +1,16 @@
+// *************** IMPORT LIBRARY ***************
+const moment = require('moment');
+
 /**
  * Handlers filter criteria for the aggregation query.
  * @param {Object} filter - The filter creiteria.
  * @param {Object} filter.createdAt - The date range in createdAt filter.
- * @param {string} filter.createdAt.from - The start date in createdAt filter.
- * @param {string} filter.createdAt.to - The end date in createdAt filter.
+ * @param {string} filter.createdAt.start - The start date in createdAt filter.
+ * @param {string} filter.createdAt.end - The end date in createdAt filter.
  * @param {string} filter.name - The name filter.
  * @returns {Object} The match filter object.
  */
-function handleFiltersForGetAllCampuses(filter) {
+function HandleFiltersForGetAllCampuses(filter) {
   try {
     // *************** Pre filtering data to find data with active status.
     const matchFilter = { status: 'active' };
@@ -15,27 +18,26 @@ function handleFiltersForGetAllCampuses(filter) {
     if (filter) {
       if (filter.createdAt) {
         // *************** Data type validation on createAt variables.
-        if (typeof filter.createdAt.from !== 'string' || typeof filter.createdAt.to !== 'string') {
+        if (typeof filter.createdAt.start !== 'string' || typeof filter.createdAt.end !== 'string') {
           throw new Error('Invalid createdAt filter format. Need string format');
         }
 
         // *************** Convert createAt data type string to date
-        const fromDate = new Date(filter.createdAt.from);
-        const toDate = new Date(filter.createdAt.to);
+        const startDate = moment(filter.createdAt.start, 'YYYY-MM-DD').startOf('day').toDate();
+        const endDate = moment(filter.createdAt.end, 'YYYY-MM-DD').endOf('day').toDate();
 
-        // *************** Data type validation on fromDate and toDate variables.
-        if (isNaN(fromDate) || isNaN(toDate)) {
+        // *************** Data type validation on startDate and endDate variables.
+        if (isNaN(startDate) || isNaN(endDate)) {
           throw new Error('Invalid date format in createdAt filter');
         }
 
-        // *************** Value validation on fromDate and toDate variables.
-        if (toDate < fromDate) {
-          throw new Error(`Invalid date range. 'To Date' must be after 'From Date'`);
+        // *************** Value validation on startDate and endDate variables.
+        if (endDate < startDate) {
+          throw new Error(`Invalid date range. 'End Date' must be after 'Start Date'`);
         }
 
         // *************** Include the end date in the range.
-        toDate.setDate(toDate.getDate() + 1);
-        matchFilter.createdAt = { $gte: new Date(fromDate), $lte: new Date(toDate) };
+        matchFilter.createdAt = { $gte: startDate, $lte: endDate };
       }
 
       if (filter.name !== undefined) {
@@ -65,7 +67,7 @@ function handleFiltersForGetAllCampuses(filter) {
  * @param {Object} sort - The sorting cretieria.
  * @returns {Object} The sort object.
  */
-function handleSortingForGetAllCampuses(sort) {
+function HandleSortingForGetAllCampuses(sort) {
   try {
     if (sort) {
       // *************** Value validation for sort prameters.
@@ -93,7 +95,7 @@ function handleSortingForGetAllCampuses(sort) {
  * @param {string} collection - The name of collection to count the total documents.
  * @returns {Array} The pagination pipeline stages.
  */
-function handlePaginationForGetAllCampuses(pagination, queryFilterMatch) {
+function HandlePaginationForGetAllCampuses(pagination, queryFilterMatch) {
   try {
     paginationPipeline = [];
 
@@ -127,11 +129,11 @@ function handlePaginationForGetAllCampuses(pagination, queryFilterMatch) {
  * @param {Object} pagination - The pagination criteria.
  * @returns {Array} The aggregate query pipeline
  */
-function createAggregateQueryForGetAllCampuses(filter, sort, pagination) {
+function CreateAggregateQueryForGetAllCampuses(filter, sort, pagination) {
   try {
-    const queryFilterMatch = handleFiltersForGetAllCampuses(filter);
-    const querySorting = handleSortingForGetAllCampuses(sort);
-    const queryPagination = handlePaginationForGetAllCampuses(pagination, queryFilterMatch);
+    const queryFilterMatch = HandleFiltersForGetAllCampuses(filter);
+    const querySorting = HandleSortingForGetAllCampuses(sort);
+    const queryPagination = HandlePaginationForGetAllCampuses(pagination, queryFilterMatch);
 
     const aggregateQuery = [{ $match: queryFilterMatch }, { $sort: querySorting }, ...queryPagination];
     return aggregateQuery;
@@ -141,4 +143,4 @@ function createAggregateQueryForGetAllCampuses(filter, sort, pagination) {
 }
 
 // *************** EXPORT MODULE ***************
-module.exports = { createAggregateQueryForGetAllCampuses };
+module.exports = { CreateAggregateQueryForGetAllCampuses };

@@ -6,7 +6,7 @@ const ScholarSeason = require('./scholar_season.model');
 const Program = require('../program/program.model');
 
 // *************** IMPORT HELPER FUNCTION ***************
-const { createAggregateQueryForGetAllScholarSeasons } = require('./scholar_season.helper');
+const { CreateAggregateQueryForGetAllScholarSeasons } = require('./scholar_season.helper');
 
 // *************** QUERY ***************
 /**
@@ -22,13 +22,8 @@ async function GetAllScholarSeasons(parent, args) {
     const { filter, sort, pagination } = args;
 
     // *************** Create aggregation query from arguments
-    const aggregateQuery = createAggregateQueryForGetAllScholarSeasons(filter, sort, pagination);
+    const aggregateQuery = CreateAggregateQueryForGetAllScholarSeasons(filter, sort, pagination);
     const getAllScholarSeasonsResult = await ScholarSeason.aggregate(aggregateQuery);
-
-    // *************** Check scholar seasons collection length
-    if (!getAllScholarSeasonsResult.length) {
-      throw new Error('Scholar Season Data is Empty');
-    }
 
     return getAllScholarSeasonsResult;
   } catch (error) {
@@ -48,7 +43,8 @@ async function GetOneScholarSeason(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const scholarSeasonId = _id.trim();
 
-    if (typeof scholarSeasonId !== 'string' || scholarSeasonId.length !== 24) {
+    const scholarSeasonIdValidation = mongoose.Types.ObjectId.isValid(scholarSeasonId);
+    if (!scholarSeasonIdValidation) {
       throw new Error(`Id ${scholarSeasonId} is invalid. Id must be a string of 24 characters`);
     }
 
@@ -97,8 +93,7 @@ async function CreateScholarSeason(parent, args) {
     }
 
     createScholarSeasonInput.name = scholarSeasonNameInput;
-    const createScholarSeasonResult = new ScholarSeason(createScholarSeasonInput);
-    await createScholarSeasonResult.save();
+    const createScholarSeasonResult = await ScholarSeason.create(createScholarSeasonInput);
     return createScholarSeasonResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
@@ -118,7 +113,8 @@ async function UpdateScholarSeason(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const scholarSeasonId = _id.trim();
 
-    if (typeof scholarSeasonId !== 'string' || scholarSeasonId.length !== 24) {
+    const scholarSeasonIdValidation = mongoose.Types.ObjectId.isValid(scholarSeasonId);
+    if (!scholarSeasonIdValidation) {
       throw new Error(`Id ${scholarSeasonId} is invalid. Id must be a string of 24 characters`);
     }
 
@@ -130,7 +126,10 @@ async function UpdateScholarSeason(parent, args) {
     }
 
     // *************** Validation throw error when scholar season data is connected to program collection
-    const connectedToProgramCheck = await Program.findOne({ scholar_season_id: mongoose.Types.ObjectId(scholarSeasonId) });
+    const connectedToProgramCheck = await Program.findOne({
+      scholar_season_id: mongoose.Types.ObjectId(scholarSeasonId),
+      status: 'active',
+    });
 
     if (connectedToProgramCheck) {
       throw new Error(
@@ -151,13 +150,17 @@ async function UpdateScholarSeason(parent, args) {
       throw new Error('Input name cannot be an empty string.');
     }
 
-    const scholarSeasonNameCheck = await ScholarSeason.findOne({ name: scholarSeasonNameInput, status: 'active' }).collation({
+    const scholarSeasonNameCheck = await ScholarSeason.findOne({
+      name: scholarSeasonNameInput,
+      status: 'active',
+      _id: { $ne: scholarSeasonId },
+    }).collation({
       locale: 'en',
       strength: 2,
     });
 
     // *************** Validation throw error when scholar season name is already taken in another document
-    if (scholarSeasonNameCheck && scholarSeasonNameCheck._id.toString() !== scholarSeasonId) {
+    if (scholarSeasonNameCheck) {
       throw new Error(`Scholar Season Name '${scholarSeasonNameInput}' Has Already Been Taken`);
     }
 
@@ -184,7 +187,8 @@ async function DeleteScholarSeason(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const scholarSeasonId = _id.trim();
 
-    if (typeof scholarSeasonId !== 'string' || scholarSeasonId.length !== 24) {
+    const scholarSeasonIdValidation = mongoose.Types.ObjectId.isValid(scholarSeasonId);
+    if (!scholarSeasonIdValidation) {
       throw new Error(`Id ${scholarSeasonId} is invalid. Id must be a string of 24 characters`);
     }
 
@@ -192,7 +196,10 @@ async function DeleteScholarSeason(parent, args) {
 
     // *************** Check scholar season document if it exists and the status is active then the document can be deleted.
     if (scholarSeasonDataCheck && scholarSeasonDataCheck.status === 'active') {
-      const connectedToProgramCheck = await Program.findOne({ scholar_season_id: mongoose.Types.ObjectId(scholarSeasonId) });
+      const connectedToProgramCheck = await Program.findOne({
+        scholar_season_id: mongoose.Types.ObjectId(scholarSeasonId),
+        status: 'active',
+      });
 
       // *************** Validation throw error when scholar season data is connected to program collection
       if (!connectedToProgramCheck) {

@@ -9,20 +9,26 @@ const School = require('./school.model');
  * @param {Array} schoolIds - Array of school ids to load.
  * @returns {Object} - Array of school documents corresponding to the given ids.
  */
-const batchSchools = async (schoolIds) => {
+const BatchSchools = async (schoolIds) => {
   try {
     // *************** Fetch all schools that match the given ids
     const schools = await School.find({ _id: { $in: schoolIds } });
-    // *************** Map the ids to the corresponding school documents
-    const mappedSchools = schoolIds.map((schoolId) => schools.find((school) => school._id.toString() === schoolId.toString()));
-    return mappedSchools;
+
+    // *************** Map the ids to the corresponding School documents
+    const mappedSchools = new Map();
+    schools.forEach((school) => mappedSchools.set(school._id.toString(), school));
+
+    // *************** Create a Array to associate level IDs with the corresponding level documents
+    const arrayOfSchools = [];
+    schoolIds.forEach((schoolId) => arrayOfSchools.push(mappedSchools.get(schoolId.toString())));
+    return arrayOfSchools;
   } catch (error) {
     throw new Error(error.message);
   }
 };
 
 // *************** Create a DataLoader instance for school data
-const schoolLoader = new DataLoader(batchSchools);
+const schoolLoader = new DataLoader(BatchSchools);
 
 // *************** EXPORT MODULE ***************
 module.exports = schoolLoader;

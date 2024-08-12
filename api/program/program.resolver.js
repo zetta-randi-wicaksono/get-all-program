@@ -1,8 +1,11 @@
+// *************** IMPORT CORE ***************
+const mongoose = require('mongoose');
+
 // *************** IMPORT MODULE ***************
 const Program = require('./program.model');
 
 // *************** IMPORT HELPER FUNCTION ***************
-const { handleValidationForProgramInput, createAggregateQueryForGetAllPrograms } = require('./program.helper');
+const { HandleValidationForProgramInput, CreateAggregateQueryForGetAllPrograms } = require('./program.helper');
 
 // *************** QUERY ***************
 /**
@@ -18,13 +21,8 @@ async function GetAllPrograms(parent, args) {
     const { filter, sort, pagination } = args;
 
     // *************** Create aggregation query from arguments
-    const aggregateQuery = createAggregateQueryForGetAllPrograms(filter, sort, pagination);
+    const aggregateQuery = CreateAggregateQueryForGetAllPrograms(filter, sort, pagination);
     const getAllProgramsResult = await Program.aggregate(aggregateQuery);
-
-    // *************** Check program collection length
-    if (!getAllProgramsResult.length) {
-      throw new Error('Program Data is Empty');
-    }
 
     return getAllProgramsResult;
   } catch (error) {
@@ -44,7 +42,8 @@ async function GetOneProgram(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const programId = _id.trim();
 
-    if (typeof programId !== 'string' || programId.length !== 24) {
+    const programIdValidation = mongoose.Types.ObjectId.isValid(programId);
+    if (!programIdValidation) {
       throw new Error(`Id ${programId} is invalid. Id must be a string of 24 characters`);
     }
 
@@ -73,7 +72,7 @@ async function CreateProgram(parent, args) {
     const { program_input } = args;
 
     // *************** Validate all parameters for program input
-    const validatedProgramInput = await handleValidationForProgramInput(program_input);
+    const validatedProgramInput = await HandleValidationForProgramInput(program_input);
 
     // *************** Fetch program data to validate the program name input
     const programNameCheck = await Program.findOne({ name: validatedProgramInput.name, status: 'active' }).collation({
@@ -85,8 +84,7 @@ async function CreateProgram(parent, args) {
       throw new Error(`Program With Name '${validatedProgramInput.name}' Already Exist`);
     }
 
-    const createProgramResult = new Program(validatedProgramInput);
-    await createProgramResult.save();
+    const createProgramResult = await Program.create(validatedProgramInput);
     return createProgramResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
@@ -106,7 +104,8 @@ async function UpdateProgram(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const programId = _id.trim();
 
-    if (typeof programId !== 'string' || programId.length !== 24) {
+    const programIdValidation = mongoose.Types.ObjectId.isValid(programId);
+    if (!programIdValidation) {
       throw new Error(`Id ${programId} is invalid. Id must be a string of 24 characters`);
     }
 
@@ -125,15 +124,19 @@ async function UpdateProgram(parent, args) {
     }
 
     // *************** Validate all parameters for program input
-    const validatedProgramInput = await handleValidationForProgramInput(program_input);
+    const validatedProgramInput = await HandleValidationForProgramInput(program_input);
 
     // *************** Fetch program data to validate the program name input
-    const programNameCheck = await Program.findOne({ name: validatedProgramInput.name, status: 'active' }).collation({
+    const programNameCheck = await Program.findOne({
+      name: validatedProgramInput.name,
+      status: 'active',
+      _id: { $ne: programId },
+    }).collation({
       locale: 'en',
       strength: 2,
     });
 
-    if (programNameCheck && programNameCheck._id.toString() !== programId) {
+    if (programNameCheck) {
       throw new Error(`Program With Name '${validatedProgramInput.name}' Already Exist`);
     }
 
@@ -156,7 +159,8 @@ async function DeleteProgram(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const programId = _id.trim();
 
-    if (typeof programId !== 'string' || programId.length !== 24) {
+    const programIdValidation = mongoose.Types.ObjectId.isValid(programId);
+    if (!programIdValidation) {
       throw new Error(`Id ${programId} is invalid. Id must be a string of 24 characters`);
     }
 
@@ -193,7 +197,8 @@ async function PublishProgram(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const programId = _id.trim();
 
-    if (typeof programId !== 'string' || programId.length !== 24) {
+    const programIdValidation = mongoose.Types.ObjectId.isValid(programId);
+    if (!programIdValidation) {
       throw new Error(`Id ${programId} is invalid. Id must be a string of 24 characters`);
     }
 
@@ -232,7 +237,8 @@ async function UnpublishProgram(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const programId = _id.trim();
 
-    if (typeof programId !== 'string' || programId.length !== 24) {
+    const programIdValidation = mongoose.Types.ObjectId.isValid(programId);
+    if (!programIdValidation) {
       throw new Error(`Id ${programId} is invalid. Id must be a string of 24 characters`);
     }
 

@@ -6,7 +6,7 @@ const Sector = require('./sector.model');
 const Program = require('../program/program.model');
 
 // *************** IMPORT HELPER FUNCTION ***************
-const { createAggregateQueryForGetAllSectors } = require('./sector.helper');
+const { CreateAggregateQueryForGetAllSectors } = require('./sector.helper');
 
 // *************** QUERY ***************
 /**
@@ -23,13 +23,8 @@ async function GetAllSectors(parent, args) {
     const { filter, sort, pagination } = args;
 
     // *************** Create aggregation query from arguments
-    const aggregateQuery = createAggregateQueryForGetAllSectors(filter, sort, pagination);
+    const aggregateQuery = CreateAggregateQueryForGetAllSectors(filter, sort, pagination);
     const getAllSectorsResult = await Sector.aggregate(aggregateQuery);
-
-    // *************** Check sectors collection length
-    if (!getAllSectorsResult.length) {
-      throw new Error('Sectors Data Not Found');
-    }
 
     return getAllSectorsResult;
   } catch (error) {
@@ -49,7 +44,8 @@ async function GetOneSector(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const sectorId = _id.trim();
 
-    if (typeof sectorId !== 'string' || sectorId.length !== 24) {
+    const sectorIdValidation = mongoose.Types.ObjectId.isValid(sectorId);
+    if (!sectorIdValidation) {
       throw new Error(`Id ${sectorId} is invalid. Id must be a string of 24 characters`);
     }
 
@@ -95,8 +91,7 @@ async function CreateSector(parent, args) {
     }
 
     createSectorInput.name = sectorNameInput;
-    const createSectorResult = new Sector(createSectorInput);
-    await createSectorResult.save();
+    const createSectorResult = await Sector.create(createSectorInput);
     return createSectorResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
@@ -116,7 +111,8 @@ async function UpdateSector(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const sectorId = _id.trim();
 
-    if (typeof sectorId !== 'string' || sectorId.length !== 24) {
+    const sectorIdValidation = mongoose.Types.ObjectId.isValid(sectorId);
+    if (!sectorIdValidation) {
       throw new Error(`Id ${sectorId} is invalid. Id must be a string of 24 characters`);
     }
 
@@ -128,7 +124,7 @@ async function UpdateSector(parent, args) {
     }
 
     // *************** Validation throw error when sector data is connected to program collection
-    const connectedToProgramCheck = await Program.findOne({ sector_id: mongoose.Types.ObjectId(sectorId) });
+    const connectedToProgramCheck = await Program.findOne({ sector_id: mongoose.Types.ObjectId(sectorId), status: 'active' });
 
     if (connectedToProgramCheck) {
       throw new Error(`Cannot Update. Sector '${sectorDataCheck.name}' is Still Used in The Program '${connectedToProgramCheck.name}'`);
@@ -147,10 +143,13 @@ async function UpdateSector(parent, args) {
       throw new Error('Input name cannot be an empty string.');
     }
 
-    const sectorNameCheck = await Sector.findOne({ name: sectorNameInput, status: 'active' }).collation({ locale: 'en', strength: 2 });
+    const sectorNameCheck = await Sector.findOne({ name: sectorNameInput, status: 'active', _id: { $ne: sectorId } }).collation({
+      locale: 'en',
+      strength: 2,
+    });
 
     // *************** Validation throw error when sector name is already taken in another document
-    if (sectorNameCheck && sectorNameCheck._id.toString() !== sectorId) {
+    if (sectorNameCheck) {
       throw new Error(`Sector Name '${sectorNameInput}' Has Already Been Taken`);
     }
 
@@ -174,7 +173,8 @@ async function DeleteSector(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const sectorId = _id.trim();
 
-    if (typeof sectorId !== 'string' || sectorId.length !== 24) {
+    const sectorIdValidation = mongoose.Types.ObjectId.isValid(sectorId);
+    if (!sectorIdValidation) {
       throw new Error(`Id ${sectorId} is invalid. Id must be a string of 24 characters`);
     }
 
@@ -182,7 +182,7 @@ async function DeleteSector(parent, args) {
 
     // *************** Check sector document if it exists and the status is active then the document can be deleted.
     if (sectorDataCheck && sectorDataCheck.status === 'active') {
-      const connectedToProgramCheck = await Program.findOne({ sector_id: mongoose.Types.ObjectId(sectorId) });
+      const connectedToProgramCheck = await Program.findOne({ sector_id: mongoose.Types.ObjectId(sectorId), status: 'active' });
 
       // *************** Validation throw error when sector data is connected to program collection
       if (!connectedToProgramCheck) {

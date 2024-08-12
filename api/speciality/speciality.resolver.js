@@ -6,7 +6,7 @@ const Speciality = require('./speciality.model');
 const Program = require('../program/program.model');
 
 // *************** IMPORT HELPER FUNCTION ***************
-const { createAggregateQueryForGetAllSpecialities } = require('./speciality.helper');
+const { CreateAggregateQueryForGetAllSpecialities } = require('./speciality.helper');
 
 // *************** QUERY ***************
 /**
@@ -22,13 +22,8 @@ async function GetAllSpecialities(parent, args) {
     const { filter, sort, pagination } = args;
 
     // *************** Create aggregation query from arguments
-    const aggregateQuery = createAggregateQueryForGetAllSpecialities(filter, sort, pagination);
+    const aggregateQuery = CreateAggregateQueryForGetAllSpecialities(filter, sort, pagination);
     const getAllSpecialitiesResult = await Speciality.aggregate(aggregateQuery);
-
-    // *************** Check specialities collection length
-    if (!getAllSpecialitiesResult.length) {
-      throw new Error('Specialities Data Not Found');
-    }
 
     return getAllSpecialitiesResult;
   } catch (error) {
@@ -48,7 +43,8 @@ async function GetOneSpeciality(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const specialityId = _id.trim();
 
-    if (typeof specialityId !== 'string' || specialityId.length !== 24) {
+    const specialityIdValidation = mongoose.Types.ObjectId.isValid(specialityId);
+    if (!specialityIdValidation) {
       throw new Error(`Id ${specialityId} is invalid. Id must be a string of 24 characters`);
     }
 
@@ -97,8 +93,7 @@ async function CreateSpeciality(parent, args) {
     }
 
     createSpecialityInput.name = specialityNameInput;
-    const createSpecialityResult = new Speciality(createSpecialityInput);
-    await createSpecialityResult.save();
+    const createSpecialityResult = await Speciality.create(createSpecialityInput);
     return createSpecialityResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
@@ -118,7 +113,8 @@ async function UpdateSpeciality(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const specialityId = _id.trim();
 
-    if (typeof specialityId !== 'string' || specialityId.length !== 24) {
+    const specialityIdValidation = mongoose.Types.ObjectId.isValid(specialityId);
+    if (!specialityIdValidation) {
       throw new Error(`Id ${specialityId} is invalid. Id must be a string of 24 characters`);
     }
 
@@ -130,7 +126,7 @@ async function UpdateSpeciality(parent, args) {
     }
 
     // *************** Validation throw error when speciality data is connected to program collection
-    const connectedToProgramCheck = await Program.findOne({ speciality_id: mongoose.Types.ObjectId(specialityId) });
+    const connectedToProgramCheck = await Program.findOne({ speciality_id: mongoose.Types.ObjectId(specialityId), status: 'active' });
 
     if (connectedToProgramCheck) {
       throw new Error(
@@ -151,13 +147,17 @@ async function UpdateSpeciality(parent, args) {
       throw new Error('Input name cannot be an empty string.');
     }
 
-    const specialityNameCheck = await Speciality.findOne({ name: specialityNameInput, status: 'active' }).collation({
+    const specialityNameCheck = await Speciality.findOne({
+      name: specialityNameInput,
+      status: 'active',
+      _id: { $ne: specialityId },
+    }).collation({
       locale: 'en',
       strength: 2,
     });
 
     // *************** Validation throw error when speciality name is already taken in another document
-    if (specialityNameCheck && specialityNameCheck._id.toString() !== specialityId) {
+    if (specialityNameCheck) {
       throw new Error(`Speciality Name '${specialityNameInput}' Has Already Been Taken`);
     }
 
@@ -184,7 +184,8 @@ async function DeleteSpeciality(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const specialityId = _id.trim();
 
-    if (typeof specialityId !== 'string' || specialityId.length !== 24) {
+    const specialityIdValidation = mongoose.Types.ObjectId.isValid(specialityId);
+    if (!specialityIdValidation) {
       throw new Error(`Id ${specialityId} is invalid. Id must be a string of 24 characters`);
     }
 
@@ -192,7 +193,7 @@ async function DeleteSpeciality(parent, args) {
 
     // *************** Check speciality document if it exists and the status is active then the document can be deleted.
     if (specialityDataCheck && specialityDataCheck.status === 'active') {
-      const connectedToProgramCheck = await Program.findOne({ speciality_id: mongoose.Types.ObjectId(specialityId) });
+      const connectedToProgramCheck = await Program.findOne({ speciality_id: mongoose.Types.ObjectId(specialityId), status: 'active' });
 
       // *************** Validation throw error when speciality data is connected to program collection
       if (!connectedToProgramCheck) {

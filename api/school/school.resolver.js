@@ -6,7 +6,7 @@ const School = require('./school.model');
 const Program = require('../program/program.model');
 
 // *************** IMPORT HELPER FUNCTION ***************
-const { createAggregateQueryForGetAllSchools } = require('./school.helper');
+const { CreateAggregateQueryForGetAllSchools } = require('./school.helper');
 
 // *************** QUERY ***************
 /**
@@ -22,13 +22,8 @@ async function GetAllSchools(parent, args) {
     const { filter, sort, pagination } = args;
 
     // *************** Create aggregation query from arguments
-    const aggregateQuery = createAggregateQueryForGetAllSchools(filter, sort, pagination);
+    const aggregateQuery = CreateAggregateQueryForGetAllSchools(filter, sort, pagination);
     const getAllSchoolsResult = await School.aggregate(aggregateQuery);
-
-    // *************** Check schools collection length
-    if (!getAllSchoolsResult.length) {
-      throw new Error('Schools Data is Empty');
-    }
 
     return getAllSchoolsResult;
   } catch (error) {
@@ -48,7 +43,8 @@ async function GetOneSchool(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const schoolId = _id.trim();
 
-    if (typeof schoolId !== 'string' || schoolId.length !== 24) {
+    const schoolIdValidation = mongoose.Types.ObjectId.isValid(schoolId);
+    if (!schoolIdValidation) {
       throw new Error(`Id ${schoolId} is invalid. Id must be a string of 24 characters`);
     }
 
@@ -94,8 +90,7 @@ async function CreateSchool(parent, args) {
     }
 
     createSchoolInput.name = schoolNameInput;
-    const createSchoolResult = new School(createSchoolInput);
-    await createSchoolResult.save();
+    const createSchoolResult = await School.create(createSchoolInput);
     return createSchoolResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
@@ -115,7 +110,8 @@ async function UpdateSchool(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const schoolId = _id.trim();
 
-    if (typeof schoolId !== 'string' || schoolId.length !== 24) {
+    const schoolIdValidation = mongoose.Types.ObjectId.isValid(schoolId);
+    if (!schoolIdValidation) {
       throw new Error(`Id ${schoolId} is invalid. Id must be a string of 24 characters`);
     }
 
@@ -127,7 +123,7 @@ async function UpdateSchool(parent, args) {
     }
 
     // *************** Validation throw error when school data is connected to program collection
-    const connectedToProgramCheck = await Program.findOne({ school_id: mongoose.Types.ObjectId(schoolId) });
+    const connectedToProgramCheck = await Program.findOne({ school_id: mongoose.Types.ObjectId(schoolId), status: 'active' });
 
     if (connectedToProgramCheck) {
       throw new Error(`Cannot Update. School '${schoolDataCheck.name}' is Still Used in The Program '${connectedToProgramCheck.name}'`);
@@ -146,10 +142,13 @@ async function UpdateSchool(parent, args) {
       throw new Error('Input name cannot be an empty string.');
     }
 
-    const schoolNameCheck = await School.findOne({ name: schoolNameInput, status: 'active' }).collation({ locale: 'en', strength: 2 });
+    const schoolNameCheck = await School.findOne({ name: schoolNameInput, status: 'active', _id: { $ne: schoolId } }).collation({
+      locale: 'en',
+      strength: 2,
+    });
 
     // *************** Validation throw error when school name is already taken in another document
-    if (schoolNameCheck && schoolNameCheck._id.toString() !== schoolId) {
+    if (schoolNameCheck) {
       throw new Error(`School Name '${schoolNameInput}' Has Already Been Taken`);
     }
 
@@ -173,7 +172,8 @@ async function DeleteSchool(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const schoolId = _id.trim();
 
-    if (typeof schoolId !== 'string' || schoolId.length !== 24) {
+    const schoolIdValidation = mongoose.Types.ObjectId.isValid(schoolId);
+    if (!schoolIdValidation) {
       throw new Error(`Id ${schoolId} is invalid. Id must be a string of 24 characters`);
     }
 
@@ -181,7 +181,7 @@ async function DeleteSchool(parent, args) {
 
     // *************** Check school document if it exists and the status is active then the document can be deleted.
     if (schoolDataCheck && schoolDataCheck.status === 'active') {
-      const connectedToProgramCheck = await Program.findOne({ school_id: mongoose.Types.ObjectId(schoolId) });
+      const connectedToProgramCheck = await Program.findOne({ school_id: mongoose.Types.ObjectId(schoolId), status: 'active' });
 
       // *************** Validation throw error when school data is connected to program collection
       if (!connectedToProgramCheck) {
