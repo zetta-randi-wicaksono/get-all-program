@@ -25,11 +25,6 @@ async function GetAllLevels(parent, args) {
     const aggregateQuery = CreateAggregateQueryForGetAllLevels(filter, sort, pagination);
     const getAllLevelsResult = await Level.aggregate(aggregateQuery);
 
-    // *************** Check levels collection length
-    if (!getAllLevelsResult.length) {
-      throw new Error('Levels Data Not Found');
-    }
-
     return getAllLevelsResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);

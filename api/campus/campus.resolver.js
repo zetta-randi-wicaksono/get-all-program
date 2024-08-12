@@ -25,11 +25,6 @@ async function GetAllCampuses(parent, args) {
     const aggregateQuery = CreateAggregateQueryForGetAllCampuses(filter, sort, pagination);
     const getAllCampusesResult = await Campus.aggregate(aggregateQuery);
 
-    // *************** Check campuses collection length
-    if (!getAllCampusesResult.length) {
-      throw new Error('Campuses Data Not Found');
-    }
-
     return getAllCampusesResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);

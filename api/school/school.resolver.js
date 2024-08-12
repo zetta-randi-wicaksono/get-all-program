@@ -25,11 +25,6 @@ async function GetAllSchools(parent, args) {
     const aggregateQuery = CreateAggregateQueryForGetAllSchools(filter, sort, pagination);
     const getAllSchoolsResult = await School.aggregate(aggregateQuery);
 
-    // *************** Check schools collection length
-    if (!getAllSchoolsResult.length) {
-      throw new Error('Schools Data is Empty');
-    }
-
     return getAllSchoolsResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);

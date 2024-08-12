@@ -25,11 +25,6 @@ async function GetAllScholarSeasons(parent, args) {
     const aggregateQuery = CreateAggregateQueryForGetAllScholarSeasons(filter, sort, pagination);
     const getAllScholarSeasonsResult = await ScholarSeason.aggregate(aggregateQuery);
 
-    // *************** Check scholar seasons collection length
-    if (!getAllScholarSeasonsResult.length) {
-      throw new Error('Scholar Season Data is Empty');
-    }
-
     return getAllScholarSeasonsResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);

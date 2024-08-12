@@ -26,11 +26,6 @@ async function GetAllSectors(parent, args) {
     const aggregateQuery = CreateAggregateQueryForGetAllSectors(filter, sort, pagination);
     const getAllSectorsResult = await Sector.aggregate(aggregateQuery);
 
-    // *************** Check sectors collection length
-    if (!getAllSectorsResult.length) {
-      throw new Error('Sectors Data Not Found');
-    }
-
     return getAllSectorsResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);

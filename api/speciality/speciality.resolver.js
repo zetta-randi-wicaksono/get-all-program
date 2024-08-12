@@ -25,11 +25,6 @@ async function GetAllSpecialities(parent, args) {
     const aggregateQuery = CreateAggregateQueryForGetAllSpecialities(filter, sort, pagination);
     const getAllSpecialitiesResult = await Speciality.aggregate(aggregateQuery);
 
-    // *************** Check specialities collection length
-    if (!getAllSpecialitiesResult.length) {
-      throw new Error('Specialities Data Not Found');
-    }
-
     return getAllSpecialitiesResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
