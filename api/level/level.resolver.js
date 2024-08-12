@@ -145,10 +145,13 @@ async function UpdateLevel(parent, args) {
       throw new Error('Input name cannot be an empty string.');
     }
 
-    const levelNameCheck = await Level.findOne({ name: levelNameInput, status: 'active' }).collation({ locale: 'en', strength: 2 });
+    const levelNameCheck = await Level.findOne({ name: levelNameInput, status: 'active', _id: { $ne: levelId } }).collation({
+      locale: 'en',
+      strength: 2,
+    });
 
     // *************** Validation throw error when level name is already taken in another document
-    if (levelNameCheck && levelNameCheck._id.toString() !== levelId) {
+    if (levelNameCheck) {
       throw new Error(`Level Name '${levelNameInput}' Has Already Been Taken`);
     }
 

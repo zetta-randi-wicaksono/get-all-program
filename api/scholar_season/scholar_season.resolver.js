@@ -150,13 +150,17 @@ async function UpdateScholarSeason(parent, args) {
       throw new Error('Input name cannot be an empty string.');
     }
 
-    const scholarSeasonNameCheck = await ScholarSeason.findOne({ name: scholarSeasonNameInput, status: 'active' }).collation({
+    const scholarSeasonNameCheck = await ScholarSeason.findOne({
+      name: scholarSeasonNameInput,
+      status: 'active',
+      _id: { $ne: scholarSeasonId },
+    }).collation({
       locale: 'en',
       strength: 2,
     });
 
     // *************** Validation throw error when scholar season name is already taken in another document
-    if (scholarSeasonNameCheck && scholarSeasonNameCheck._id.toString() !== scholarSeasonId) {
+    if (scholarSeasonNameCheck) {
       throw new Error(`Scholar Season Name '${scholarSeasonNameInput}' Has Already Been Taken`);
     }
 

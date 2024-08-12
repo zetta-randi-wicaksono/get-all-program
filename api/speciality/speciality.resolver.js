@@ -150,13 +150,19 @@ async function UpdateSpeciality(parent, args) {
       throw new Error('Input name cannot be an empty string.');
     }
 
-    const specialityNameCheck = await Speciality.findOne({ name: specialityNameInput, status: 'active' }).collation({
+    const specialityNameCheck = await Speciality.findOne({
+      name: specialityNameInput,
+      status: 'active',
+      _id: { $ne: specialityId },
+    }).collation({
       locale: 'en',
       strength: 2,
     });
 
+    console.log(specialityDataCheck);
+
     // *************** Validation throw error when speciality name is already taken in another document
-    if (specialityNameCheck && specialityNameCheck._id.toString() !== specialityId) {
+    if (specialityNameCheck) {
       throw new Error(`Speciality Name '${specialityNameInput}' Has Already Been Taken`);
     }
 

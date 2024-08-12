@@ -127,12 +127,16 @@ async function UpdateProgram(parent, args) {
     const validatedProgramInput = await HandleValidationForProgramInput(program_input);
 
     // *************** Fetch program data to validate the program name input
-    const programNameCheck = await Program.findOne({ name: validatedProgramInput.name, status: 'active' }).collation({
+    const programNameCheck = await Program.findOne({
+      name: validatedProgramInput.name,
+      status: 'active',
+      _id: { $ne: programId },
+    }).collation({
       locale: 'en',
       strength: 2,
     });
 
-    if (programNameCheck && programNameCheck._id.toString() !== programId) {
+    if (programNameCheck) {
       throw new Error(`Program With Name '${validatedProgramInput.name}' Already Exist`);
     }
 

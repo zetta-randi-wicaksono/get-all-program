@@ -146,10 +146,13 @@ async function UpdateSector(parent, args) {
       throw new Error('Input name cannot be an empty string.');
     }
 
-    const sectorNameCheck = await Sector.findOne({ name: sectorNameInput, status: 'active' }).collation({ locale: 'en', strength: 2 });
+    const sectorNameCheck = await Sector.findOne({ name: sectorNameInput, status: 'active', _id: { $ne: sectorId } }).collation({
+      locale: 'en',
+      strength: 2,
+    });
 
     // *************** Validation throw error when sector name is already taken in another document
-    if (sectorNameCheck && sectorNameCheck._id.toString() !== sectorId) {
+    if (sectorNameCheck) {
       throw new Error(`Sector Name '${sectorNameInput}' Has Already Been Taken`);
     }
 

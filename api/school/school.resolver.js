@@ -145,10 +145,13 @@ async function UpdateSchool(parent, args) {
       throw new Error('Input name cannot be an empty string.');
     }
 
-    const schoolNameCheck = await School.findOne({ name: schoolNameInput, status: 'active' }).collation({ locale: 'en', strength: 2 });
+    const schoolNameCheck = await School.findOne({ name: schoolNameInput, status: 'active', _id: { $ne: schoolId } }).collation({
+      locale: 'en',
+      strength: 2,
+    });
 
     // *************** Validation throw error when school name is already taken in another document
-    if (schoolNameCheck && schoolNameCheck._id.toString() !== schoolId) {
+    if (schoolNameCheck) {
       throw new Error(`School Name '${schoolNameInput}' Has Already Been Taken`);
     }
 
