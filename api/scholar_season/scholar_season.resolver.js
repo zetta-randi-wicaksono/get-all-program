@@ -126,7 +126,10 @@ async function UpdateScholarSeason(parent, args) {
     }
 
     // *************** Validation throw error when scholar season data is connected to program collection
-    const connectedToProgramCheck = await Program.findOne({ scholar_season_id: mongoose.Types.ObjectId(scholarSeasonId) });
+    const connectedToProgramCheck = await Program.findOne({
+      scholar_season_id: mongoose.Types.ObjectId(scholarSeasonId),
+      status: 'active',
+    });
 
     if (connectedToProgramCheck) {
       throw new Error(
@@ -193,7 +196,10 @@ async function DeleteScholarSeason(parent, args) {
 
     // *************** Check scholar season document if it exists and the status is active then the document can be deleted.
     if (scholarSeasonDataCheck && scholarSeasonDataCheck.status === 'active') {
-      const connectedToProgramCheck = await Program.findOne({ scholar_season_id: mongoose.Types.ObjectId(scholarSeasonId) });
+      const connectedToProgramCheck = await Program.findOne({
+        scholar_season_id: mongoose.Types.ObjectId(scholarSeasonId),
+        status: 'active',
+      });
 
       // *************** Validation throw error when scholar season data is connected to program collection
       if (!connectedToProgramCheck) {

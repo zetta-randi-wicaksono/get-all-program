@@ -124,7 +124,7 @@ async function UpdateSector(parent, args) {
     }
 
     // *************** Validation throw error when sector data is connected to program collection
-    const connectedToProgramCheck = await Program.findOne({ sector_id: mongoose.Types.ObjectId(sectorId) });
+    const connectedToProgramCheck = await Program.findOne({ sector_id: mongoose.Types.ObjectId(sectorId), status: 'active' });
 
     if (connectedToProgramCheck) {
       throw new Error(`Cannot Update. Sector '${sectorDataCheck.name}' is Still Used in The Program '${connectedToProgramCheck.name}'`);
@@ -182,7 +182,7 @@ async function DeleteSector(parent, args) {
 
     // *************** Check sector document if it exists and the status is active then the document can be deleted.
     if (sectorDataCheck && sectorDataCheck.status === 'active') {
-      const connectedToProgramCheck = await Program.findOne({ sector_id: mongoose.Types.ObjectId(sectorId) });
+      const connectedToProgramCheck = await Program.findOne({ sector_id: mongoose.Types.ObjectId(sectorId), status: 'active' });
 
       // *************** Validation throw error when sector data is connected to program collection
       if (!connectedToProgramCheck) {

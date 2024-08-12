@@ -123,7 +123,7 @@ async function UpdateLevel(parent, args) {
     }
 
     // *************** Validation throw error when level data is connected to program collection
-    const connectedToProgramCheck = await Program.findOne({ level_id: mongoose.Types.ObjectId(levelId) });
+    const connectedToProgramCheck = await Program.findOne({ level_id: mongoose.Types.ObjectId(levelId), status: 'active' });
 
     if (connectedToProgramCheck) {
       throw new Error(`Cannot Update. Level '${levelDataCheck.name}' is Still Used in The Program '${connectedToProgramCheck.name}'`);
@@ -181,7 +181,7 @@ async function DeleteLevel(parent, args) {
 
     // *************** Check level document if it exists and the status is active then the document can be deleted.
     if (levelDataCheck && levelDataCheck.status === 'active') {
-      const connectedToProgramCheck = await Program.findOne({ level_id: mongoose.Types.ObjectId(levelId) });
+      const connectedToProgramCheck = await Program.findOne({ level_id: mongoose.Types.ObjectId(levelId), status: 'active' });
 
       // *************** Validation throw error when level data is connected to program collection
       if (!connectedToProgramCheck) {

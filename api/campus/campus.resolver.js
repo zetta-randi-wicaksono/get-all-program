@@ -123,7 +123,7 @@ async function UpdateCampus(parent, args) {
     }
 
     // *************** Validation throw error when campus data is connected to program collection
-    const connectedToProgramCheck = await Program.findOne({ campus_id: mongoose.Types.ObjectId(campusId) });
+    const connectedToProgramCheck = await Program.findOne({ campus_id: mongoose.Types.ObjectId(campusId), status: 'active' });
 
     if (connectedToProgramCheck) {
       throw new Error(`Cannot Update. Campus '${campusDataCheck.name}' is Still Used in The Program '${connectedToProgramCheck.name}'`);
@@ -181,7 +181,7 @@ async function DeleteCampus(parent, args) {
 
     // *************** Check campus document if it exists and the status is active then the document can be deleted.
     if (campusDataCheck && campusDataCheck.status === 'active') {
-      const connectedToProgramCheck = await Program.findOne({ campus_id: mongoose.Types.ObjectId(campusId) });
+      const connectedToProgramCheck = await Program.findOne({ campus_id: mongoose.Types.ObjectId(campusId), status: 'active' });
 
       // *************** Validation throw error when campus data is connected to program collection
       if (!connectedToProgramCheck) {

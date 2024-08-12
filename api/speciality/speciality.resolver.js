@@ -126,7 +126,7 @@ async function UpdateSpeciality(parent, args) {
     }
 
     // *************** Validation throw error when speciality data is connected to program collection
-    const connectedToProgramCheck = await Program.findOne({ speciality_id: mongoose.Types.ObjectId(specialityId) });
+    const connectedToProgramCheck = await Program.findOne({ speciality_id: mongoose.Types.ObjectId(specialityId), status: 'active' });
 
     if (connectedToProgramCheck) {
       throw new Error(
@@ -155,8 +155,6 @@ async function UpdateSpeciality(parent, args) {
       locale: 'en',
       strength: 2,
     });
-
-    console.log(specialityDataCheck);
 
     // *************** Validation throw error when speciality name is already taken in another document
     if (specialityNameCheck) {
@@ -195,7 +193,7 @@ async function DeleteSpeciality(parent, args) {
 
     // *************** Check speciality document if it exists and the status is active then the document can be deleted.
     if (specialityDataCheck && specialityDataCheck.status === 'active') {
-      const connectedToProgramCheck = await Program.findOne({ speciality_id: mongoose.Types.ObjectId(specialityId) });
+      const connectedToProgramCheck = await Program.findOne({ speciality_id: mongoose.Types.ObjectId(specialityId), status: 'active' });
 
       // *************** Validation throw error when speciality data is connected to program collection
       if (!connectedToProgramCheck) {
