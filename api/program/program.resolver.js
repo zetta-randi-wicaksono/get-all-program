@@ -2,7 +2,7 @@
 const Program = require('./program.model');
 
 // *************** IMPORT HELPER FUNCTION ***************
-const { handleValidationForProgramInput, createAggregateQueryForGetAllPrograms } = require('./program.helper');
+const { HandleValidationForProgramInput, CreateAggregateQueryForGetAllPrograms } = require('./program.helper');
 
 // *************** QUERY ***************
 /**
@@ -18,7 +18,7 @@ async function GetAllPrograms(parent, args) {
     const { filter, sort, pagination } = args;
 
     // *************** Create aggregation query from arguments
-    const aggregateQuery = createAggregateQueryForGetAllPrograms(filter, sort, pagination);
+    const aggregateQuery = CreateAggregateQueryForGetAllPrograms(filter, sort, pagination);
     const getAllProgramsResult = await Program.aggregate(aggregateQuery);
 
     // *************** Check program collection length
@@ -73,7 +73,7 @@ async function CreateProgram(parent, args) {
     const { program_input } = args;
 
     // *************** Validate all parameters for program input
-    const validatedProgramInput = await handleValidationForProgramInput(program_input);
+    const validatedProgramInput = await HandleValidationForProgramInput(program_input);
 
     // *************** Fetch program data to validate the program name input
     const programNameCheck = await Program.findOne({ name: validatedProgramInput.name, status: 'active' }).collation({
@@ -125,7 +125,7 @@ async function UpdateProgram(parent, args) {
     }
 
     // *************** Validate all parameters for program input
-    const validatedProgramInput = await handleValidationForProgramInput(program_input);
+    const validatedProgramInput = await HandleValidationForProgramInput(program_input);
 
     // *************** Fetch program data to validate the program name input
     const programNameCheck = await Program.findOne({ name: validatedProgramInput.name, status: 'active' }).collation({

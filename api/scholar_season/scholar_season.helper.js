@@ -7,7 +7,7 @@
  * @param {string} filter.name - The name filter.
  * @returns {Object} The match filter object.
  */
-function handleFiltersForGetAllScholarSeasons(filter) {
+function HandleFiltersForGetAllScholarSeasons(filter) {
   try {
     // *************** Pre filtering data to find data with active status.
     const matchFilter = { status: 'active' };
@@ -65,7 +65,7 @@ function handleFiltersForGetAllScholarSeasons(filter) {
  * @param {Object} sort - The sorting cretieria.
  * @returns {Object} The sort object.
  */
-function handleSortingForGetAllScholarSeasons(sort) {
+function HandleSortingForGetAllScholarSeasons(sort) {
   try {
     if (sort) {
       // *************** Value validation for sort prameters.
@@ -93,7 +93,7 @@ function handleSortingForGetAllScholarSeasons(sort) {
  * @param {string} collection - The name of collection to count the total documents.
  * @returns {Array} The pagination pipeline stages.
  */
-function handlePaginationForGetAllScholarSeasons(pagination, queryFilterMatch) {
+function HandlePaginationForGetAllScholarSeasons(pagination, queryFilterMatch) {
   try {
     paginationPipeline = [];
 
@@ -127,11 +127,11 @@ function handlePaginationForGetAllScholarSeasons(pagination, queryFilterMatch) {
  * @param {Object} pagination - The pagination criteria.
  * @returns {Array} The aggregate query pipeline.
  */
-function createAggregateQueryForGetAllScholarSeasons(filter, sort, pagination) {
+function CreateAggregateQueryForGetAllScholarSeasons(filter, sort, pagination) {
   try {
-    const queryFilterMatch = handleFiltersForGetAllScholarSeasons(filter);
-    const querySorting = handleSortingForGetAllScholarSeasons(sort);
-    const queryPagination = handlePaginationForGetAllScholarSeasons(pagination, queryFilterMatch);
+    const queryFilterMatch = HandleFiltersForGetAllScholarSeasons(filter);
+    const querySorting = HandleSortingForGetAllScholarSeasons(sort);
+    const queryPagination = HandlePaginationForGetAllScholarSeasons(pagination, queryFilterMatch);
 
     const aggregateQuery = [{ $match: queryFilterMatch }, { $sort: querySorting }, ...queryPagination];
     return aggregateQuery;
@@ -141,4 +141,4 @@ function createAggregateQueryForGetAllScholarSeasons(filter, sort, pagination) {
 }
 
 // *************** EXPORT MODULE ***************
-module.exports = { createAggregateQueryForGetAllScholarSeasons };
+module.exports = { CreateAggregateQueryForGetAllScholarSeasons };

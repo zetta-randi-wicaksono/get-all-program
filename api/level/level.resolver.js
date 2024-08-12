@@ -6,7 +6,7 @@ const Level = require('./level.model');
 const Program = require('../program/program.model');
 
 // *************** IMPORT HELPER FUNCTION ***************
-const { createAggregateQueryForGetAllLevels } = require('./level.helper');
+const { CreateAggregateQueryForGetAllLevels } = require('./level.helper');
 
 // *************** QUERY ***************
 /**
@@ -22,7 +22,7 @@ async function GetAllLevels(parent, args) {
     const { filter, sort, pagination } = args;
 
     // *************** Create aggregation query from arguments
-    const aggregateQuery = createAggregateQueryForGetAllLevels(filter, sort, pagination);
+    const aggregateQuery = CreateAggregateQueryForGetAllLevels(filter, sort, pagination);
     const getAllLevelsResult = await Level.aggregate(aggregateQuery);
 
     // *************** Check levels collection length

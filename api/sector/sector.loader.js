@@ -9,7 +9,7 @@ const Sector = require('./sector.model');
  * @param {Array} sectorIds - Array of sector ids to load.
  * @returns {Object} - Array of sector documents corresponding to the given ids.
  */
-const batchSectors = async (sectorIds) => {
+const BatchSectors = async (sectorIds) => {
   try {
     // *************** Fetch all sectors that match the given ids
     const sectors = await Sector.find({ _id: { $in: sectorIds } });
@@ -22,7 +22,7 @@ const batchSectors = async (sectorIds) => {
 };
 
 // *************** Create a DataLoader instance for sector data
-const sectorLoader = new DataLoader(batchSectors);
+const sectorLoader = new DataLoader(BatchSectors);
 
 // *************** EXPORT MODULE ***************
 module.exports = sectorLoader;

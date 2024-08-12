@@ -7,7 +7,7 @@
  * @param {string} filter.name - The name filter.
  * @returns {Object} The match filter object.
  */
-function handleFiltersForGetAllLevels(filter) {
+function HandleFiltersForGetAllLevels(filter) {
   try {
     // *************** Pre filtering data to find data with active status.
     const matchFilter = { status: 'active' };
@@ -65,7 +65,7 @@ function handleFiltersForGetAllLevels(filter) {
  * @param {Object} sort - The sorting cretieria.
  * @returns {Object} The sort object.
  */
-function handleSortingForGetAllLevels(sort) {
+function HandleSortingForGetAllLevels(sort) {
   try {
     if (sort) {
       // *************** Value validation for sort prameters.
@@ -93,7 +93,7 @@ function handleSortingForGetAllLevels(sort) {
  * @param {string} collection - The name of collection to count the total documents.
  * @returns {Array} The pagination pipeline stages.
  */
-function handlePaginationForGetAllLevels(pagination, queryFilterMatch) {
+function HandlePaginationForGetAllLevels(pagination, queryFilterMatch) {
   try {
     paginationPipeline = [];
 
@@ -127,11 +127,11 @@ function handlePaginationForGetAllLevels(pagination, queryFilterMatch) {
  * @param {Object} pagination - The pagination criteria.
  * @returns {Array} The aggregate query pipeline
  */
-function createAggregateQueryForGetAllLevels(filter, sort, pagination) {
+function CreateAggregateQueryForGetAllLevels(filter, sort, pagination) {
   try {
-    const queryFilterMatch = handleFiltersForGetAllLevels(filter);
-    const querySorting = handleSortingForGetAllLevels(sort);
-    const queryPagination = handlePaginationForGetAllLevels(pagination, queryFilterMatch);
+    const queryFilterMatch = HandleFiltersForGetAllLevels(filter);
+    const querySorting = HandleSortingForGetAllLevels(sort);
+    const queryPagination = HandlePaginationForGetAllLevels(pagination, queryFilterMatch);
 
     const aggregateQuery = [{ $match: queryFilterMatch }, { $sort: querySorting }, ...queryPagination];
     return aggregateQuery;
@@ -141,4 +141,4 @@ function createAggregateQueryForGetAllLevels(filter, sort, pagination) {
 }
 
 // *************** EXPORT MODULE ***************
-module.exports = { createAggregateQueryForGetAllLevels };
+module.exports = { CreateAggregateQueryForGetAllLevels };

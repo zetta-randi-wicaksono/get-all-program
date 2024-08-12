@@ -7,7 +7,7 @@
  * @param {string} filter.name - The name filter.
  * @returns {Object} The match filter object.
  */
-function handleFiltersForGetAllCampuses(filter) {
+function HandleFiltersForGetAllCampuses(filter) {
   try {
     // *************** Pre filtering data to find data with active status.
     const matchFilter = { status: 'active' };
@@ -65,7 +65,7 @@ function handleFiltersForGetAllCampuses(filter) {
  * @param {Object} sort - The sorting cretieria.
  * @returns {Object} The sort object.
  */
-function handleSortingForGetAllCampuses(sort) {
+function HandleSortingForGetAllCampuses(sort) {
   try {
     if (sort) {
       // *************** Value validation for sort prameters.
@@ -93,7 +93,7 @@ function handleSortingForGetAllCampuses(sort) {
  * @param {string} collection - The name of collection to count the total documents.
  * @returns {Array} The pagination pipeline stages.
  */
-function handlePaginationForGetAllCampuses(pagination, queryFilterMatch) {
+function HandlePaginationForGetAllCampuses(pagination, queryFilterMatch) {
   try {
     paginationPipeline = [];
 
@@ -127,11 +127,11 @@ function handlePaginationForGetAllCampuses(pagination, queryFilterMatch) {
  * @param {Object} pagination - The pagination criteria.
  * @returns {Array} The aggregate query pipeline
  */
-function createAggregateQueryForGetAllCampuses(filter, sort, pagination) {
+function CreateAggregateQueryForGetAllCampuses(filter, sort, pagination) {
   try {
-    const queryFilterMatch = handleFiltersForGetAllCampuses(filter);
-    const querySorting = handleSortingForGetAllCampuses(sort);
-    const queryPagination = handlePaginationForGetAllCampuses(pagination, queryFilterMatch);
+    const queryFilterMatch = HandleFiltersForGetAllCampuses(filter);
+    const querySorting = HandleSortingForGetAllCampuses(sort);
+    const queryPagination = HandlePaginationForGetAllCampuses(pagination, queryFilterMatch);
 
     const aggregateQuery = [{ $match: queryFilterMatch }, { $sort: querySorting }, ...queryPagination];
     return aggregateQuery;
@@ -141,4 +141,4 @@ function createAggregateQueryForGetAllCampuses(filter, sort, pagination) {
 }
 
 // *************** EXPORT MODULE ***************
-module.exports = { createAggregateQueryForGetAllCampuses };
+module.exports = { CreateAggregateQueryForGetAllCampuses };

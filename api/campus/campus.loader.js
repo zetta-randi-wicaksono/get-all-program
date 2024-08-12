@@ -9,7 +9,7 @@ const Campus = require('./campus.model');
  * @param {Array} campusIds - Array of campus ids to load.
  * @returns {Object} - Array of campus documents corresponding to the given ids.
  */
-const batchCampuses = async (campusIds) => {
+const BatchCampuses = async (campusIds) => {
   try {
     // *************** Fetch all campus that match the given ids
     const campuses = await Campus.find({ _id: { $in: campusIds } });
@@ -22,7 +22,7 @@ const batchCampuses = async (campusIds) => {
 };
 
 // *************** Create a DataLoader instance for campus data
-const campusLoader = new DataLoader(batchCampuses);
+const campusLoader = new DataLoader(BatchCampuses);
 
 // *************** EXPORT MODULE ***************
 module.exports = campusLoader;

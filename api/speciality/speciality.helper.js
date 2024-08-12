@@ -7,7 +7,7 @@
  * @param {string} filter.name - The name filter.
  * @returns {Object} The match filter object.
  */
-function handleFiltersForGetAllSpecialities(filter) {
+function HandleFiltersForGetAllSpecialities(filter) {
   try {
     // *************** Pre filtering data to find data with active status.
     const matchFilter = { status: 'active' };
@@ -65,7 +65,7 @@ function handleFiltersForGetAllSpecialities(filter) {
  * @param {Object} sort - The sorting cretieria.
  * @returns {Object} The sort object.
  */
-function handleSortingForGetAllSpecialities(sort) {
+function HandleSortingForGetAllSpecialities(sort) {
   try {
     if (sort) {
       // *************** Value validation for sort prameters.
@@ -93,7 +93,7 @@ function handleSortingForGetAllSpecialities(sort) {
  * @param {string} collection - The name of collection to count the total documents.
  * @returns {Array} The pagination pipeline stages.
  */
-function handlePaginationForGetAllSpecialities(pagination, queryFilterMatch) {
+function HandlePaginationForGetAllSpecialities(pagination, queryFilterMatch) {
   try {
     const paginationPipeline = [];
 
@@ -127,11 +127,11 @@ function handlePaginationForGetAllSpecialities(pagination, queryFilterMatch) {
  * @param {Object} pagination - The pagination criteria.
  * @returns {Array} The aggregate query pipeline
  */
-function createAggregateQueryForGetAllSpecialities(filter, sort, pagination) {
+function CreateAggregateQueryForGetAllSpecialities(filter, sort, pagination) {
   try {
-    const queryFilterMatch = handleFiltersForGetAllSpecialities(filter);
-    const querySorting = handleSortingForGetAllSpecialities(sort);
-    const queryPagination = handlePaginationForGetAllSpecialities(pagination, queryFilterMatch);
+    const queryFilterMatch = HandleFiltersForGetAllSpecialities(filter);
+    const querySorting = HandleSortingForGetAllSpecialities(sort);
+    const queryPagination = HandlePaginationForGetAllSpecialities(pagination, queryFilterMatch);
 
     const aggregateQuery = [{ $match: queryFilterMatch }, { $sort: querySorting }, ...queryPagination];
     return aggregateQuery;
@@ -141,4 +141,4 @@ function createAggregateQueryForGetAllSpecialities(filter, sort, pagination) {
 }
 
 // *************** EXPORT MODULE ***************
-module.exports = { createAggregateQueryForGetAllSpecialities };
+module.exports = { CreateAggregateQueryForGetAllSpecialities };

@@ -6,7 +6,7 @@ const Speciality = require('./speciality.model');
 const Program = require('../program/program.model');
 
 // *************** IMPORT HELPER FUNCTION ***************
-const { createAggregateQueryForGetAllSpecialities } = require('./speciality.helper');
+const { CreateAggregateQueryForGetAllSpecialities } = require('./speciality.helper');
 
 // *************** QUERY ***************
 /**
@@ -22,7 +22,7 @@ async function GetAllSpecialities(parent, args) {
     const { filter, sort, pagination } = args;
 
     // *************** Create aggregation query from arguments
-    const aggregateQuery = createAggregateQueryForGetAllSpecialities(filter, sort, pagination);
+    const aggregateQuery = CreateAggregateQueryForGetAllSpecialities(filter, sort, pagination);
     const getAllSpecialitiesResult = await Speciality.aggregate(aggregateQuery);
 
     // *************** Check specialities collection length

@@ -21,7 +21,7 @@ const ScholarSeason = require('../scholar_season/scholar_season.model');
  * @param {string} programInput.scholar_season_id - The input scholar_season_id that will be validate in scholar_seasons collection
  * @returns {Object} - The object of validated progam input and generated program name
  */
-async function handleValidationForProgramInput(programInput) {
+async function HandleValidationForProgramInput(programInput) {
   try {
     const programInputName = {};
 
@@ -119,7 +119,7 @@ async function handleValidationForProgramInput(programInput) {
  * @param {Array} ids - The list of id with string data type
  * @returns {Array} - The list of id with mongoose object id data type
  */
-function convertStringsToObjectIds(ids) {
+function ConvertStringsToObjectIds(ids) {
   try {
     if (ids === null) {
       throw new Error(`Id ${ids} is invalid. Id must be a string of 24 characters`);
@@ -154,7 +154,7 @@ function convertStringsToObjectIds(ids) {
  * @param {string} filter.name - The name filter.
  * @returns {Object} The match filter object.
  */
-function handleFiltersForGetAllPrograms(filter) {
+function HandleFiltersForGetAllPrograms(filter) {
   try {
     // *************** Pre filtering data to find data with active status.
     const matchFilter = { status: 'active' };
@@ -263,7 +263,7 @@ function handleFiltersForGetAllPrograms(filter) {
  * @param {Object} sort.scholar_season_id - The scholar season name cretieria.
  * @returns {Array} The sort pipeline.
  */
-function handleSortingForGetAllPrograms(sort) {
+function HandleSortingForGetAllPrograms(sort) {
   try {
     sortPipeline = [];
 
@@ -346,7 +346,7 @@ function handleSortingForGetAllPrograms(sort) {
  * @param {string} collection - The name of collection to count the total documents.
  * @returns {Array} The pagination pipeline stages.
  */
-function handlePaginationForGetAllPrograms(pagination, queryFilterMatch) {
+function HandlePaginationForGetAllPrograms(pagination, queryFilterMatch) {
   try {
     paginationPipeline = [];
 
@@ -380,11 +380,11 @@ function handlePaginationForGetAllPrograms(pagination, queryFilterMatch) {
  * @param {Object} pagination - The pagination criteria.
  * @returns {Array} The aggregate query pipeline.
  */
-function createAggregateQueryForGetAllPrograms(filter, sort, pagination) {
+function CreateAggregateQueryForGetAllPrograms(filter, sort, pagination) {
   try {
-    const queryFilterMatch = handleFiltersForGetAllPrograms(filter);
-    const querySorting = handleSortingForGetAllPrograms(sort);
-    const queryPagination = handlePaginationForGetAllPrograms(pagination, queryFilterMatch);
+    const queryFilterMatch = HandleFiltersForGetAllPrograms(filter);
+    const querySorting = HandleSortingForGetAllPrograms(sort);
+    const queryPagination = HandlePaginationForGetAllPrograms(pagination, queryFilterMatch);
 
     const aggregateQuery = [{ $match: queryFilterMatch }, ...querySorting, ...queryPagination];
     return aggregateQuery;
@@ -394,4 +394,4 @@ function createAggregateQueryForGetAllPrograms(filter, sort, pagination) {
 }
 
 // *************** EXPORT MODULE ***************
-module.exports = { handleValidationForProgramInput, createAggregateQueryForGetAllPrograms };
+module.exports = { HandleValidationForProgramInput, CreateAggregateQueryForGetAllPrograms };

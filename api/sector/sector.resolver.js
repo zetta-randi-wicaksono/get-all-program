@@ -6,7 +6,7 @@ const Sector = require('./sector.model');
 const Program = require('../program/program.model');
 
 // *************** IMPORT HELPER FUNCTION ***************
-const { createAggregateQueryForGetAllSectors } = require('./sector.helper');
+const { CreateAggregateQueryForGetAllSectors } = require('./sector.helper');
 
 // *************** QUERY ***************
 /**
@@ -23,7 +23,7 @@ async function GetAllSectors(parent, args) {
     const { filter, sort, pagination } = args;
 
     // *************** Create aggregation query from arguments
-    const aggregateQuery = createAggregateQueryForGetAllSectors(filter, sort, pagination);
+    const aggregateQuery = CreateAggregateQueryForGetAllSectors(filter, sort, pagination);
     const getAllSectorsResult = await Sector.aggregate(aggregateQuery);
 
     // *************** Check sectors collection length

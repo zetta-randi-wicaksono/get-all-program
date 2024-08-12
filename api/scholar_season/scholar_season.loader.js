@@ -9,7 +9,7 @@ const ScholarSeason = require('./scholar_season.model');
  * @param {Array} scholarSeasonIds - Array of scholar season ids to load.
  * @returns {Object} - Array of scholar season documents corresponding to the given ids.
  */
-const batchScholarSeasons = async (scholarSeasonIds) => {
+const BatchScholarSeasons = async (scholarSeasonIds) => {
   try {
     // *************** Fetch all scholar season that match the given ids
     const scholarSeasons = await ScholarSeason.find({ _id: { $in: scholarSeasonIds } });
@@ -24,7 +24,7 @@ const batchScholarSeasons = async (scholarSeasonIds) => {
 };
 
 // *************** Create a DataLoader instance for scholar season data
-const scholarSeasonLoader = new DataLoader(batchScholarSeasons);
+const scholarSeasonLoader = new DataLoader(BatchScholarSeasons);
 
 // *************** EXPORT MODULE ***************
 module.exports = scholarSeasonLoader;

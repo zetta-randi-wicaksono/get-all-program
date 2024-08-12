@@ -9,7 +9,7 @@ const Level = require('./level.model');
  * @param {Array} levelIds - Array of level ids to load.
  * @returns {Object} - Array of level documents corresponding to the given ids.
  */
-const batchLevels = async (levelIds) => {
+const BatchLevels = async (levelIds) => {
   try {
     // *************** Fetch all level that match the given ids
     const levels = await Level.find({ _id: { $in: levelIds } });
@@ -22,7 +22,7 @@ const batchLevels = async (levelIds) => {
 };
 
 // *************** Create a DataLoader instance for level data
-const levelLoader = new DataLoader(batchLevels);
+const levelLoader = new DataLoader(BatchLevels);
 
 // *************** EXPORT MODULE ***************
 module.exports = levelLoader;

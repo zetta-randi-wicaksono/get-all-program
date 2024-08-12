@@ -6,7 +6,7 @@ const Campus = require('./campus.model');
 const Program = require('../program/program.model');
 
 // *************** IMPORT HELPER FUNCTION ***************
-const { createAggregateQueryForGetAllCampuses } = require('./campus.helper');
+const { CreateAggregateQueryForGetAllCampuses } = require('./campus.helper');
 
 // *************** QUERY ***************
 /**
@@ -22,7 +22,7 @@ async function GetAllCampuses(parent, args) {
     const { filter, sort, pagination } = args;
 
     // *************** Create aggregation query from arguments
-    const aggregateQuery = createAggregateQueryForGetAllCampuses(filter, sort, pagination);
+    const aggregateQuery = CreateAggregateQueryForGetAllCampuses(filter, sort, pagination);
     const getAllCampusesResult = await Campus.aggregate(aggregateQuery);
 
     // *************** Check campuses collection length

@@ -6,7 +6,7 @@ const ScholarSeason = require('./scholar_season.model');
 const Program = require('../program/program.model');
 
 // *************** IMPORT HELPER FUNCTION ***************
-const { createAggregateQueryForGetAllScholarSeasons } = require('./scholar_season.helper');
+const { CreateAggregateQueryForGetAllScholarSeasons } = require('./scholar_season.helper');
 
 // *************** QUERY ***************
 /**
@@ -22,7 +22,7 @@ async function GetAllScholarSeasons(parent, args) {
     const { filter, sort, pagination } = args;
 
     // *************** Create aggregation query from arguments
-    const aggregateQuery = createAggregateQueryForGetAllScholarSeasons(filter, sort, pagination);
+    const aggregateQuery = CreateAggregateQueryForGetAllScholarSeasons(filter, sort, pagination);
     const getAllScholarSeasonsResult = await ScholarSeason.aggregate(aggregateQuery);
 
     // *************** Check scholar seasons collection length

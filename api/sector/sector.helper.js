@@ -7,7 +7,7 @@
  * @param {string} filter.name - The name filter.
  * @returns {Object} The match filter object.
  */
-function handleFiltersForGetAllSectors(filter) {
+function HandleFiltersForGetAllSectors(filter) {
   try {
     // *************** Pre filtering data to find data with active status.
     const matchFilter = { status: 'active' };
@@ -65,7 +65,7 @@ function handleFiltersForGetAllSectors(filter) {
  * @param {Object} sort - The sorting cretieria.
  * @returns {Object} The sort object.
  */
-function handleSortingForGetAllSectors(sort) {
+function HandleSortingForGetAllSectors(sort) {
   try {
     if (sort) {
       // *************** Value validation for sort prameters.
@@ -93,7 +93,7 @@ function handleSortingForGetAllSectors(sort) {
  * @param {string} collection - The name of collection to count the total documents.
  * @returns {Array} The pagination pipeline stages.
  */
-function handlePaginationForGetAllSectors(pagination, queryFilterMatch) {
+function HandlePaginationForGetAllSectors(pagination, queryFilterMatch) {
   try {
     paginationPipeline = [];
 
@@ -127,11 +127,11 @@ function handlePaginationForGetAllSectors(pagination, queryFilterMatch) {
  * @param {Object} pagination - The pagination criteria.
  * @returns {Array} The aggregate query pipeline
  */
-function createAggregateQueryForGetAllSectors(filter, sort, pagination) {
+function CreateAggregateQueryForGetAllSectors(filter, sort, pagination) {
   try {
-    const queryFilterMatch = handleFiltersForGetAllSectors(filter);
-    const querySorting = handleSortingForGetAllSectors(sort);
-    const queryPagination = handlePaginationForGetAllSectors(pagination, queryFilterMatch);
+    const queryFilterMatch = HandleFiltersForGetAllSectors(filter);
+    const querySorting = HandleSortingForGetAllSectors(sort);
+    const queryPagination = HandlePaginationForGetAllSectors(pagination, queryFilterMatch);
 
     const aggregateQuery = [{ $match: queryFilterMatch }, { $sort: querySorting }, ...queryPagination];
     return aggregateQuery;
@@ -141,4 +141,4 @@ function createAggregateQueryForGetAllSectors(filter, sort, pagination) {
 }
 
 // *************** EXPORT MODULE ***************
-module.exports = { createAggregateQueryForGetAllSectors };
+module.exports = { CreateAggregateQueryForGetAllSectors };

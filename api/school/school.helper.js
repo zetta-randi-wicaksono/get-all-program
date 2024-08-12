@@ -7,7 +7,7 @@
  * @param {string} filter.name - The name filter.
  * @returns {Object} The match filter object.
  */
-function handleFiltersForGetAllSchools(filter) {
+function HandleFiltersForGetAllSchools(filter) {
   try {
     // *************** Pre filtering data to find data with active status.
     const matchFilter = { status: 'active' };
@@ -65,7 +65,7 @@ function handleFiltersForGetAllSchools(filter) {
  * @param {Object} sort - The sorting cretieria.
  * @returns {Object} The sort object.
  */
-function handleSortingForGetAllSchools(sort) {
+function HandleSortingForGetAllSchools(sort) {
   try {
     if (sort) {
       // *************** Value validation for sort prameters.
@@ -93,7 +93,7 @@ function handleSortingForGetAllSchools(sort) {
  * @param {string} collection - The name of collection to count the total documents.
  * @returns {Array} The pagination pipeline stages.
  */
-function handlePaginationForGetAllSchools(pagination, queryFilterMatch) {
+function HandlePaginationForGetAllSchools(pagination, queryFilterMatch) {
   try {
     paginationPipeline = [];
 
@@ -127,11 +127,11 @@ function handlePaginationForGetAllSchools(pagination, queryFilterMatch) {
  * @param {Object} pagination - The pagination criteria.
  * @returns {Array} The aggregate query pipeline.
  */
-function createAggregateQueryForGetAllSchools(filter, sort, pagination) {
+function CreateAggregateQueryForGetAllSchools(filter, sort, pagination) {
   try {
-    const queryFilterMatch = handleFiltersForGetAllSchools(filter);
-    const querySorting = handleSortingForGetAllSchools(sort);
-    const queryPagination = handlePaginationForGetAllSchools(pagination, queryFilterMatch);
+    const queryFilterMatch = HandleFiltersForGetAllSchools(filter);
+    const querySorting = HandleSortingForGetAllSchools(sort);
+    const queryPagination = HandlePaginationForGetAllSchools(pagination, queryFilterMatch);
 
     const aggregateQuery = [{ $match: queryFilterMatch }, { $sort: querySorting }, ...queryPagination];
     return aggregateQuery;
@@ -141,4 +141,4 @@ function createAggregateQueryForGetAllSchools(filter, sort, pagination) {
 }
 
 // *************** EXPORT MODULE ***************
-module.exports = { createAggregateQueryForGetAllSchools };
+module.exports = { CreateAggregateQueryForGetAllSchools };

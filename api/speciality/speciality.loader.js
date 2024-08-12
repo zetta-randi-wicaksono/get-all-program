@@ -9,7 +9,7 @@ const Speciality = require('./speciality.model');
  * @param {Array} specialityIds - Array of speciality ids to load.
  * @returns {Object} - Array of speciality documents corresponding to the given ids.
  */
-const batchSpecialities = async (specialityIds) => {
+const BatchSpecialities = async (specialityIds) => {
   try {
     // *************** Fetch all specialities that match the given ids
     const specialities = await Speciality.find({ _id: { $in: specialityIds } });
@@ -24,7 +24,7 @@ const batchSpecialities = async (specialityIds) => {
 };
 
 // *************** Create a DataLoader instance for speciality data
-const specialityLoader = new DataLoader(batchSpecialities);
+const specialityLoader = new DataLoader(BatchSpecialities);
 
 // *************** EXPORT MODULE ***************
 module.exports = specialityLoader;
