@@ -13,9 +13,19 @@ const BatchLevels = async (levelIds) => {
   try {
     // *************** Fetch all level that match the given ids
     const levels = await Level.find({ _id: { $in: levelIds } });
+
     // *************** Map the ids to the corresponding level documents
-    const mappedLevels = levelIds.map((levelId) => levels.find((level) => level._id.toString() === levelId.toString()));
-    return mappedLevels;
+    const mappedLevels = new Map();
+    levelIds.forEach((levelId) =>
+      mappedLevels.set(
+        levelId,
+        levels.find((level) => level._id.toString() === levelId.toString())
+      )
+    );
+
+    const arrayOfLevels = [];
+    levelIds.forEach((levelId) => arrayOfLevels.push(mappedLevels.get(levelId)));
+    return arrayOfLevels;
   } catch (error) {
     throw new Error(error.message);
   }

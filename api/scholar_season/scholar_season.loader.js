@@ -13,11 +13,19 @@ const BatchScholarSeasons = async (scholarSeasonIds) => {
   try {
     // *************** Fetch all scholar season that match the given ids
     const scholarSeasons = await ScholarSeason.find({ _id: { $in: scholarSeasonIds } });
+
     // *************** Map the ids to the corresponding scholar season documents
-    const mappedScholarSeasons = scholarSeasonIds.map((scholarSeasonId) =>
-      scholarSeasons.find((scholarSeason) => scholarSeason._id.toString() === scholarSeasonId.toString())
+    const mappedScholarSeasons = new Map();
+    scholarSeasonIds.forEach((scholarSeasonId) =>
+      mappedScholarSeasons.set(
+        scholarSeasonId,
+        scholarSeasons.find((scholarSeason) => scholarSeason._id.toString() === scholarSeasonId.toString())
+      )
     );
-    return mappedScholarSeasons;
+
+    const arrayOfScholarSeason = [];
+    scholarSeasonIds.forEach((scholarSeasonId) => arrayOfScholarSeason.push(mappedScholarSeasons.get(scholarSeasonId)));
+    return arrayOfScholarSeason;
   } catch (error) {
     throw new Error(error.message);
   }

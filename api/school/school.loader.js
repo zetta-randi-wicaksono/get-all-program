@@ -13,9 +13,19 @@ const BatchSchools = async (schoolIds) => {
   try {
     // *************** Fetch all schools that match the given ids
     const schools = await School.find({ _id: { $in: schoolIds } });
+
     // *************** Map the ids to the corresponding school documents
-    const mappedSchools = schoolIds.map((schoolId) => schools.find((school) => school._id.toString() === schoolId.toString()));
-    return mappedSchools;
+    const mappedSchools = new Map();
+    schoolIds.forEach((schoolId) =>
+      mappedSchools.set(
+        schoolId,
+        schools.find((school) => school._id.toString() === schoolId.toString())
+      )
+    );
+
+    const arrayOfSchools = [];
+    schoolIds.forEach((schoolId) => arrayOfSchools.push(mappedSchools.get(schoolId)));
+    return arrayOfSchools;
   } catch (error) {
     throw new Error(error.message);
   }

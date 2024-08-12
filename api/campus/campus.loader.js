@@ -13,9 +13,19 @@ const BatchCampuses = async (campusIds) => {
   try {
     // *************** Fetch all campus that match the given ids
     const campuses = await Campus.find({ _id: { $in: campusIds } });
+
     // *************** Map the ids to the corresponding campus documents
-    const mappedCampuses = campusIds.map((campusId) => campuses.find((campus) => campus._id.toString() === campusId.toString()));
-    return mappedCampuses;
+    const mappedCampuses = new Map();
+    campusIds.forEach((campusId) =>
+      mappedCampuses.set(
+        campusId,
+        campuses.find((campus) => campus._id.toString() === campusId.toString())
+      )
+    );
+
+    const arrayOfCampuses = [];
+    campusIds.forEach((campusId) => arrayOfCampuses.push(mappedCampuses.get(campusId)));
+    return arrayOfCampuses;
   } catch (error) {
     throw new Error(error.message);
   }

@@ -13,9 +13,19 @@ const BatchSectors = async (sectorIds) => {
   try {
     // *************** Fetch all sectors that match the given ids
     const sectors = await Sector.find({ _id: { $in: sectorIds } });
+
     // *************** Map the ids to the corresponding sector documents
-    const mappedSectors = sectorIds.map((sectorId) => sectors.find((sector) => sector._id.toString() === sectorId.toString()));
-    return mappedSectors;
+    const mappedSectors = new Map();
+    sectorIds.forEach((sectorId) =>
+      mappedSectors.set(
+        sectorId,
+        sectors.find((sector) => sector._id.toString() === sectorId.toString())
+      )
+    );
+
+    const arrayOfSectors = [];
+    sectorIds.forEach((sectorId) => arrayOfSectors.push(mappedSectors.get(sectorId)));
+    return arrayOfSectors;
   } catch (error) {
     throw new Error(error.message);
   }
