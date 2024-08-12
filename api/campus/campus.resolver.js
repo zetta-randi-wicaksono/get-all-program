@@ -48,7 +48,8 @@ async function GetOneCampus(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const campusId = _id.trim();
 
-    if (typeof campusId !== 'string' || campusId.length !== 24) {
+    const campusIdValidation = mongoose.Types.ObjectId.isValid(campusId);
+    if (!campusIdValidation) {
       throw new Error(`Id ${campusId} is invalid. Id must be a string of 24 characters`);
     }
 
@@ -114,7 +115,8 @@ async function UpdateCampus(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const campusId = _id.trim();
 
-    if (typeof campusId !== 'string' || campusId.length !== 24) {
+    const campusIdValidation = mongoose.Types.ObjectId.isValid(campusId);
+    if (!campusIdValidation) {
       throw new Error(`Id ${campusId} is invalid. Id must be a string of 24 characters`);
     }
 
@@ -175,7 +177,8 @@ async function DeleteCampus(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const campusId = _id.trim();
 
-    if (typeof campusId !== 'string' || campusId.length !== 24) {
+    const campusIdValidation = mongoose.Types.ObjectId.isValid(campusId);
+    if (!campusIdValidation) {
       throw new Error(`Id ${campusId} is invalid. Id must be a string of 24 characters`);
     }
 

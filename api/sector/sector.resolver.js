@@ -49,7 +49,8 @@ async function GetOneSector(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const sectorId = _id.trim();
 
-    if (typeof sectorId !== 'string' || sectorId.length !== 24) {
+    const sectorIdValidation = mongoose.Types.ObjectId.isValid(sectorId);
+    if (!sectorIdValidation) {
       throw new Error(`Id ${sectorId} is invalid. Id must be a string of 24 characters`);
     }
 
@@ -115,7 +116,8 @@ async function UpdateSector(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const sectorId = _id.trim();
 
-    if (typeof sectorId !== 'string' || sectorId.length !== 24) {
+    const sectorIdValidation = mongoose.Types.ObjectId.isValid(sectorId);
+    if (!sectorIdValidation) {
       throw new Error(`Id ${sectorId} is invalid. Id must be a string of 24 characters`);
     }
 
@@ -176,7 +178,8 @@ async function DeleteSector(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const sectorId = _id.trim();
 
-    if (typeof sectorId !== 'string' || sectorId.length !== 24) {
+    const sectorIdValidation = mongoose.Types.ObjectId.isValid(sectorId);
+    if (!sectorIdValidation) {
       throw new Error(`Id ${sectorId} is invalid. Id must be a string of 24 characters`);
     }
 

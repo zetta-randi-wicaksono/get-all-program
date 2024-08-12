@@ -29,8 +29,9 @@ async function HandleValidationForProgramInput(programInput) {
     for (const keyName in programInput) {
       const validateId = programInput[keyName].trim();
 
-      if (typeof validateId !== 'string' || validateId.length !== 24) {
-        throw new Error(`Id ${validateId} in '${keyName}' input is invalid. Id must be a string of 24 characters`);
+      const idValidation = mongoose.Types.ObjectId.isValid(validateId);
+      if (!idValidation) {
+        throw new Error(`Id ${validateId} is invalid. Id must be a string of 24 characters`);
       }
 
       programInput[keyName] = validateId;

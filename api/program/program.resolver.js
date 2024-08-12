@@ -1,3 +1,6 @@
+// *************** IMPORT CORE ***************
+const mongoose = require('mongoose');
+
 // *************** IMPORT MODULE ***************
 const Program = require('./program.model');
 
@@ -44,7 +47,8 @@ async function GetOneProgram(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const programId = _id.trim();
 
-    if (typeof programId !== 'string' || programId.length !== 24) {
+    const programIdValidation = mongoose.Types.ObjectId.isValid(programId);
+    if (!programIdValidation) {
       throw new Error(`Id ${programId} is invalid. Id must be a string of 24 characters`);
     }
 
@@ -105,7 +109,8 @@ async function UpdateProgram(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const programId = _id.trim();
 
-    if (typeof programId !== 'string' || programId.length !== 24) {
+    const programIdValidation = mongoose.Types.ObjectId.isValid(programId);
+    if (!programIdValidation) {
       throw new Error(`Id ${programId} is invalid. Id must be a string of 24 characters`);
     }
 
@@ -159,7 +164,8 @@ async function DeleteProgram(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const programId = _id.trim();
 
-    if (typeof programId !== 'string' || programId.length !== 24) {
+    const programIdValidation = mongoose.Types.ObjectId.isValid(programId);
+    if (!programIdValidation) {
       throw new Error(`Id ${programId} is invalid. Id must be a string of 24 characters`);
     }
 
@@ -196,7 +202,8 @@ async function PublishProgram(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const programId = _id.trim();
 
-    if (typeof programId !== 'string' || programId.length !== 24) {
+    const programIdValidation = mongoose.Types.ObjectId.isValid(programId);
+    if (!programIdValidation) {
       throw new Error(`Id ${programId} is invalid. Id must be a string of 24 characters`);
     }
 
@@ -235,7 +242,8 @@ async function UnpublishProgram(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const programId = _id.trim();
 
-    if (typeof programId !== 'string' || programId.length !== 24) {
+    const programIdValidation = mongoose.Types.ObjectId.isValid(programId);
+    if (!programIdValidation) {
       throw new Error(`Id ${programId} is invalid. Id must be a string of 24 characters`);
     }
 

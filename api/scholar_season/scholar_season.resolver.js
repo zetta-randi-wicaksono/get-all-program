@@ -48,7 +48,8 @@ async function GetOneScholarSeason(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const scholarSeasonId = _id.trim();
 
-    if (typeof scholarSeasonId !== 'string' || scholarSeasonId.length !== 24) {
+    const scholarSeasonIdValidation = mongoose.Types.ObjectId.isValid(scholarSeasonId);
+    if (!scholarSeasonIdValidation) {
       throw new Error(`Id ${scholarSeasonId} is invalid. Id must be a string of 24 characters`);
     }
 
@@ -117,7 +118,8 @@ async function UpdateScholarSeason(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const scholarSeasonId = _id.trim();
 
-    if (typeof scholarSeasonId !== 'string' || scholarSeasonId.length !== 24) {
+    const scholarSeasonIdValidation = mongoose.Types.ObjectId.isValid(scholarSeasonId);
+    if (!scholarSeasonIdValidation) {
       throw new Error(`Id ${scholarSeasonId} is invalid. Id must be a string of 24 characters`);
     }
 
@@ -187,7 +189,8 @@ async function DeleteScholarSeason(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const scholarSeasonId = _id.trim();
 
-    if (typeof scholarSeasonId !== 'string' || scholarSeasonId.length !== 24) {
+    const scholarSeasonIdValidation = mongoose.Types.ObjectId.isValid(scholarSeasonId);
+    if (!scholarSeasonIdValidation) {
       throw new Error(`Id ${scholarSeasonId} is invalid. Id must be a string of 24 characters`);
     }
 

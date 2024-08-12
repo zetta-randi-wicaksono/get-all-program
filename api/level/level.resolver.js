@@ -48,7 +48,8 @@ async function GetOneLevel(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const levelId = _id.trim();
 
-    if (typeof levelId !== 'string' || levelId.length !== 24) {
+    const levelIdValidation = mongoose.Types.ObjectId.isValid(levelId);
+    if (!levelIdValidation) {
       throw new Error(`Id ${levelId} is invalid. Id must be a string of 24 characters`);
     }
 
@@ -114,7 +115,8 @@ async function UpdateLevel(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const levelId = _id.trim();
 
-    if (typeof levelId !== 'string' || levelId.length !== 24) {
+    const levelIdValidation = mongoose.Types.ObjectId.isValid(levelId);
+    if (!levelIdValidation) {
       throw new Error(`Id ${levelId} is invalid. Id must be a string of 24 characters`);
     }
 
@@ -175,7 +177,8 @@ async function DeleteLevel(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const levelId = _id.trim();
 
-    if (typeof levelId !== 'string' || levelId.length !== 24) {
+    const levelIdValidation = mongoose.Types.ObjectId.isValid(levelId);
+    if (!levelIdValidation) {
       throw new Error(`Id ${levelId} is invalid. Id must be a string of 24 characters`);
     }
 

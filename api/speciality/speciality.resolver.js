@@ -48,7 +48,8 @@ async function GetOneSpeciality(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const specialityId = _id.trim();
 
-    if (typeof specialityId !== 'string' || specialityId.length !== 24) {
+    const specialityIdValidation = mongoose.Types.ObjectId.isValid(specialityId);
+    if (!specialityIdValidation) {
       throw new Error(`Id ${specialityId} is invalid. Id must be a string of 24 characters`);
     }
 
@@ -117,7 +118,8 @@ async function UpdateSpeciality(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const specialityId = _id.trim();
 
-    if (typeof specialityId !== 'string' || specialityId.length !== 24) {
+    const specialityIdValidation = mongoose.Types.ObjectId.isValid(specialityId);
+    if (!specialityIdValidation) {
       throw new Error(`Id ${specialityId} is invalid. Id must be a string of 24 characters`);
     }
 
@@ -189,7 +191,8 @@ async function DeleteSpeciality(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const specialityId = _id.trim();
 
-    if (typeof specialityId !== 'string' || specialityId.length !== 24) {
+    const specialityIdValidation = mongoose.Types.ObjectId.isValid(specialityId);
+    if (!specialityIdValidation) {
       throw new Error(`Id ${specialityId} is invalid. Id must be a string of 24 characters`);
     }
 

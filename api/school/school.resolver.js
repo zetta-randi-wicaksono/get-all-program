@@ -48,7 +48,8 @@ async function GetOneSchool(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const schoolId = _id.trim();
 
-    if (typeof schoolId !== 'string' || schoolId.length !== 24) {
+    const schoolIdValidation = mongoose.Types.ObjectId.isValid(schoolId);
+    if (!schoolIdValidation) {
       throw new Error(`Id ${schoolId} is invalid. Id must be a string of 24 characters`);
     }
 
@@ -114,7 +115,8 @@ async function UpdateSchool(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const schoolId = _id.trim();
 
-    if (typeof schoolId !== 'string' || schoolId.length !== 24) {
+    const schoolIdValidation = mongoose.Types.ObjectId.isValid(schoolId);
+    if (!schoolIdValidation) {
       throw new Error(`Id ${schoolId} is invalid. Id must be a string of 24 characters`);
     }
 
@@ -175,7 +177,8 @@ async function DeleteSchool(parent, args) {
     // *************** Trim id input to removes whitespace from both sides of a string.
     const schoolId = _id.trim();
 
-    if (typeof schoolId !== 'string' || schoolId.length !== 24) {
+    const schoolIdValidation = mongoose.Types.ObjectId.isValid(schoolId);
+    if (!schoolIdValidation) {
       throw new Error(`Id ${schoolId} is invalid. Id must be a string of 24 characters`);
     }
 
