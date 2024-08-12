@@ -16,15 +16,11 @@ const BatchSpecialities = async (specialityIds) => {
 
     // *************** Map the ids to the corresponding Specialities documents
     const mappedSpecialities = new Map();
-    specialityIds.forEach((specialityId) =>
-      mappedSpecialities.set(
-        specialityId,
-        specialities.find((speciality) => speciality._id.toString() === specialityId.toString())
-      )
-    );
+    specialities.forEach((speciality) => mappedSpecialities.set(speciality._id.toString(), speciality));
 
+    // *************** Create a Array to associate level IDs with the corresponding level documents
     const arrayOfSpecialities = [];
-    specialityIds.forEach((specialityId) => arrayOfSpecialities.push(mappedSpecialities.get(specialityId)));
+    specialityIds.forEach((specialityId) => arrayOfSpecialities.push(mappedSpecialities.get(specialityId.toString())));
     return arrayOfSpecialities;
   } catch (error) {
     throw new Error(error.message);
