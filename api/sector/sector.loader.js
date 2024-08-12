@@ -17,7 +17,7 @@ const batchSectors = async (sectorIds) => {
     const mappedSectors = sectorIds.map((sectorId) => sectors.find((sector) => sector._id.toString() === sectorId.toString()));
     return mappedSectors;
   } catch (error) {
-    throw new Error(`An error occurred: ${error.message}`);
+    throw new Error(error.message);
   }
 };
 

@@ -56,7 +56,7 @@ function handleFiltersForGetAllScholarSeasons(filter) {
     }
     return matchFilter;
   } catch (error) {
-    throw new Error(`An error occurred: ${error.message}`);
+    throw new Error(error.message);
   }
 }
 
@@ -81,7 +81,7 @@ function handleSortingForGetAllScholarSeasons(sort) {
       return { createdAt: -1 };
     }
   } catch (error) {
-    throw new Error(`An error occurred: ${error.message}`);
+    throw new Error(error.message);
   }
 }
 
@@ -116,7 +116,7 @@ function handlePaginationForGetAllScholarSeasons(pagination, queryFilterMatch) {
     }
     return paginationPipeline;
   } catch (error) {
-    throw new Error(`An error occurred: ${error.message}`);
+    throw new Error(error.message);
   }
 }
 
@@ -136,7 +136,7 @@ function createAggregateQueryForGetAllScholarSeasons(filter, sort, pagination) {
     const aggregateQuery = [{ $match: queryFilterMatch }, { $sort: querySorting }, ...queryPagination];
     return aggregateQuery;
   } catch (error) {
-    throw new Error(`An error occurred: ${error.message}`);
+    throw new Error(error.message);
   }
 }
 

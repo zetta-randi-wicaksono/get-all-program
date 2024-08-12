@@ -17,7 +17,7 @@ const batchSchools = async (schoolIds) => {
     const mappedSchools = schoolIds.map((schoolId) => schools.find((school) => school._id.toString() === schoolId.toString()));
     return mappedSchools;
   } catch (error) {
-    throw new Error(`An error occurred: ${error.message}`);
+    throw new Error(error.message);
   }
 };
 

@@ -19,7 +19,7 @@ const batchScholarSeasons = async (scholarSeasonIds) => {
     );
     return mappedScholarSeasons;
   } catch (error) {
-    throw new Error(`An error occurred: ${error.message}`);
+    throw new Error(error.message);
   }
 };
 

@@ -110,7 +110,7 @@ async function handleValidationForProgramInput(programInput) {
 
     return programInput;
   } catch (error) {
-    throw new Error(`An error occurred: ${error.message}`);
+    throw new Error(error.message);
   }
 }
 
@@ -134,7 +134,7 @@ function convertStringsToObjectIds(ids) {
     const objectIds = ids.map(mongoose.Types.ObjectId);
     return objectIds;
   } catch (error) {
-    throw new Error(`An error occurred: ${error.message}`);
+    throw new Error(error.message);
   }
 }
 
@@ -246,7 +246,7 @@ function handleFiltersForGetAllPrograms(filter) {
     }
     return matchFilter;
   } catch (error) {
-    throw new Error(`An error occurred: ${error.message}`);
+    throw new Error(error.message);
   }
 }
 
@@ -334,7 +334,7 @@ function handleSortingForGetAllPrograms(sort) {
       return sortPipeline;
     }
   } catch (error) {
-    throw new Error(`An error occurred: ${error.message}`);
+    throw new Error(error.message);
   }
 }
 
@@ -369,7 +369,7 @@ function handlePaginationForGetAllPrograms(pagination, queryFilterMatch) {
     }
     return paginationPipeline;
   } catch (error) {
-    throw new Error(`An error occurred: ${error.message}`);
+    throw new Error(error.message);
   }
 }
 
@@ -389,7 +389,7 @@ function createAggregateQueryForGetAllPrograms(filter, sort, pagination) {
     const aggregateQuery = [{ $match: queryFilterMatch }, ...querySorting, ...queryPagination];
     return aggregateQuery;
   } catch (error) {
-    throw new Error(`An error occurred: ${error.message}`);
+    throw new Error(error.message);
   }
 }
 

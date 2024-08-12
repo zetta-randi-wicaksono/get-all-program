@@ -17,7 +17,7 @@ const batchLevels = async (levelIds) => {
     const mappedLevels = levelIds.map((levelId) => levels.find((level) => level._id.toString() === levelId.toString()));
     return mappedLevels;
   } catch (error) {
-    throw new Error(`An error occurred: ${error.message}`);
+    throw new Error(error.message);
   }
 };
 

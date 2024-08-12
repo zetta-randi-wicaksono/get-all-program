@@ -19,7 +19,7 @@ const batchSpecialities = async (specialityIds) => {
     );
     return mappedSpecialities;
   } catch (error) {
-    throw new Error(`An error occurred: ${error.message}`);
+    throw new Error(error.message);
   }
 };
 

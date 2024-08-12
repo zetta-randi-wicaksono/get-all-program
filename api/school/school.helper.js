@@ -56,7 +56,7 @@ function handleFiltersForGetAllSchools(filter) {
     }
     return matchFilter;
   } catch (error) {
-    throw new Error(`An error occurred: ${error.message}`);
+    throw new Error(error.message);
   }
 }
 
@@ -81,7 +81,7 @@ function handleSortingForGetAllSchools(sort) {
       return { createdAt: -1 };
     }
   } catch (error) {
-    throw new Error(`An error occurred: ${error.message}`);
+    throw new Error(error.message);
   }
 }
 
@@ -116,7 +116,7 @@ function handlePaginationForGetAllSchools(pagination, queryFilterMatch) {
     }
     return paginationPipeline;
   } catch (error) {
-    throw new Error(`An error occurred: ${error.message}`);
+    throw new Error(error.message);
   }
 }
 
@@ -136,7 +136,7 @@ function createAggregateQueryForGetAllSchools(filter, sort, pagination) {
     const aggregateQuery = [{ $match: queryFilterMatch }, { $sort: querySorting }, ...queryPagination];
     return aggregateQuery;
   } catch (error) {
-    throw new Error(`An error occurred: ${error.message}`);
+    throw new Error(error.message);
   }
 }
 
