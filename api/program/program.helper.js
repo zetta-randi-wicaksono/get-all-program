@@ -25,7 +25,7 @@ async function HandleValidationForProgramInput(programInput) {
   try {
     const programInputName = {};
 
-    // *************** Trim space and validate data type and length all input ids from programInput.
+    // *************** Trim space and validate data type all input ids from programInput.
     for (const keyName in programInput) {
       const validateId = programInput[keyName].trim();
 
@@ -127,7 +127,8 @@ function ConvertStringsToObjectIds(ids) {
     }
 
     for (const id of ids) {
-      if (typeof id !== 'string' || id.length !== 24) {
+      const idValidation = mongoose.Types.ObjectId.isValid(id);
+      if (!idValidation) {
         throw new Error(`Id ${id} is invalid. Id must be a string of 24 characters`);
       }
     }
@@ -163,37 +164,37 @@ function HandleFiltersForGetAllPrograms(filter) {
     if (filter) {
       if (filter.speciality_id !== undefined) {
         // *************** Convert filter.speciality_id array of strings to array of mongoose object id
-        const filterSpecialityIds = convertStringsToObjectIds(filter.speciality_id);
+        const filterSpecialityIds = ConvertStringsToObjectIds(filter.speciality_id);
         matchFilter.speciality_id = { $in: filterSpecialityIds };
       }
 
       if (filter.sector_id !== undefined) {
         // *************** Convert filter.sector_id array of strings to array of mongoose object id
-        const filterSectorIds = convertStringsToObjectIds(filter.sector_id);
+        const filterSectorIds = ConvertStringsToObjectIds(filter.sector_id);
         matchFilter.sector_id = { $in: filterSectorIds };
       }
 
       if (filter.level_id !== undefined) {
         // *************** Convert filter.level_id array of strings to array of mongoose object id
-        const filterLevelIds = convertStringsToObjectIds(filter.level_id);
+        const filterLevelIds = ConvertStringsToObjectIds(filter.level_id);
         matchFilter.level_id = { $in: filterLevelIds };
       }
 
       if (filter.campus_id !== undefined) {
         // *************** Convert filter.campus_id array of strings to array of mongoose object id
-        const filterCampusIds = convertStringsToObjectIds(filter.campus_id);
+        const filterCampusIds = ConvertStringsToObjectIds(filter.campus_id);
         matchFilter.campus_id = { $in: filterCampusIds };
       }
 
       if (filter.school_id !== undefined) {
         // *************** Convert filter.school_id array of strings to array of mongoose object id
-        const filterSchoolIds = convertStringsToObjectIds(filter.school_id);
+        const filterSchoolIds = ConvertStringsToObjectIds(filter.school_id);
         matchFilter.school_id = { $in: filterSchoolIds };
       }
 
       if (filter.scholar_season_id !== undefined) {
         // *************** Convert filter.scholar_season_id array of strings to array of mongoose object id
-        const filterScholarSeasonIds = convertStringsToObjectIds(filter.scholar_season_id);
+        const filterScholarSeasonIds = ConvertStringsToObjectIds(filter.scholar_season_id);
         matchFilter.scholar_season_id = { $in: filterScholarSeasonIds };
       }
 
