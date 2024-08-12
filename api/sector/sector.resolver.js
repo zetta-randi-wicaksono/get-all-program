@@ -95,8 +95,7 @@ async function CreateSector(parent, args) {
     }
 
     createSectorInput.name = sectorNameInput;
-    const createSectorResult = new Sector(createSectorInput);
-    await createSectorResult.save();
+    const createSectorResult = await Sector.create(createSectorInput);
     return createSectorResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);

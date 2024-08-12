@@ -85,8 +85,7 @@ async function CreateProgram(parent, args) {
       throw new Error(`Program With Name '${validatedProgramInput.name}' Already Exist`);
     }
 
-    const createProgramResult = new Program(validatedProgramInput);
-    await createProgramResult.save();
+    const createProgramResult = await Program.create(validatedProgramInput);
     return createProgramResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);

@@ -94,8 +94,7 @@ async function CreateCampus(parent, args) {
     }
 
     createCampusInput.name = campusNameInput;
-    const createCampusResult = new Campus(createCampusInput);
-    await createCampusResult.save();
+    const createCampusResult = await Campus.create(createCampusInput);
     return createCampusResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);

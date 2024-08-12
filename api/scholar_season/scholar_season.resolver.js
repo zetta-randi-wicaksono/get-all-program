@@ -97,8 +97,7 @@ async function CreateScholarSeason(parent, args) {
     }
 
     createScholarSeasonInput.name = scholarSeasonNameInput;
-    const createScholarSeasonResult = new ScholarSeason(createScholarSeasonInput);
-    await createScholarSeasonResult.save();
+    const createScholarSeasonResult = await ScholarSeason.create(createScholarSeasonInput);
     return createScholarSeasonResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);

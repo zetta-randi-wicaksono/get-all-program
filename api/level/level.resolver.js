@@ -94,8 +94,7 @@ async function CreateLevel(parent, args) {
     }
 
     createLevelInput.name = levelNameInput;
-    const createLevelResult = new Level(createLevelInput);
-    await createLevelResult.save();
+    const createLevelResult = await Level.create(createLevelInput);
     return createLevelResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);

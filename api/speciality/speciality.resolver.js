@@ -97,8 +97,7 @@ async function CreateSpeciality(parent, args) {
     }
 
     createSpecialityInput.name = specialityNameInput;
-    const createSpecialityResult = new Speciality(createSpecialityInput);
-    await createSpecialityResult.save();
+    const createSpecialityResult = await Speciality.create(createSpecialityInput);
     return createSpecialityResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);

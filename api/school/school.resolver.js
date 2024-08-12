@@ -94,8 +94,7 @@ async function CreateSchool(parent, args) {
     }
 
     createSchoolInput.name = schoolNameInput;
-    const createSchoolResult = new School(createSchoolInput);
-    await createSchoolResult.save();
+    const createSchoolResult = await School.create(createSchoolInput);
     return createSchoolResult;
   } catch (error) {
     throw new Error(`An error occurred: ${error.message}`);
